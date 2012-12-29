@@ -42,6 +42,8 @@ class Possession(object):
 Game NPC. Each NPC instance must be advanced when the game is advanced. 
 '''
 class Npc(object):
+    sleepDuration = 7 * 60
+
     def __init__(self, occupation):
         self.occupation = occupation
         self.schedule = Schedule()
@@ -56,10 +58,11 @@ class Npc(object):
             print pos
 
     def Advance(self, time):
-        if (self.schedule.IsDone()):
-            #Day is completed, create new schedule
-            self.CreateSchedule()
-        self.schedule.Advance(time)
+        while (time > 0):
+            if (self.schedule.IsDone()):
+                #Day is completed, create new schedule
+                self.CreateSchedule()
+            time = self.schedule.Advance(time)
 
     def CreateSchedule(self):
         self.schedule = Schedule()
@@ -67,7 +70,7 @@ class Npc(object):
         self.occupation.AddDefaultSchedule(self.schedule, self.possession)
 
     def _AddDefaultActions(self):
-        self.schedule.AddAction(Action("Sleep", [],[], 7 * 60, self.possession))
+        self.schedule.AddAction(Action("Sleep", [],[], Npc.sleepDuration, self.possession))
 
 '''
 Schedule for one day for a NPC. The schedule contains actions and must be advanced when the NPC is advanced.
@@ -90,19 +93,22 @@ class Schedule(object):
         self.actions.append(action)
 
     def Advance(self, time):
-        #TODO: Handle case where time goes beyond remaining time
         timeToSpend = min(time, self.totalRemainingTime)
+        timeLeft = time - timeToSpend
         self.totalRemainingTime -= timeToSpend
 
-        #advance current action and remove if completed
-        action = self.GetCurrentAction()
-        if (action != None):
-            print "Advancing action " + action.name + ". Time left of day: " + str(self.totalRemainingTime)       
-            action.Advance(timeToSpend)
-            if (action.IsDone()):
-                self._RemoveAction(action)
-        else:
-            print "Doing nothing..." + ". Time left of day: " + str(self.totalRemainingTime)
+        #advance through actions and remove if completed
+        while (timeToSpend > 0):
+            action = self.GetCurrentAction()
+            if (action != None):
+                print "Advancing action " + action.name + ". Time left of day: " + str(self.totalRemainingTime)       
+                timeToSpend = action.Advance(timeToSpend)
+                if (action.IsDone()):
+                    self._RemoveAction(action)
+            else:
+                print "Doing nothing..." + ". Time left of day: " + str(self.totalRemainingTime)
+                break;
+        return timeLeft
 
     def GetCurrentAction(self):
         if (len(self.actions) > 0):
@@ -145,6 +151,11 @@ class Action(object):
         if (self.IsDone()):
             self._AddOutputs()
 
+        if (self.timeLeft < 0):
+            #action was completed and some time was left
+            return -self.timeLeft
+        return 0
+
     def IsDone(self):
         return self.timeLeft <= 0
 
@@ -177,6 +188,8 @@ class Occupation(object):
         pass
 
 class Farmer(Occupation):
+    duration = 7 * 60
+
     def __init__(self):
         self.inputs = []
         self.outputs = [Grain]
@@ -185,9 +198,24 @@ class Farmer(Occupation):
         return "Farmer"
 
     def AddDefaultSchedule(self, schedule, possession):
-        schedule.AddAction(Action("Farming", [],[Grain], 7 * 60, possession))
+        schedule.AddAction(Action("Farming", self.inputs, self.outputs, Farmer.duration, possession))
+
+class Hunter(Occupation):
+    duration = 4 * 60
+
+    def __init__(self):
+        self.inputs = []
+        self.outputs = [Meat]
+
+    def __str__(self):
+        return "Hunter"
+
+    def AddDefaultSchedule(self, schedule, possession):
+        schedule.AddAction(Action("Hunting", self.inputs, self.outputs, Hunter.duration, possession))
 
 class Brewer(Occupation):
+    duration = 7 * 60
+
     def __init__(self):
         self.inputs = [Grain, Grain]
         self.outputs = [Beer]
@@ -196,7 +224,7 @@ class Brewer(Occupation):
         return "Brewer"
 
     def AddDefaultSchedule(self, schedule, possession):
-        schedule.AddAction(Action("Brewing beer", self.inputs, self.outputs, 7 * 60, possession))
+        schedule.AddAction(Action("Brewing beer", self.inputs, self.outputs, Brewer.duration, possession))
 
 '''
 Resource factory. All resources should be created through this factory class! Has a static method for
