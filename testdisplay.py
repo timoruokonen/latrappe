@@ -4,16 +4,23 @@ Test for game statistics display module
 import os, sys
 import pygame
 import math
+from tiledisplay import *
 from pygame.locals import *
 from resource import *
 from display import *
+from world import *
 
 class TestDisplay:
     def run(self):
         pygame.init()
         screen = pygame.display.set_mode((800, 600))
         clock = pygame.time.Clock()
-        self.window = Display(screen)
+        self.world = World()
+        self.world.load_file("level.map")
+
+        self.statdisplay = Display(screen)
+        self.tiledisplay = TileDisplay(screen, self.world)
+        self.window = self.statdisplay
 
         self.olutta = 100
         self.kaljaa = 50
@@ -24,15 +31,14 @@ class TestDisplay:
         ResourceFactory.resourceCreatedSubscribers.append(self)
         self.CreateTestVillage()
         Npc.defaultFoodConsumption = 0 #no food problems :)
-
+        self.testBars()
         while 1:
             screen.fill((0,0,0))
             self.window.reset()
             self.testText()
-            #self.testBars() #TODO: Crashes after a while!
             
             #self.testNPC()
-            self.window.visualizeNPCs(self.city.GetNpcs())
+            self.statdisplay.visualizeNPCs(self.city.GetNpcs())
 
             self.UpdateVillage()
             for npc in self.city.GetNpcs():
@@ -46,6 +52,18 @@ class TestDisplay:
                     if (event.key == K_ESCAPE):
                         sys.exit()
                         window.reset()
+                    if (event.key == K_1):
+                        print 'Switching to tile display.'
+                        self.window = self.tiledisplay
+                        # Show tile display
+                        pass
+                    if (event.key == K_2):
+                        print 'Switching to statistics display.'
+                        self.window = self.statdisplay
+                        # Show statistics display
+                        pass
+
+
 
     def CreateTestVillage(self):
         npcs = []
@@ -96,16 +114,16 @@ class TestDisplay:
         group.addBar("Beer", self.beer, 160, (32, 255, 32)) 
         group.addBar("Grain", self.grain, 200, (255, 64, 0))
         group.addBar("Meat", self.meat, 160, (32, 255, 32)) 
-        self.window.addBarGroup(group)
+        self.statdisplay.addBarGroup(group)
 
     def testText(self):
-        self.window.addText("La Trappen markkinahinta: 12")
+        self.statdisplay.addText("La Trappen markkinahinta: 12")
 
     def testNPC(self):
         npc1 = Npc(Farmer())
         npc2 = Npc(Brewer())
-        self.window.visualizeNPC(npc1)
-        self.window.visualizeNPC(npc2)
+        self.statdisplay.visualizeNPC(npc1)
+        self.statdisplay.visualizeNPC(npc2)
 
 if __name__ == "__main__":
     test = TestDisplay()

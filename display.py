@@ -41,7 +41,6 @@ class Display:
     
     def reset(self):
         self.textRows = 0
-        self.bars = 0
 
     def draw(self):
         self.addTitle()
