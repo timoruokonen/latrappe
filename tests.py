@@ -164,6 +164,40 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(1, len(stock.possession.resources))
         self.assertTrue(stock.possession.HasResources([Beer]))
 
+    def test_city_with_npcs_and_stock_markets(self):
+        city = City()
+        self.assertEqual(0, len(city.GetNpcs()))
+        self.assertEqual(0, len(city.GetStockMarkets()))
+        npc1 = Npc(Brewer())
+        npc2 = Npc(Farmer())
+        stock = StockMarket()
+        self.assertEqual(None, npc1.GetCity())
+        self.assertEqual(None, npc2.GetCity())
+        city.AddNpc(npc1)
+        city.AddNpc(npc2)
+        city.AddStockMarket(stock)
+        self.assertEqual(city, npc1.GetCity())
+        self.assertEqual(city, npc2.GetCity())
+        self.assertEqual(2, len(city.GetNpcs()))
+        self.assertEqual(1, len(city.GetStockMarkets()))
+        self.assertTrue(npc1 in city.GetNpcs())
+        self.assertTrue(npc2 in city.GetNpcs())
+        self.assertTrue(stock in city.GetStockMarkets())
+        
+    def test_simple_npc_strategy(self):
+        #setup stock and add some food there
+        stock = StockMarket()
+        self.SetDefaultPrices(stock)
+        stock.possession.AddResource(Meat())
+        stock.possession.AddResource(Meat())
+        stock.possession.AddResource(Meat())
+
+        #add simple strategy to npc
+        npc = Npc(Brewer())
+        npc.possession.money = 100
+        npc.SetStrategy(NpcStrategySimpleGreedy(npc))
+        
+
 
 if __name__ == '__main__':
     unittest.main()

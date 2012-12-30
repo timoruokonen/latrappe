@@ -55,7 +55,7 @@ class Display:
             self.visualizeNPC(npc)
 
     def visualizeNPC(self, npc):
-        self.addText("NPC occupation: " + str(npc.occupation) + " money: " + str(npc.possession.money))
+        self.addText("NPC occupation: " + str(npc.occupation) + " money: " + str(npc.possession.money) + " action: " + str(npc.schedule.GetCurrentActionName()))
     
 class BarGroup:
     def __init__(self, x, y, maxwidth=300, barHeight=20):

@@ -22,18 +22,20 @@ class TestDisplay:
         self.beer = 0
 
         ResourceFactory.resourceCreatedSubscribers.append(self)
+        self.CreateTestVillage()
         Npc.defaultFoodConsumption = 0 #no food problems :)
-        npcs = self.CreateTestVillage()
 
         while 1:
             screen.fill((0,0,0))
             self.window.reset()
             self.testText()
-            self.testBars()
-            self.testNPC()
+            #self.testBars() #TODO: Crashes after a while!
+            
+            #self.testNPC()
+            self.window.visualizeNPCs(self.city.GetNpcs())
 
             self.UpdateVillage()
-            for npc in npcs:
+            for npc in self.city.GetNpcs():
                 npc.Advance(15)
 
             self.window.draw()
@@ -47,19 +49,25 @@ class TestDisplay:
 
     def CreateTestVillage(self):
         npcs = []
+        self.city = City()
         npcHunter = Npc(Hunter())
         npcs.append(npcHunter)
         self.npcFarmer = Npc(Farmer())
         npcs.append(self.npcFarmer)
         self.npcBrewer = Npc(Brewer())
+        self.npcBrewer.possession.money = 100
         npcs.append(self.npcBrewer)
-        return npcs
+        self.stock = StockMarket()
+
+        for n in npcs:
+            self.city.AddNpc(n)
 
     def UpdateVillage(self):
-        #farmer gives grain away when he has more than two ready
+        #farmer sells grain when he has more than two ready
         if self.npcFarmer.possession.HasResources([Grain, Grain, Grain]):
             grain = self.npcFarmer.possession.GetResource(Grain)
             self.npcFarmer.possession.GiveResource(grain, self.npcBrewer.possession)
+            self.npcBrewer.possession.GiveMoney(self.stock.GetPrice(Grain), self.npcFarmer.possession)
     
     def OnResourceCreated(self, resource):
         if isinstance(resource, Meat):

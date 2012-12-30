@@ -5,6 +5,24 @@ This piece of art is still totally under construction!! Don't look any further. 
 in the same file and contain whatever shiiiit :)
 '''
 
+class City(object):
+    def __init__(self):
+        self.npcs = []
+        self.stocks = []
+
+    def AddNpc(self, npc):
+        npc.SetCity(self)
+        self.npcs.append(npc)
+
+    def GetNpcs(self):
+        return self.npcs
+    
+    def AddStockMarket(self, stock):
+        self.stocks.append(stock)
+
+    def GetStockMarkets(self):
+        return self.stocks
+
 
 '''
 Handles ownings of an entity. Contains a list of resources and amount of money.
@@ -79,6 +97,8 @@ class Npc(object):
         self.hungerLevel = 24 * 60 #enough for one day
         self.foodConsumption = Npc.defaultFoodConsumption
         self.alive = True
+        self.strategy = None
+        self.city = None
 
     def PrintStatus(self):
         if not self.alive:
@@ -86,6 +106,15 @@ class Npc(object):
         print "Npc (" + str(self.occupation) + ") has " + str(self.possession.money) + " money, owns:"
         for pos in self.possession.resources:
             print pos
+
+    def SetCity(self, city):
+        self.city = city
+
+    def GetCity(self):
+        return self.city
+
+    def SetStrategy(self, strategy):
+        self.strategy = strategy
 
     #TODO: How to handle time advancing. Now advancing goes fine if the time interval is smalles possible.
     #If the interval is increased, first schedule is advanced and then food. This leads to not wanted scenarios
@@ -108,8 +137,11 @@ class Npc(object):
             
     def CreateSchedule(self):
         self.schedule = Schedule()
-        self._AddDefaultActions()
-        self.occupation.AddDefaultSchedule(self.schedule, self.possession)
+        if self.strategy == None:
+            self._AddDefaultActions()
+            self.occupation.AddDefaultSchedule(self.schedule, self.possession)
+        else:
+            self.strategy.CreateSchedule()
 
     def _ConsumeFood(self, time):
         while (time > 0):
@@ -128,6 +160,22 @@ class Npc(object):
 
     def _AddDefaultActions(self):
         self.schedule.AddAction(Action("Sleep", [],[], Npc.sleepDuration, self.possession))
+
+class NpcStrategySimpleGreedy(object):
+    minimumFood = 2
+
+    def __init__(self, npc):
+        self.npc = npc
+
+    def CreateSchedule(self):
+        #if food is getting low, try to get more
+        if len(self.npc.possession.GetFoods()) < NpcStrategySimpleGreedy.minimumFood:
+            pass
+        #try to get ingredients for occupation
+
+        #sell produced goods
+
+        
 
 '''
 Schedule for one day for a NPC. The schedule contains actions and must be advanced when the NPC is advanced.
@@ -171,6 +219,11 @@ class Schedule(object):
         if (len(self.actions) > 0):
             return self.actions[0]
         return None
+
+    def GetCurrentActionName(self):
+        if (len(self.actions) > 0):
+            return self.actions[0].name
+        return "Lazing around"
 
     def IsDone(self):
         return self.totalRemainingTime <= 0
@@ -328,6 +381,8 @@ class ResourceFactory(object):
             subscriber.OnResourceDestroyed(resource)
 
 class StockMarket(object):
+    defaultPrice = 5
+
     def __init__(self):
         self.possession = Possession()
         self.prices = {}
@@ -343,9 +398,11 @@ class StockMarket(object):
 
 
     def GetPrice(self, resource):
-        if type(resource) == type:
-            return self.prices[resource]
-        return self.prices[type(resource)]
+        if type(resource) != type:
+            resource = type(resource)
+        if not resource in self.prices:
+            self.prices[resource] = StockMarket.defaultPrice            
+        return self.prices[resource]
 
     def SetPrice(self, resource, price):
         if type(resource) == type:
