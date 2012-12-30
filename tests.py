@@ -2,33 +2,41 @@ from resource import *
 import unittest
 
 class TestSequenceFunctions(unittest.TestCase):
+    advanceInterval = 1
 
     def setUp(self):
         pass
 
+    def AdvanceNpc(self, npc, amount):
+        while (amount > 0):
+            advanceAmount = min(TestSequenceFunctions.advanceInterval, amount)
+            npc.Advance(advanceAmount)
+            amount -= advanceAmount
+
     def test_farmer_creates_grain(self):
         npc = Npc(Farmer())
         self.assertEqual(0, len(npc.possession.resources))
-        npc.Advance(Npc.sleepDuration) #sleeping time
-        npc.Advance(Farmer.duration) #farming time
+        self.AdvanceNpc(npc, Npc.sleepDuration) #sleeping time
+        self.AdvanceNpc(npc, Farmer.duration) #farming time
         self.assertEqual(1, len(npc.possession.resources))
         self.assertTrue(npc.possession.HasResources([Grain]))
 
     def test_hunter_creates_meat(self):
         npc = Npc(Hunter())
         self.assertEqual(0, len(npc.possession.resources))
-        npc.Advance(Npc.sleepDuration) #sleeping time
-        npc.Advance(Hunter.duration) #action time
+        self.AdvanceNpc(npc, Npc.sleepDuration) #sleeping time
+        self.AdvanceNpc(npc, Hunter.duration) #action time
         self.assertEqual(1, len(npc.possession.resources))
         self.assertTrue(npc.possession.HasResources([Meat]))
 
     def test_brewer_creates_beer(self):
         npc = Npc(Brewer())
+        npc.foodConsumption = 0 #lets not worry about food in this test
         npc.possession.AddResource(Grain())
         npc.possession.AddResource(Grain())
         self.assertEqual(2, len(npc.possession.resources))
-        npc.Advance(Npc.sleepDuration) #sleeping time
-        npc.Advance(Brewer.duration) #brewing time
+        self.AdvanceNpc(npc, Npc.sleepDuration) #sleeping time
+        self.AdvanceNpc(npc, Brewer.duration) #brewing time
         self.assertEqual(1, len(npc.possession.resources))
         self.assertTrue(npc.possession.HasResources([Beer]))
 
@@ -36,19 +44,19 @@ class TestSequenceFunctions(unittest.TestCase):
         npc.possession.AddResource(Grain())
         npc.possession.AddResource(Grain())
         npc.possession.AddResource(Grain())
-        npc.Advance(npc.schedule.GetTotalRemainingTime()) #rest of the day
-        npc.Advance(Npc.sleepDuration) #sleeping time
-        npc.Advance(Brewer.duration) #brewing time
+        self.AdvanceNpc(npc, npc.schedule.GetTotalRemainingTime()) #rest of the day
+        self.AdvanceNpc(npc, Npc.sleepDuration) #sleeping time
+        self.AdvanceNpc(npc, Brewer.duration) #brewing time
         self.assertEqual(3, len(npc.possession.resources))
         self.assertTrue(npc.possession.HasResources([Beer, Beer, Grain]))
 
     def test_action_outputs_are_given_after_task_is_fully_done(self):
         npc = Npc(Hunter())
         self.assertEqual(0, len(npc.possession.resources))
-        npc.Advance(Npc.sleepDuration) #sleeping time
-        npc.Advance(Hunter.duration / 2) #half of the action time
+        self.AdvanceNpc(npc, Npc.sleepDuration) #sleeping time
+        self.AdvanceNpc(npc, Hunter.duration / 2) #half of the action time
         self.assertEqual(0, len(npc.possession.resources))
-        npc.Advance(Hunter.duration / 2) #half of the action time
+        self.AdvanceNpc(npc, Hunter.duration / 2) #half of the action time
         self.assertEqual(1, len(npc.possession.resources))
         self.assertTrue(npc.possession.HasResources([Meat]))
 
@@ -57,8 +65,8 @@ class TestSequenceFunctions(unittest.TestCase):
         npc = Npc(Brewer())
         #brewing needs to grains, only one is given       
         npc.possession.AddResource(Grain())
-        npc.Advance(Npc.sleepDuration) #sleeping time
-        npc.Advance(Brewer.duration) #brewing time
+        self.AdvanceNpc(npc, Npc.sleepDuration) #sleeping time
+        self.AdvanceNpc(npc, Brewer.duration) #brewing time
         self.assertEqual(1, len(npc.possession.resources))
         self.assertTrue(npc.possession.HasResources([Grain]))
 
@@ -66,17 +74,47 @@ class TestSequenceFunctions(unittest.TestCase):
         npc = Npc(Farmer())
         self.assertEqual(0, len(npc.possession.resources))
         #advance one full day, both sleeping and farming should be done       
-        npc.Advance(Schedule.MaxTime)
+        self.AdvanceNpc(npc, Schedule.MaxTime)
         self.assertEqual(1, len(npc.possession.resources))
         self.assertTrue(npc.possession.HasResources([Grain]))
 
     def test_advance_over_day_ending(self):
         npc = Npc(Farmer())
+        npc.foodConsumption = 0 #lets not worry about food in this test
         self.assertEqual(0, len(npc.possession.resources))
         #advance two full days, two sleepings and farmings should be done       
-        npc.Advance(Schedule.MaxTime * 2)
+        self.AdvanceNpc(npc, Schedule.MaxTime * 2)
         self.assertEqual(2, len(npc.possession.resources))
         self.assertTrue(npc.possession.HasResources([Grain, Grain]))
+
+    def test_npc_eats(self):
+        npc = Npc(Farmer())
+        #npc has food for one day by default
+        self.AdvanceNpc(npc, Schedule.MaxTime)
+        self.assertEqual(1, len(npc.possession.resources))
+        self.assertTrue(npc.possession.HasResources([Grain]))
+        
+        #give foor for the next day and check that it is consumed
+        npc.possession.AddResource(Meat())
+        self.AdvanceNpc(npc, Schedule.MaxTime)
+        self.assertEqual(2, len(npc.possession.resources))
+        self.assertTrue(npc.possession.HasResources([Grain, Grain]))
+
+    def test_npc_dies_with_hunger(self):
+        print "test_npc_dies_with_hunger START"
+        npc = Npc(Farmer())
+        #npc has food for one day by default
+        self.AdvanceNpc(npc, Schedule.MaxTime)
+        self.assertEqual(1, len(npc.possession.resources))
+        self.assertTrue(npc.possession.HasResources([Grain]))
+        self.assertTrue(npc.IsAlive())
+        
+        #don't give more food so npc should die
+        self.AdvanceNpc(npc, Schedule.MaxTime)
+        self.assertEqual(1, len(npc.possession.resources)) #couldn't farm anymore
+        self.assertTrue(npc.possession.HasResources([Grain]))
+        self.assertFalse(npc.IsAlive())
+
 
 if __name__ == '__main__':
     unittest.main()
