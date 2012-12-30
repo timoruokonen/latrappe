@@ -59,7 +59,7 @@ class TestDisplay:
         #farmer gives grain away when he has more than two ready
         if self.npcFarmer.possession.HasResources([Grain, Grain, Grain]):
             grain = self.npcFarmer.possession.GetResource(Grain)
-            self.npcFarmer.possession.ChangeResourceOwner(grain, self.npcBrewer.possession)
+            self.npcFarmer.possession.GiveResource(grain, self.npcBrewer.possession)
     
     def OnResourceCreated(self, resource):
         if isinstance(resource, Meat):
@@ -79,11 +79,11 @@ class TestDisplay:
             self.kaljaa = 160
         
         group2 = BarGroup(int(300), int(300))
-        group2.addBar("Kinkkua", 150, 1000, (128,192,64))
+        group2.addBar("Kinkkua", 150, 1000, (128,192,64))        
         group2.addBar("Viljaa", self.olutta, 2000, (192,225,50))
         group2.addBar("Toolsseja", self.kaljaa, 200, (64,32,192))
         self.window.addBarGroup(group2)
-
+        
         group = BarGroup(int(200), int(100))
         group.addBar("Beer", self.beer, 160, (32, 255, 32)) 
         group.addBar("Grain", self.grain, 200, (255, 64, 0))

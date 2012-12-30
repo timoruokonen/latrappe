@@ -5,6 +5,9 @@ class TestSequenceFunctions(unittest.TestCase):
     advanceInterval = 1
 
     def setUp(self):
+        self.grainDefaultPrice = 20
+        self.meatDefaultPrice = 20
+        self.beerDefaultPrice = 50
         pass
 
     def AdvanceNpc(self, npc, amount):
@@ -12,6 +15,13 @@ class TestSequenceFunctions(unittest.TestCase):
             advanceAmount = min(TestSequenceFunctions.advanceInterval, amount)
             npc.Advance(advanceAmount)
             amount -= advanceAmount
+    
+    
+    def SetDefaultPrices(self, stock):
+        stock.SetPrice(Grain, self.grainDefaultPrice)
+        stock.SetPrice(Meat, self.meatDefaultPrice)
+        stock.SetPrice(Beer, self.beerDefaultPrice)
+
 
     def test_farmer_creates_grain(self):
         npc = Npc(Farmer())
@@ -126,7 +136,34 @@ class TestSequenceFunctions(unittest.TestCase):
         self.AdvanceNpc(npc, Schedule.MaxTime / 4)
         self.assertEqual(0, len(npc.possession.resources))
         self.assertTrue(npc.IsAlive())
-        
+
+    def test_stock_prices(self):
+        stock = StockMarket()
+        #set/get using class
+        stock.SetPrice(Grain, 20)
+        self.assertEqual(20, stock.GetPrice(Grain))
+        #set/get using instances
+        stock.SetPrice(Beer(), 200)
+        self.assertEqual(200, stock.GetPrice(Beer()))
+        #set prices again
+        stock.SetPrice(Grain, 15)
+        stock.SetPrice(Beer(), 203)
+        self.assertEqual(15, stock.GetPrice(Grain))
+        self.assertEqual(203, stock.GetPrice(Beer()))
+
+    def test_player_sells_resources(self):
+        stock = StockMarket()
+        self.SetDefaultPrices(stock)
+        npc = Npc(Brewer())
+        beer = Beer()
+        npc.possession.AddResource(beer)
+        self.assertEqual(0, npc.possession.GetMoney())
+        self.assertTrue(stock.SellResource(beer, npc.possession)) 
+        self.assertEqual(0, len(npc.possession.resources))
+        self.assertEqual(self.beerDefaultPrice, npc.possession.GetMoney()) 
+        self.assertEqual(1, len(stock.possession.resources))
+        self.assertTrue(stock.possession.HasResources([Beer]))
+
 
 if __name__ == '__main__':
     unittest.main()

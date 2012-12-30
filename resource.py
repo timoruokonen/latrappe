@@ -21,7 +21,7 @@ class Possession(object):
         #print "Removing " + str(resource)
         self.resources.remove(resource)
 
-    def ChangeResourceOwner(self, resource, newOwner):
+    def GiveResource(self, resource, newOwner):
         self.resources.remove(resource)
         newOwner.resources.append(resource)
 
@@ -53,6 +53,15 @@ class Possession(object):
             if (isinstance(resource, FoodResource)):
                 foods.append(resource)
         return foods
+
+    def GetMoney(self):
+        return self.money;
+
+    def GiveMoney(self, amount, newOwner):
+        if amount > self.money:
+            return False
+        self.money -= amount
+        newOwner.money += amount
 
 '''
 Game NPC. Each NPC instance must be advanced when the game is advanced. 
@@ -317,7 +326,40 @@ class ResourceFactory(object):
     def OnResourceDestroyed(resource):
         for subscriber in ResourceFactory.resourceDestroyedSubscribers:
             subscriber.OnResourceDestroyed(resource)
-                     
+
+class StockMarket(object):
+    def __init__(self):
+        self.possession = Possession()
+        self.prices = {}
+
+        #get some initial cash from loan sharks :D
+        self.LoanMoney(500)
+
+    def LoanMoney(self, amount):
+        #TODO: How the hell make this loan system...
+        loanShark = Possession()
+        loanShark.money = amount
+        loanShark.GiveMoney(amount, self.possession)
+
+
+    def GetPrice(self, resource):
+        if type(resource) == type:
+            return self.prices[resource]
+        return self.prices[type(resource)]
+
+    def SetPrice(self, resource, price):
+        if type(resource) == type:
+            self.prices[resource] = price
+        else:
+            self.prices[type(resource)] = price
+
+    def SellResource(self, resource, seller):
+        if self.possession.GetMoney() < self.GetPrice(resource):
+            return False
+        seller.GiveResource(resource, self.possession)
+        self.possession.GiveMoney(self.GetPrice(resource), seller)
+        return True
+                             
 
 class Resource(object):
     def __init__(self):
