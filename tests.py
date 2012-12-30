@@ -101,7 +101,6 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertTrue(npc.possession.HasResources([Grain, Grain]))
 
     def test_npc_dies_with_hunger(self):
-        print "test_npc_dies_with_hunger START"
         npc = Npc(Farmer())
         #npc has food for one day by default
         self.AdvanceNpc(npc, Schedule.MaxTime)
@@ -115,6 +114,19 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertTrue(npc.possession.HasResources([Grain]))
         self.assertFalse(npc.IsAlive())
 
+    def test_npc_produces_the_food_it_needs_next_day(self):
+        npc = Npc(Hunter())
+        #npc has food for one day by default and produces one food per day (one day ration)
+        #so npc is self contained, advance one week. 
+        self.AdvanceNpc(npc, Schedule.MaxTime * 7)
+        self.assertEqual(1, len(npc.possession.resources))
+        self.assertTrue(npc.possession.HasResources([Meat]))
+        self.assertTrue(npc.IsAlive())
+        #starting of next day, npc should have to eat the meat it produced last day       
+        self.AdvanceNpc(npc, Schedule.MaxTime / 4)
+        self.assertEqual(0, len(npc.possession.resources))
+        self.assertTrue(npc.IsAlive())
+        
 
 if __name__ == '__main__':
     unittest.main()

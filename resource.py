@@ -17,9 +17,19 @@ class Possession(object):
     def AddResource(self, resource):
         self.resources.append(resource)
 
-    def RemoveResource(self, resource):
+    def DestroyResource(self, resource):
         #print "Removing " + str(resource)
         self.resources.remove(resource)
+
+    def ChangeResourceOwner(self, resource, newOwner):
+        self.resources.remove(resource)
+        newOwner.resources.append(resource)
+
+    def GetResource(self, resourceType):
+        for resource in self.resources:
+            if (isinstance(resource, resourceType)):
+                return resource
+        return None
 
     def HasResources(self, resources):
         usedResources = []
@@ -68,6 +78,9 @@ class Npc(object):
         for pos in self.possession.resources:
             print pos
 
+    #TODO: How to handle time advancing. Now advancing goes fine if the time interval is smalles possible.
+    #If the interval is increased, first schedule is advanced and then food. This leads to not wanted scenarios
+    #where npc can do work without food.
     def Advance(self, time):
         while (time > 0):
             if not self.alive:
@@ -77,7 +90,6 @@ class Npc(object):
             if (self.schedule.IsDone()):
                 self.CreateSchedule()
             
-            #TODO: How to handle time advancing. Now first schedule is advanced and then food. No good.
             timeLeft = self.schedule.Advance(time) 
             self._ConsumeFood(time - timeLeft)
             time = timeLeft
@@ -99,7 +111,7 @@ class Npc(object):
                     print "NPC died from hunger!"
                     return
                 #just eat the first thing from the inventory...
-                self.possession.RemoveResource(foods[0])
+                self.possession.DestroyResource(foods[0])
                 self.hungerLevel += foods[0].nutritionalValue
             consumedAmount = min(time, self.hungerLevel)
             self.hungerLevel -= consumedAmount * self.foodConsumption            
@@ -269,6 +281,9 @@ creating resources. When a resource is created, all the possible input resources
 possession instance of the entity that is creating a new resource.
 '''
 class ResourceFactory(object):
+    resourceCreatedSubscribers = []
+    resourceDestroyedSubscribers = []
+
     def __init__(self):
         pass
 
@@ -279,13 +294,29 @@ class ResourceFactory(object):
             found = False
             for posResource in possession.resources:
                 if (isinstance(resource, type(posResource))):
-                    possession.RemoveResource(posResource)
+                    possession.DestroyResource(posResource)
                     found = True
                     break;
             if not found:
                 raise Exception("Could not create " + str(target) + ", not enough resources!!")
         print "New " + str(target) + " was created!"
-        return target()
+        createdResource = target()
+        ResourceFactory.OnResourceCreated(createdResource)
+        return createdResource
+
+    @staticmethod
+    def DestroyResource(resource):
+        ResourceFactory.OnResourceDestroyed(resource)
+
+    @staticmethod
+    def OnResourceCreated(resource):
+        for subscriber in ResourceFactory.resourceCreatedSubscribers:
+            subscriber.OnResourceCreated(resource)
+    
+    @staticmethod
+    def OnResourceDestroyed(resource):
+        for subscriber in ResourceFactory.resourceDestroyedSubscribers:
+            subscriber.OnResourceDestroyed(resource)
                      
 
 class Resource(object):
