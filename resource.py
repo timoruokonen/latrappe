@@ -37,12 +37,19 @@ class Possession(object):
                 return False
         return True
 
+    def GetFoods(self):
+        foods = []
+        for resource in self.resources:
+            if (isinstance(resource, FoodResource)):
+                foods.append(resource)
+        return foods
 
 '''
 Game NPC. Each NPC instance must be advanced when the game is advanced. 
 '''
 class Npc(object):
     sleepDuration = 7 * 60
+    defaultFoodConsumption = 1 #amount of food needed per unit of time (now minute...)
 
     def __init__(self, occupation):
         self.occupation = occupation
@@ -50,24 +57,53 @@ class Npc(object):
         #TODO: Cannot think... just advance schedule so that it is already done when Advance is called the first time...
         self.schedule.Advance(Schedule.MaxTime)
         self.possession = Possession()
-        self.hungerLevel = 100
+        self.hungerLevel = 24 * 60 #enough for one day
+        self.foodConsumption = Npc.defaultFoodConsumption
+        self.alive = True
 
-    def printStatus(self):
+    def PrintStatus(self):
+        if not self.alive:
+            print "Npc is DEAD!"
         print "Npc (" + str(self.occupation) + ") has " + str(self.possession.money) + " money, owns:"
         for pos in self.possession.resources:
             print pos
 
     def Advance(self, time):
         while (time > 0):
-            if (self.schedule.IsDone()):
-                #Day is completed, create new schedule
-                self.CreateSchedule()
-            time = self.schedule.Advance(time)
+            if not self.alive:
+                return
 
+            #Day is completed, create new schedule
+            if (self.schedule.IsDone()):
+                self.CreateSchedule()
+            
+            #TODO: How to handle time advancing. Now first schedule is advanced and then food. No good.
+            timeLeft = self.schedule.Advance(time) 
+            self._ConsumeFood(time - timeLeft)
+            time = timeLeft
+
+    def IsAlive(self):
+        return self.alive;
+            
     def CreateSchedule(self):
         self.schedule = Schedule()
         self._AddDefaultActions()
         self.occupation.AddDefaultSchedule(self.schedule, self.possession)
+
+    def _ConsumeFood(self, time):
+        while (time > 0):
+            if (self.hungerLevel <= 0):
+                foods = self.possession.GetFoods()
+                if len(foods) == 0:
+                    self.alive = False
+                    print "NPC died from hunger!"
+                    return
+                #just eat the first thing from the inventory...
+                self.possession.RemoveResource(foods[0])
+                self.hungerLevel += foods[0].nutritionalValue
+            consumedAmount = min(time, self.hungerLevel)
+            self.hungerLevel -= consumedAmount * self.foodConsumption            
+            time -= consumedAmount
 
     def _AddDefaultActions(self):
         self.schedule.AddAction(Action("Sleep", [],[], Npc.sleepDuration, self.possession))
@@ -101,12 +137,12 @@ class Schedule(object):
         while (timeToSpend > 0):
             action = self.GetCurrentAction()
             if (action != None):
-                print "Advancing action " + action.name + ". Time left of day: " + str(self.totalRemainingTime)       
+                #print "Advancing action " + action.name + ". Time left of day: " + str(self.totalRemainingTime)       
                 timeToSpend = action.Advance(timeToSpend)
                 if (action.IsDone()):
                     self._RemoveAction(action)
             else:
-                print "Doing nothing..." + ". Time left of day: " + str(self.totalRemainingTime)
+                #print "Doing nothing..." + ". Time left of day: " + str(self.totalRemainingTime)
                 break;
         return timeLeft
 
@@ -160,6 +196,7 @@ class Action(object):
         return self.timeLeft <= 0
 
     def _ReserveResourcesAndCreateOutputs(self):
+        print "Starting action " + self.name       
         self.started = True
 
         if not self.possession.HasResources(self.inputs):
@@ -260,12 +297,17 @@ class Grain(Resource):
     def __init__(self):
         Resource.__init__(self)
 
-class Meat(Resource):
+class FoodResource(Resource):
+    pass
+
+class Meat(FoodResource):
+    nutritionalValue = 24 * 60 #one day energy
     materials = []
     def __init__(self):
         Resource.__init__(self)
 
-class Beer(Resource):
+class Beer(FoodResource):
+    nutritionalValue = 60 #one hour energy
     materials = [Grain(), Grain()]
 
     def __init__(self):
