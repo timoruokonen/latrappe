@@ -3,6 +3,7 @@ Test for game statistics display module
 '''
 import os, sys
 import pygame
+import math
 from pygame.locals import *
 from resource import *
 from display import *
@@ -76,12 +77,18 @@ class TestDisplay:
 
         if (self.kaljaa < 0):
             self.kaljaa = 160
+        
+        group2 = BarGroup(int(300), int(300))
+        group2.addBar("Kinkkua", 150, 1000, (128,192,64))
+        group2.addBar("Viljaa", self.olutta, 2000, (192,225,50))
+        group2.addBar("Toolsseja", self.kaljaa, 200, (64,32,192))
+        self.window.addBarGroup(group2)
 
-        self.window.addBar("LaTrappea", 200, 400)
-        #self.window.addBar("Olutta", self.olutta, 200, (255, 64, 0))
-        self.window.addBar("Beer", self.beer, 160, (32, 255, 32)) 
-        self.window.addBar("Grain", self.grain, 200, (255, 64, 0))
-        self.window.addBar("Meat", self.meat, 160, (32, 255, 32)) 
+        group = BarGroup(int(200), int(100))
+        group.addBar("Beer", self.beer, 160, (32, 255, 32)) 
+        group.addBar("Grain", self.grain, 200, (255, 64, 0))
+        group.addBar("Meat", self.meat, 160, (32, 255, 32)) 
+        self.window.addBarGroup(group)
 
     def testText(self):
         self.window.addText("La Trappen markkinahinta: 12")
