@@ -141,6 +141,7 @@ class Npc(object):
             self._AddDefaultActions()
             self.occupation.AddDefaultSchedule(self.schedule, self.possession)
         else:
+            self._AddDefaultActions()
             self.strategy.CreateSchedule()
 
     def _ConsumeFood(self, time):
@@ -167,15 +168,47 @@ class NpcStrategySimpleGreedy(object):
     def __init__(self, npc):
         self.npc = npc
 
+    def ToString(self):
+        return str(self.npc.occupation)
+
     def CreateSchedule(self):
         #if food is getting low, try to get more
         if len(self.npc.possession.GetFoods()) < NpcStrategySimpleGreedy.minimumFood:
-            pass
-        #try to get ingredients for occupation
-
-        #sell produced goods
-
+            print "Greedy strategy (" + self.ToString() + "): Trying to buy food!"
+            self._BuyResource(Meat)
         
+        #try to get ingredients for occupation
+        required = self.npc.occupation.GetRequiredResources()
+        if not self.npc.possession.HasResources(required):
+            print "Greedy strategy: Trying to buy resources!"
+            for resourceType in required:
+                self._BuyResource(resourceType)
+
+        #add occupation action
+        self.npc.occupation.AddDefaultSchedule(self.npc.schedule, self.npc.possession)
+
+        #sell produced goods (if not food, TODO: QUICK FIX FOR HUNTER!!)
+        produced = self.npc.occupation.GetResourcesToBeProduced()
+        for resourceType in produced:
+            resource = self.npc.possession.GetResource(resourceType)
+            if resource != None and not isinstance(resource, FoodResource):
+                print "Greedy strategy: Sell resources! (" + str(resource) + ")"
+                self._SellResource(resource)
+
+
+    def _BuyResource(self, resourceType):
+        stocks = self.npc.GetCity().GetStockMarkets()
+        if len(stocks) > 0:
+            resource = stocks[0].FindResource(resourceType)
+            if resource != None:
+                return stocks[0].BuyResource(resource, self.npc.possession)
+        return False
+
+    def _SellResource(self, resource):
+        stocks = self.npc.GetCity().GetStockMarkets()
+        if len(stocks) > 0:
+            return stocks[0].SellResource(resource, self.npc.possession)
+        return False
 
 '''
 Schedule for one day for a NPC. The schedule contains actions and must be advanced when the NPC is advanced.
@@ -298,6 +331,12 @@ class Occupation(object):
     def AddDefaultSchedule(self, schedule, possession):
         pass
 
+    def GetRequiredResources(self):
+        return self.inputs
+
+    def GetResourcesToBeProduced(self):
+        return self.outputs
+
 class Farmer(Occupation):
     duration = 7 * 60
 
@@ -382,13 +421,14 @@ class ResourceFactory(object):
 
 class StockMarket(object):
     defaultPrice = 5
+    initialMoney = 500
 
     def __init__(self):
         self.possession = Possession()
         self.prices = {}
 
         #get some initial cash from loan sharks :D
-        self.LoanMoney(500)
+        self.LoanMoney(StockMarket.initialMoney)
 
     def LoanMoney(self, amount):
         #TODO: How the hell make this loan system...
@@ -410,11 +450,25 @@ class StockMarket(object):
         else:
             self.prices[type(resource)] = price
 
+    def FindResource(self, resourceType):
+        return self.possession.GetResource(resourceType)
+
     def SellResource(self, resource, seller):
         if self.possession.GetMoney() < self.GetPrice(resource):
             return False
         seller.GiveResource(resource, self.possession)
         self.possession.GiveMoney(self.GetPrice(resource), seller)
+        return True
+
+    def BuyResource(self, resource, buyer):
+        if buyer.GetMoney() < self.GetPrice(resource):
+            return False
+        if type(resource) == type:
+            resource = self.FindResource(resource)
+            if resource == None:
+                return False
+        self.possession.GiveResource(resource, buyer)
+        buyer.GiveMoney(self.GetPrice(resource), self.possession)
         return True
                              
 
@@ -436,8 +490,8 @@ class Meat(FoodResource):
     def __init__(self):
         Resource.__init__(self)
 
-class Beer(FoodResource):
-    nutritionalValue = 60 #one hour energy
+class Beer(Resource):
+    #nutritionalValue = 60 #one hour energy
     materials = [Grain(), Grain()]
 
     def __init__(self):

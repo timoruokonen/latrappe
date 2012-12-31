@@ -5,7 +5,7 @@ class TestSequenceFunctions(unittest.TestCase):
     advanceInterval = 1
 
     def setUp(self):
-        self.grainDefaultPrice = 20
+        self.grainDefaultPrice = 15
         self.meatDefaultPrice = 20
         self.beerDefaultPrice = 50
         pass
@@ -158,11 +158,45 @@ class TestSequenceFunctions(unittest.TestCase):
         beer = Beer()
         npc.possession.AddResource(beer)
         self.assertEqual(0, npc.possession.GetMoney())
+        self.assertEqual(None, stock.FindResource(Beer))
         self.assertTrue(stock.SellResource(beer, npc.possession)) 
         self.assertEqual(0, len(npc.possession.resources))
         self.assertEqual(self.beerDefaultPrice, npc.possession.GetMoney()) 
         self.assertEqual(1, len(stock.possession.resources))
         self.assertTrue(stock.possession.HasResources([Beer]))
+        self.assertEqual(beer, stock.FindResource(Beer))
+
+    def test_player_buys_resources(self):
+        stock = StockMarket()
+        self.SetDefaultPrices(stock)
+        stock.possession.AddResource(Meat())
+        stock.possession.AddResource(Beer())
+        stock.possession.AddResource(Grain())
+        
+        npc = Npc(Brewer())
+        money = 100
+        npc.possession.money = money
+        self.assertEqual(money, npc.possession.GetMoney())
+        self.assertEqual(StockMarket.initialMoney, stock.possession.GetMoney())
+        #buy with type
+        self.assertTrue(stock.BuyResource(Beer, npc.possession)) 
+        self.assertEqual(1, len(npc.possession.resources))
+        self.assertTrue(npc.possession.HasResources([Beer]))
+        self.assertEqual(money - self.beerDefaultPrice, npc.possession.GetMoney()) 
+        self.assertEqual(StockMarket.initialMoney + self.beerDefaultPrice, stock.possession.GetMoney()) 
+        self.assertEqual(2, len(stock.possession.resources))
+        self.assertFalse(stock.possession.HasResources([Beer]))
+        self.assertTrue(stock.possession.HasResources([Meat, Grain]))
+        #buy with instance
+        grain = stock.FindResource(Grain)
+        self.assertTrue(stock.BuyResource(grain, npc.possession)) 
+        self.assertEqual(2, len(npc.possession.resources))
+        self.assertTrue(npc.possession.HasResources([Grain, Beer]))
+        self.assertEqual(money - self.beerDefaultPrice - self.grainDefaultPrice, npc.possession.GetMoney()) 
+        self.assertEqual(StockMarket.initialMoney + self.beerDefaultPrice + self.grainDefaultPrice, stock.possession.GetMoney()) 
+        self.assertEqual(1, len(stock.possession.resources))
+        self.assertFalse(stock.possession.HasResources([Grain]))
+        self.assertTrue(stock.possession.HasResources([Meat]))
 
     def test_city_with_npcs_and_stock_markets(self):
         city = City()
@@ -185,8 +219,10 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertTrue(stock in city.GetStockMarkets())
         
     def test_simple_npc_strategy(self):
-        #setup stock and add some food there
+        #setup city, stock and add some food there
+        city = City()
         stock = StockMarket()
+        city.AddStockMarket(stock)
         self.SetDefaultPrices(stock)
         stock.possession.AddResource(Meat())
         stock.possession.AddResource(Meat())
@@ -194,9 +230,35 @@ class TestSequenceFunctions(unittest.TestCase):
 
         #add simple strategy to npc
         npc = Npc(Brewer())
-        npc.possession.money = 100
+        city.AddNpc(npc)
+        for i in range(NpcStrategySimpleGreedy.minimumFood):
+           npc.possession.AddResource(Meat())
+        money = 200
+        npc.possession.money = money
         npc.SetStrategy(NpcStrategySimpleGreedy(npc))
-        
+        self.AdvanceNpc(npc, Schedule.MaxTime * 2)
+
+        #npc should have spend one food and have now less food than minimum and buy more
+        self.AdvanceNpc(npc, Schedule.MaxTime)
+        money -= self.meatDefaultPrice
+        self.assertEqual(money, npc.possession.GetMoney()) 
+
+        #add needed resources to stock so npc should try to buy food and resources
+        stock.possession.AddResource(Grain())
+        stock.possession.AddResource(Grain())
+        self.AdvanceNpc(npc, Schedule.MaxTime)
+        money -= self.meatDefaultPrice
+        money -= self.grainDefaultPrice * 2
+        self.assertEqual(money, npc.possession.GetMoney()) 
+        self.assertTrue(npc.possession.HasResources([Beer]))
+
+        #next day, npc should try to buy food and sell beer (there are no resources to buy)
+        self.AdvanceNpc(npc, Schedule.MaxTime)
+        money -= self.meatDefaultPrice
+        money += self.beerDefaultPrice
+        self.assertEqual(money, npc.possession.GetMoney()) 
+        self.assertFalse(npc.possession.HasResources([Beer]))
+
 
 
 if __name__ == '__main__':

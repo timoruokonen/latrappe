@@ -76,8 +76,16 @@ class TestDisplay:
         self.npcBrewer.possession.money = 100
         npcs.append(self.npcBrewer)
         self.stock = StockMarket()
+        #add some stuff to stock
+        for i in range(50):
+            self.stock.possession.AddResource(Meat())
+        self.stock.possession.AddResource(Grain())
+        self.stock.possession.AddResource(Grain())
+        self.stock.possession.AddResource(Grain())
+        self.stock.possession.AddResource(Grain())
 
         for n in npcs:
+            n.SetStrategy(NpcStrategySimpleGreedy(n))
             self.city.AddNpc(n)
 
     def UpdateVillage(self):
@@ -88,6 +96,7 @@ class TestDisplay:
             self.npcBrewer.possession.GiveMoney(self.stock.GetPrice(Grain), self.npcFarmer.possession)
     
     def OnResourceCreated(self, resource):
+        print "Resource created!"
         if isinstance(resource, Meat):
             self.meat += 1
         elif isinstance(resource, Grain):
@@ -118,12 +127,6 @@ class TestDisplay:
 
     def testText(self):
         self.statdisplay.addText("La Trappen markkinahinta: 12")
-
-    def testNPC(self):
-        npc1 = Npc(Farmer())
-        npc2 = Npc(Brewer())
-        self.statdisplay.visualizeNPC(npc1)
-        self.statdisplay.visualizeNPC(npc2)
 
 if __name__ == "__main__":
     test = TestDisplay()
