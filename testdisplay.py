@@ -4,9 +4,9 @@ Test for game statistics display module
 import os, sys
 import pygame
 import math
+import latrappe
 from tiledisplay import *
 from pygame.locals import *
-from resource import *
 from display import *
 from world import *
 
@@ -28,9 +28,9 @@ class TestDisplay:
         self.grain = 0
         self.beer = 0
 
-        ResourceFactory.resourceCreatedSubscribers.append(self)
+        latrappe.ResourceFactory.resourceCreatedSubscribers.append(self)
         self.CreateTestVillage()
-        Npc.defaultFoodConsumption = 0 #no food problems :)
+        latrappe.Npc.defaultFoodConsumption = 0 #no food problems :)
         self.testBars()
         while 1:
             screen.fill((0,0,0))
@@ -40,7 +40,7 @@ class TestDisplay:
             #self.testNPC()
             self.statdisplay.visualizeNPCs(self.city.GetNpcs())
 
-            self.UpdateVillage()
+            #self.UpdateVillage()
             for npc in self.city.GetNpcs():
                 npc.Advance(15)
 
@@ -65,48 +65,48 @@ class TestDisplay:
 
     def CreateTestVillage(self):
         npcs = []
-        self.city = City()
-        npcHunter = Npc(Hunter())
+        self.city = latrappe.City()
+        npcHunter = latrappe.Npc(latrappe.Hunter())
         npcs.append(npcHunter)
-        self.npcFarmer = Npc(Farmer())
+        self.npcFarmer = latrappe.Npc(latrappe.Farmer())
         npcs.append(self.npcFarmer)
-        self.npcBrewer = Npc(Brewer())
+        self.npcBrewer = latrappe.Npc(latrappe.Brewer())
         npcs.append(self.npcBrewer)
-        self.stock = StockMarket()
+        self.stock = latrappe.StockMarket()
 
         #set prices
-        self.stock.SetPrice(Grain, 10)
-        self.stock.SetPrice(Meat, 15)
-        self.stock.SetPrice(Beer, 50)
+        self.stock.SetPrice(latrappe.Grain, 10)
+        self.stock.SetPrice(latrappe.Meat, 15)
+        self.stock.SetPrice(latrappe.Beer, 50)
         #add some stuff to stock
         for i in range(50):
-            self.stock.possession.AddResource(Meat())
-        self.stock.possession.AddResource(Grain())
-        self.stock.possession.AddResource(Grain())
-        self.stock.possession.AddResource(Grain())
-        self.stock.possession.AddResource(Grain())
+            self.stock.possession.AddResource(latrappe.Meat())
+        self.stock.possession.AddResource(latrappe.Grain())
+        self.stock.possession.AddResource(latrappe.Grain())
+        self.stock.possession.AddResource(latrappe.Grain())
+        self.stock.possession.AddResource(latrappe.Grain())
 
         self.city.AddStockMarket(self.stock)
         for n in npcs:
             n.possession.money = 100
-            n.SetStrategy(NpcStrategySimpleGreedy(n))
+            n.SetStrategy(latrappe.NpcStrategySimpleGreedy(n))
             self.city.AddNpc(n)
         
 
-    def UpdateVillage(self):
-        #farmer sells grain when he has more than two ready
-        if self.npcFarmer.possession.HasResources([Grain, Grain, Grain]):
-            grain = self.npcFarmer.possession.GetResource(Grain)
-            self.npcFarmer.possession.GiveResource(grain, self.npcBrewer.possession)
-            self.npcBrewer.possession.GiveMoney(self.stock.GetPrice(Grain), self.npcFarmer.possession)
+#    def UpdateVillage(self):
+#        #farmer sells grain when he has more than two ready
+#        if self.npcFarmer.possession.HasResources([latrappe.Grain, latrappe.Grain, latrappe.Grain]):
+#            grain = self.npcFarmer.possession.GetResource(latrappe.Grain)
+#            self.npcFarmer.possession.GiveResource(grain, self.npcBrewer.possession)
+#            self.npcBrewer.possession.GiveMoney(self.stock.GetPrice(latrappe.Grain), self.npcFarmer.possession)
     
     def OnResourceCreated(self, resource):
         print "Resource created!"
-        if isinstance(resource, Meat):
+        if isinstance(resource, latrappe.Meat):
             self.meat += 1
-        elif isinstance(resource, Grain):
+        elif isinstance(resource, latrappe.Grain):
             self.grain += 1
-        elif isinstance(resource, Beer):
+        elif isinstance(resource, latrappe.Beer):
             self.beer += 1
 
     def testBars(self):
