@@ -150,7 +150,7 @@ class Npc(object):
                 foods = self.possession.GetFoods()
                 if len(foods) == 0:
                     self.alive = False
-                    print "NPC died from hunger!"
+                    print "NPC (" + str(self.occupation) + ") died from hunger!"
                     return
                 #just eat the first thing from the inventory...
                 self.possession.DestroyResource(foods[0])
@@ -174,15 +174,20 @@ class NpcStrategySimpleGreedy(object):
     def CreateSchedule(self):
         #if food is getting low, try to get more
         if len(self.npc.possession.GetFoods()) < NpcStrategySimpleGreedy.minimumFood:
-            print "Greedy strategy (" + self.ToString() + "): Trying to buy food!"
-            self._BuyResource(Meat)
-        
+            if self._BuyResource(Meat):
+                print "Greedy strategy (" + self.ToString() + "): Bought food!"
+            else:
+                print "Greedy strategy (" + self.ToString() + "): Could not buy food!"
+                        
         #try to get ingredients for occupation
         required = self.npc.occupation.GetRequiredResources()
         if not self.npc.possession.HasResources(required):
-            print "Greedy strategy: Trying to buy resources!"
             for resourceType in required:
-                self._BuyResource(resourceType)
+                if self._BuyResource(resourceType):
+                    print "Greedy strategy (" + self.ToString() + "): Bought resource (" + str(resourceType) + ")!" 
+                else:
+                    print "Greedy strategy (" + self.ToString() + "): Could not buy resource (" + str(resourceType) + ")!" 
+                    
 
         #add occupation action
         self.npc.occupation.AddDefaultSchedule(self.npc.schedule, self.npc.possession)
@@ -192,9 +197,11 @@ class NpcStrategySimpleGreedy(object):
         for resourceType in produced:
             resource = self.npc.possession.GetResource(resourceType)
             if resource != None and not isinstance(resource, FoodResource):
-                print "Greedy strategy: Sell resources! (" + str(resource) + ")"
-                self._SellResource(resource)
-
+                if self._SellResource(resource):
+                    print "Greedy strategy (" + self.ToString() + "): Sold resource! (" + str(resource) + ")"
+                else:
+                    print "Greedy strategy (" + self.ToString() + "): Could not sell resource! (" + str(resource) + ")"
+                                                    
 
     def _BuyResource(self, resourceType):
         stocks = self.npc.GetCity().GetStockMarkets()
@@ -202,6 +209,7 @@ class NpcStrategySimpleGreedy(object):
             resource = stocks[0].FindResource(resourceType)
             if resource != None:
                 return stocks[0].BuyResource(resource, self.npc.possession)
+        print "No stock market available!"
         return False
 
     def _SellResource(self, resource):
@@ -462,10 +470,12 @@ class StockMarket(object):
 
     def BuyResource(self, resource, buyer):
         if buyer.GetMoney() < self.GetPrice(resource):
+            print "Buyer has not enough money"
             return False
         if type(resource) == type:
             resource = self.FindResource(resource)
             if resource == None:
+                print "Stock has not required resource"
                 return False
         self.possession.GiveResource(resource, buyer)
         buyer.GiveMoney(self.GetPrice(resource), self.possession)

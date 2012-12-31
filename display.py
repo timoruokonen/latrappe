@@ -54,7 +54,10 @@ class Display:
             self.visualizeNPC(npc)
 
     def visualizeNPC(self, npc):
-        self.addText("NPC occupation: " + str(npc.occupation) + " money: " + str(npc.possession.money) + " action: " + str(npc.schedule.GetCurrentActionName()))
+        if (npc.IsAlive()):
+            self.addText("NPC occupation: " + str(npc.occupation) + " money: " + str(npc.possession.money) + " action: " + str(npc.schedule.GetCurrentActionName()))
+        else:
+            self.addText("NPC DEAD occupation: " + str(npc.occupation) + " money: " + str(npc.possession.money))
     
 class BarGroup:
     def __init__(self, x, y, maxwidth=300, barHeight=20):

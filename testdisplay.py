@@ -63,8 +63,6 @@ class TestDisplay:
                         # Show statistics display
                         pass
 
-
-
     def CreateTestVillage(self):
         npcs = []
         self.city = City()
@@ -73,9 +71,13 @@ class TestDisplay:
         self.npcFarmer = Npc(Farmer())
         npcs.append(self.npcFarmer)
         self.npcBrewer = Npc(Brewer())
-        self.npcBrewer.possession.money = 100
         npcs.append(self.npcBrewer)
         self.stock = StockMarket()
+
+        #set prices
+        self.stock.SetPrice(Grain, 10)
+        self.stock.SetPrice(Meat, 15)
+        self.stock.SetPrice(Beer, 50)
         #add some stuff to stock
         for i in range(50):
             self.stock.possession.AddResource(Meat())
@@ -84,9 +86,12 @@ class TestDisplay:
         self.stock.possession.AddResource(Grain())
         self.stock.possession.AddResource(Grain())
 
+        self.city.AddStockMarket(self.stock)
         for n in npcs:
+            n.possession.money = 100
             n.SetStrategy(NpcStrategySimpleGreedy(n))
             self.city.AddNpc(n)
+        
 
     def UpdateVillage(self):
         #farmer sells grain when he has more than two ready
