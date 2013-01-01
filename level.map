@@ -1,17 +1,45 @@
 [level]
 tileset = tiles.png
-map = .............
-      .#####.##....
-      .#...#..#.###
-      .#...####.###
-      .##.##.......
-      .............
+map = ...................................
+      .#...##....#####.###....-------....
+      .#..#..#.....#...#..#..---------...
+      .#..####.....#...###..------------.
+      .##.#..#.....#...#..#.----------...
+      ........................-----......
+      ###################################
+      ...................................
+      ..........#.................#......
+      .......#..........##..............#
+      ...................................
+      ................#..........#.......
+      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      xxxxxxxxxXXXXXXXXXXXxxxxxxxxxxXxxxx
+      XXXXXXXXXXXXXXXXXXXXXXXXXXXxxxxxxxx
+
 
 [.]
 name = floor
-tile = 0, 3
+tile = 1,1
 
 [#]
 name = wall
-tile = 1, 2
+tile = 2,1
+block = true
+
+[-]
+name = water
+tile = 3,0
+block = true
+
+[x]
+name = rocks1
+tile = 5,1
+block = true
+
+[X]
+name = rocks2
+tile = 6,1
 block = true

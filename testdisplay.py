@@ -8,30 +8,30 @@ from latrappe import *
 from tiledisplay import *
 from pygame.locals import *
 from display import *
-from world import *
 
 class TestDisplay:
     def run(self):
         pygame.init()
         screen = pygame.display.set_mode((800, 600))
+        icon = pygame.image.load("icon.png").convert()
+        pygame.display.set_icon(icon)
+        pygame.display.set_caption("La Trappe")
         clock = pygame.time.Clock()
-        self.world = World()
-        self.world.load_file("level.map")
-
-        self.statdisplay = Display(screen)
-        self.tiledisplay = TileDisplay(screen, self.world)
-        self.window = self.statdisplay
 
         self.olutta = 100
         self.kaljaa = 50
-
         self.meat = BarAmount(0)
         self.grain = BarAmount(0)
         self.beer = BarAmount(0)
 
         ResourceFactory.resourceCreatedSubscribers.append(self)
         ResourceFactory.resourceDestroyedSubscribers.append(self)
+
         self.CreateTestVillage()
+        self.tiledisplay = TileDisplay(screen, self.city)
+        self.statdisplay = Display(screen)
+        self.window = self.statdisplay
+
         Npc.defaultFoodConsumption = 0 #no food problems :)
         self.testBars()
         while 1:
@@ -91,6 +91,7 @@ class TestDisplay:
             n.SetStrategy(NpcStrategySimpleGreedy(n))
             self.city.AddNpc(n)
         
+        return self.city
 
 #    def UpdateVillage(self):
 #        #farmer sells grain when he has more than two ready
