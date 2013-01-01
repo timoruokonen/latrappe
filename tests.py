@@ -1,5 +1,5 @@
-import latrappe
-import unittest
+from latrappe import *
+import unittest 
 
 class TestSequenceFunctions(unittest.TestCase):
     advanceInterval = 1
@@ -18,193 +18,193 @@ class TestSequenceFunctions(unittest.TestCase):
     
     
     def SetDefaultPrices(self, stock):
-        stock.SetPrice(latrappe.Grain, self.grainDefaultPrice)
-        stock.SetPrice(latrappe.Meat, self.meatDefaultPrice)
-        stock.SetPrice(latrappe.Beer, self.beerDefaultPrice)
+        stock.SetPrice(Grain, self.grainDefaultPrice)
+        stock.SetPrice(Meat, self.meatDefaultPrice)
+        stock.SetPrice(Beer, self.beerDefaultPrice)
 
 
     def test_farmer_creates_grain(self):
-        npc = latrappe.Npc(latrappe.Farmer())
+        npc = Npc(Farmer())
         self.assertEqual(0, len(npc.possession.resources))
-        self.AdvanceNpc(npc, latrappe.Npc.sleepDuration) #sleeping time
-        self.AdvanceNpc(npc, latrappe.Farmer.duration) #farming time
+        self.AdvanceNpc(npc, Npc.sleepDuration) #sleeping time
+        self.AdvanceNpc(npc, Farmer.duration) #farming time
         self.assertEqual(1, len(npc.possession.resources))
-        self.assertTrue(npc.possession.HasResources([latrappe.Grain]))
+        self.assertTrue(npc.possession.HasResources([Grain]))
 
     def test_hunter_creates_meat(self):
-        npc = latrappe.Npc(latrappe.Hunter())
+        npc = Npc(Hunter())
         self.assertEqual(0, len(npc.possession.resources))
-        self.AdvanceNpc(npc, latrappe.Npc.sleepDuration) #sleeping time
-        self.AdvanceNpc(npc, latrappe.Hunter.duration) #action time
+        self.AdvanceNpc(npc, Npc.sleepDuration) #sleeping time
+        self.AdvanceNpc(npc, Hunter.duration) #action time
         self.assertEqual(1, len(npc.possession.resources))
-        self.assertTrue(npc.possession.HasResources([latrappe.Meat]))
+        self.assertTrue(npc.possession.HasResources([Meat]))
 
     def test_brewer_creates_beer(self):
-        npc = latrappe.Npc(latrappe.Brewer())
+        npc = Npc(Brewer())
         npc.foodConsumption = 0 #lets not worry about food in this test
-        npc.possession.AddResource(latrappe.Grain())
-        npc.possession.AddResource(latrappe.Grain())
+        npc.possession.AddResource(Grain())
+        npc.possession.AddResource(Grain())
         self.assertEqual(2, len(npc.possession.resources))
-        self.AdvanceNpc(npc, latrappe.Npc.sleepDuration) #sleeping time
-        self.AdvanceNpc(npc, latrappe.Brewer.duration) #brewing time
+        self.AdvanceNpc(npc, Npc.sleepDuration) #sleeping time
+        self.AdvanceNpc(npc, Brewer.duration) #brewing time
         self.assertEqual(1, len(npc.possession.resources))
-        self.assertTrue(npc.possession.HasResources([latrappe.Beer]))
+        self.assertTrue(npc.possession.HasResources([Beer]))
 
         #start next day and give more resources (one extra grain)
-        npc.possession.AddResource(latrappe.Grain())
-        npc.possession.AddResource(latrappe.Grain())
-        npc.possession.AddResource(latrappe.Grain())
+        npc.possession.AddResource(Grain())
+        npc.possession.AddResource(Grain())
+        npc.possession.AddResource(Grain())
         self.AdvanceNpc(npc, npc.schedule.GetTotalRemainingTime()) #rest of the day
-        self.AdvanceNpc(npc, latrappe.Npc.sleepDuration) #sleeping time
-        self.AdvanceNpc(npc, latrappe.Brewer.duration) #brewing time
+        self.AdvanceNpc(npc, Npc.sleepDuration) #sleeping time
+        self.AdvanceNpc(npc, Brewer.duration) #brewing time
         self.assertEqual(3, len(npc.possession.resources))
-        self.assertTrue(npc.possession.HasResources([latrappe.Beer, latrappe.Beer, latrappe.Grain]))
+        self.assertTrue(npc.possession.HasResources([Beer, Beer, Grain]))
 
     def test_action_outputs_are_given_after_task_is_fully_done(self):
-        npc = latrappe.Npc(latrappe.Hunter())
+        npc = Npc(Hunter())
         self.assertEqual(0, len(npc.possession.resources))
-        self.AdvanceNpc(npc, latrappe.Npc.sleepDuration) #sleeping time
-        self.AdvanceNpc(npc, latrappe.Hunter.duration / 2) #half of the action time
+        self.AdvanceNpc(npc, Npc.sleepDuration) #sleeping time
+        self.AdvanceNpc(npc, Hunter.duration / 2) #half of the action time
         self.assertEqual(0, len(npc.possession.resources))
-        self.AdvanceNpc(npc, latrappe.Hunter.duration / 2) #half of the action time
+        self.AdvanceNpc(npc, Hunter.duration / 2) #half of the action time
         self.assertEqual(1, len(npc.possession.resources))
-        self.assertTrue(npc.possession.HasResources([latrappe.Meat]))
+        self.assertTrue(npc.possession.HasResources([Meat]))
 
 
     def test_brewer_cannot_brew_when_out_of_resources(self):
-        npc = latrappe.Npc(latrappe.Brewer())
+        npc = Npc(Brewer())
         #brewing needs to grains, only one is given       
-        npc.possession.AddResource(latrappe.Grain())
-        self.AdvanceNpc(npc, latrappe.Npc.sleepDuration) #sleeping time
-        self.AdvanceNpc(npc, latrappe.Brewer.duration) #brewing time
+        npc.possession.AddResource(Grain())
+        self.AdvanceNpc(npc, Npc.sleepDuration) #sleeping time
+        self.AdvanceNpc(npc, Brewer.duration) #brewing time
         self.assertEqual(1, len(npc.possession.resources))
-        self.assertTrue(npc.possession.HasResources([latrappe.Grain]))
+        self.assertTrue(npc.possession.HasResources([Grain]))
 
     def test_advance_over_one_action(self):
-        npc = latrappe.Npc(latrappe.Farmer())
+        npc = Npc(Farmer())
         self.assertEqual(0, len(npc.possession.resources))
         #advance one full day, both sleeping and farming should be done       
-        self.AdvanceNpc(npc, latrappe.Schedule.MaxTime)
+        self.AdvanceNpc(npc, Schedule.MaxTime)
         self.assertEqual(1, len(npc.possession.resources))
-        self.assertTrue(npc.possession.HasResources([latrappe.Grain]))
+        self.assertTrue(npc.possession.HasResources([Grain]))
 
     def test_advance_over_day_ending(self):
-        npc = latrappe.Npc(latrappe.Farmer())
+        npc = Npc(Farmer())
         npc.foodConsumption = 0 #lets not worry about food in this test
         self.assertEqual(0, len(npc.possession.resources))
         #advance two full days, two sleepings and farmings should be done       
-        self.AdvanceNpc(npc, latrappe.Schedule.MaxTime * 2)
+        self.AdvanceNpc(npc, Schedule.MaxTime * 2)
         self.assertEqual(2, len(npc.possession.resources))
-        self.assertTrue(npc.possession.HasResources([latrappe.Grain, latrappe.Grain]))
+        self.assertTrue(npc.possession.HasResources([Grain, Grain]))
 
     def test_npc_eats(self):
-        npc = latrappe.Npc(latrappe.Farmer())
+        npc = Npc(Farmer())
         #npc has food for one day by default
-        self.AdvanceNpc(npc, latrappe.Schedule.MaxTime)
+        self.AdvanceNpc(npc, Schedule.MaxTime)
         self.assertEqual(1, len(npc.possession.resources))
-        self.assertTrue(npc.possession.HasResources([latrappe.Grain]))
+        self.assertTrue(npc.possession.HasResources([Grain]))
         
         #give foor for the next day and check that it is consumed
-        npc.possession.AddResource(latrappe.Meat())
-        self.AdvanceNpc(npc, latrappe.Schedule.MaxTime)
+        npc.possession.AddResource(Meat())
+        self.AdvanceNpc(npc, Schedule.MaxTime)
         self.assertEqual(2, len(npc.possession.resources))
-        self.assertTrue(npc.possession.HasResources([latrappe.Grain, latrappe.Grain]))
+        self.assertTrue(npc.possession.HasResources([Grain, Grain]))
 
     def test_npc_dies_with_hunger(self):
-        npc = latrappe.Npc(latrappe.Farmer())
+        npc = Npc(Farmer())
         #npc has food for one day by default
-        self.AdvanceNpc(npc, latrappe.Schedule.MaxTime)
+        self.AdvanceNpc(npc, Schedule.MaxTime)
         self.assertEqual(1, len(npc.possession.resources))
-        self.assertTrue(npc.possession.HasResources([latrappe.Grain]))
+        self.assertTrue(npc.possession.HasResources([Grain]))
         self.assertTrue(npc.IsAlive())
         
         #don't give more food so npc should die
-        self.AdvanceNpc(npc, latrappe.Schedule.MaxTime)
+        self.AdvanceNpc(npc, Schedule.MaxTime)
         self.assertEqual(1, len(npc.possession.resources)) #couldn't farm anymore
-        self.assertTrue(npc.possession.HasResources([latrappe.Grain]))
+        self.assertTrue(npc.possession.HasResources([Grain]))
         self.assertFalse(npc.IsAlive())
 
     def test_npc_produces_the_food_it_needs_next_day(self):
-        npc = latrappe.Npc(latrappe.Hunter())
+        npc = Npc(Hunter())
         #npc has food for one day by default and produces one food per day (one day ration)
         #so npc is self contained, advance one week. 
-        self.AdvanceNpc(npc, latrappe.Schedule.MaxTime * 7)
+        self.AdvanceNpc(npc, Schedule.MaxTime * 7)
         self.assertEqual(1, len(npc.possession.resources))
-        self.assertTrue(npc.possession.HasResources([latrappe.Meat]))
+        self.assertTrue(npc.possession.HasResources([Meat]))
         self.assertTrue(npc.IsAlive())
         #starting of next day, npc should have to eat the meat it produced last day       
-        self.AdvanceNpc(npc, latrappe.Schedule.MaxTime / 4)
+        self.AdvanceNpc(npc, Schedule.MaxTime / 4)
         self.assertEqual(0, len(npc.possession.resources))
         self.assertTrue(npc.IsAlive())
 
     def test_stock_prices(self):
-        stock = latrappe.StockMarket()
+        stock = StockMarket()
         #set/get using class
-        stock.SetPrice(latrappe.Grain, 20)
-        self.assertEqual(20, stock.GetPrice(latrappe.Grain))
+        stock.SetPrice(Grain, 20)
+        self.assertEqual(20, stock.GetPrice(Grain))
         #set/get using instances
-        stock.SetPrice(latrappe.Beer(), 200)
-        self.assertEqual(200, stock.GetPrice(latrappe.Beer()))
+        stock.SetPrice(Beer(), 200)
+        self.assertEqual(200, stock.GetPrice(Beer()))
         #set prices again
-        stock.SetPrice(latrappe.Grain, 15)
-        stock.SetPrice(latrappe.Beer(), 203)
-        self.assertEqual(15, stock.GetPrice(latrappe.Grain))
-        self.assertEqual(203, stock.GetPrice(latrappe.Beer()))
+        stock.SetPrice(Grain, 15)
+        stock.SetPrice(Beer(), 203)
+        self.assertEqual(15, stock.GetPrice(Grain))
+        self.assertEqual(203, stock.GetPrice(Beer()))
 
     def test_player_sells_resources(self):
-        stock = latrappe.StockMarket()
+        stock = StockMarket()
         self.SetDefaultPrices(stock)
-        npc = latrappe.Npc(latrappe.Brewer())
-        beer = latrappe.Beer()
+        npc = Npc(Brewer())
+        beer = Beer()
         npc.possession.AddResource(beer)
         self.assertEqual(0, npc.possession.GetMoney())
-        self.assertEqual(None, stock.FindResource(latrappe.Beer))
+        self.assertEqual(None, stock.FindResource(Beer))
         self.assertTrue(stock.SellResource(beer, npc.possession)) 
         self.assertEqual(0, len(npc.possession.resources))
         self.assertEqual(self.beerDefaultPrice, npc.possession.GetMoney()) 
         self.assertEqual(1, len(stock.possession.resources))
-        self.assertTrue(stock.possession.HasResources([latrappe.Beer]))
-        self.assertEqual(beer, stock.FindResource(latrappe.Beer))
+        self.assertTrue(stock.possession.HasResources([Beer]))
+        self.assertEqual(beer, stock.FindResource(Beer))
 
     def test_player_buys_resources(self):
-        stock = latrappe.StockMarket()
+        stock = StockMarket()
         self.SetDefaultPrices(stock)
-        stock.possession.AddResource(latrappe.Meat())
-        stock.possession.AddResource(latrappe.Beer())
-        stock.possession.AddResource(latrappe.Grain())
+        stock.possession.AddResource(Meat())
+        stock.possession.AddResource(Beer())
+        stock.possession.AddResource(Grain())
         
-        npc = latrappe.Npc(latrappe.Brewer())
+        npc = Npc(Brewer())
         money = 100
         npc.possession.money = money
         self.assertEqual(money, npc.possession.GetMoney())
-        self.assertEqual(latrappe.StockMarket.initialMoney, stock.possession.GetMoney())
+        self.assertEqual(StockMarket.initialMoney, stock.possession.GetMoney())
         #buy with type
-        self.assertTrue(stock.BuyResource(latrappe.Beer, npc.possession)) 
+        self.assertTrue(stock.BuyResource(Beer, npc.possession)) 
         self.assertEqual(1, len(npc.possession.resources))
-        self.assertTrue(npc.possession.HasResources([latrappe.Beer]))
+        self.assertTrue(npc.possession.HasResources([Beer]))
         self.assertEqual(money - self.beerDefaultPrice, npc.possession.GetMoney()) 
-        self.assertEqual(latrappe.StockMarket.initialMoney + self.beerDefaultPrice, stock.possession.GetMoney()) 
+        self.assertEqual(StockMarket.initialMoney + self.beerDefaultPrice, stock.possession.GetMoney()) 
         self.assertEqual(2, len(stock.possession.resources))
-        self.assertFalse(stock.possession.HasResources([latrappe.Beer]))
-        self.assertTrue(stock.possession.HasResources([latrappe.Meat, latrappe.Grain]))
+        self.assertFalse(stock.possession.HasResources([Beer]))
+        self.assertTrue(stock.possession.HasResources([Meat, Grain]))
         #buy with instance
-        grain = stock.FindResource(latrappe.Grain)
+        grain = stock.FindResource(Grain)
         self.assertTrue(stock.BuyResource(grain, npc.possession)) 
         self.assertEqual(2, len(npc.possession.resources))
-        self.assertTrue(npc.possession.HasResources([latrappe.Grain, latrappe.Beer]))
+        self.assertTrue(npc.possession.HasResources([Grain, Beer]))
         self.assertEqual(money - self.beerDefaultPrice - self.grainDefaultPrice, npc.possession.GetMoney()) 
-        self.assertEqual(latrappe.StockMarket.initialMoney + self.beerDefaultPrice + self.grainDefaultPrice, stock.possession.GetMoney()) 
+        self.assertEqual(StockMarket.initialMoney + self.beerDefaultPrice + self.grainDefaultPrice, stock.possession.GetMoney()) 
         self.assertEqual(1, len(stock.possession.resources))
-        self.assertFalse(stock.possession.HasResources([latrappe.Grain]))
-        self.assertTrue(stock.possession.HasResources([latrappe.Meat]))
+        self.assertFalse(stock.possession.HasResources([Grain]))
+        self.assertTrue(stock.possession.HasResources([Meat]))
 
     def test_city_with_npcs_and_stock_markets(self):
-        city = latrappe.City()
+        city = City()
         self.assertEqual(0, len(city.GetNpcs()))
         self.assertEqual(0, len(city.GetStockMarkets()))
-        npc1 = latrappe.Npc(latrappe.Brewer())
-        npc2 = latrappe.Npc(latrappe.Farmer())
-        stock = latrappe.StockMarket()
+        npc1 = Npc(Brewer())
+        npc2 = Npc(Farmer())
+        stock = StockMarket()
         self.assertEqual(None, npc1.GetCity())
         self.assertEqual(None, npc2.GetCity())
         city.AddNpc(npc1)
@@ -220,44 +220,44 @@ class TestSequenceFunctions(unittest.TestCase):
         
     def test_simple_npc_strategy(self):
         #setup city, stock and add some food there
-        city = latrappe.City()
-        stock = latrappe.StockMarket()
+        city = City()
+        stock = StockMarket()
         city.AddStockMarket(stock)
         self.SetDefaultPrices(stock)
-        stock.possession.AddResource(latrappe.Meat())
-        stock.possession.AddResource(latrappe.Meat())
-        stock.possession.AddResource(latrappe.Meat())
+        stock.possession.AddResource(Meat())
+        stock.possession.AddResource(Meat())
+        stock.possession.AddResource(Meat())
 
         #add simple strategy to npc
-        npc = latrappe.Npc(latrappe.Brewer())
+        npc = Npc(Brewer())
         city.AddNpc(npc)
-        for i in range(latrappe.NpcStrategySimpleGreedy.minimumFood):
-           npc.possession.AddResource(latrappe.Meat())
+        for i in range(NpcStrategySimpleGreedy.minimumFood):
+           npc.possession.AddResource(Meat())
         money = 200
         npc.possession.money = money
-        npc.SetStrategy(latrappe.NpcStrategySimpleGreedy(npc))
-        self.AdvanceNpc(npc, latrappe.Schedule.MaxTime * 2)
+        npc.SetStrategy(NpcStrategySimpleGreedy(npc))
+        self.AdvanceNpc(npc, Schedule.MaxTime * 2)
 
         #npc should have spend one food and have now less food than minimum and buy more
-        self.AdvanceNpc(npc, latrappe.Schedule.MaxTime)
+        self.AdvanceNpc(npc, Schedule.MaxTime)
         money -= self.meatDefaultPrice
         self.assertEqual(money, npc.possession.GetMoney()) 
 
         #add needed resources to stock so npc should try to buy food and resources
-        stock.possession.AddResource(latrappe.Grain())
-        stock.possession.AddResource(latrappe.Grain())
-        self.AdvanceNpc(npc, latrappe.Schedule.MaxTime)
+        stock.possession.AddResource(Grain())
+        stock.possession.AddResource(Grain())
+        self.AdvanceNpc(npc, Schedule.MaxTime)
         money -= self.meatDefaultPrice
         money -= self.grainDefaultPrice * 2
         self.assertEqual(money, npc.possession.GetMoney()) 
-        self.assertTrue(npc.possession.HasResources([latrappe.Beer]))
+        self.assertTrue(npc.possession.HasResources([Beer]))
 
         #next day, npc should try to buy food and sell beer (there are no resources to buy)
-        self.AdvanceNpc(npc, latrappe.Schedule.MaxTime)
+        self.AdvanceNpc(npc, Schedule.MaxTime)
         money -= self.meatDefaultPrice
         money += self.beerDefaultPrice
         self.assertEqual(money, npc.possession.GetMoney()) 
-        self.assertFalse(npc.possession.HasResources([latrappe.Beer]))
+        self.assertFalse(npc.possession.HasResources([Beer]))
 
 
 
