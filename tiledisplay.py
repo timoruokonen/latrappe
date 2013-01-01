@@ -22,7 +22,9 @@ class TileDisplay:
     	self.city.draw(screen)
 
     def drawNpcs(self, screen):
-    	pass
+    	npcs = self.city.GetNpcs()
+    	for npc in npcs:
+    		npc.draw(screen)
 
     def draw(self):
     	self.drawCity(self.screen)

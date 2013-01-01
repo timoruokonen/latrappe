@@ -1,6 +1,7 @@
 from schedule import Schedule
 from possession import Possession
 from action import *
+import pygame
 
 '''
 Game NPC. Each NPC instance must be advanced when the game is advanced. 
@@ -20,6 +21,9 @@ class Npc(object):
         self.alive = True
         self.strategy = None
         self.city = None
+        self.x = 100
+        self.y = 100
+        self.image = pygame.image.load("duff.png").convert()
 
     def PrintStatus(self):
         if not self.alive:
@@ -82,4 +86,8 @@ class Npc(object):
 
     def _AddMandatoryActions(self):
         self.schedule.AddAction(ProduceAction("Sleep", [],[], Npc.sleepDuration, self.possession))
+
+    def draw(self, screen):
+        screen.blit(self.image, (self.x,self.y))
+
 

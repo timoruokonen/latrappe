@@ -4,15 +4,19 @@ Test for game statistics display module
 import os, sys
 import pygame
 import math
+import random
 from latrappe import *
 from tiledisplay import *
 from pygame.locals import *
 from display import *
 
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
 class TestDisplay:
     def run(self):
         pygame.init()
-        screen = pygame.display.set_mode((800, 600))
+        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         icon = pygame.image.load("icon.png").convert()
         pygame.display.set_icon(icon)
         pygame.display.set_caption("La Trappe")
@@ -28,6 +32,7 @@ class TestDisplay:
         ResourceFactory.resourceDestroyedSubscribers.append(self)
 
         self.CreateTestVillage()
+        self.randomizeNpcLocations()
         self.tiledisplay = TileDisplay(screen, self.city)
         self.statdisplay = Display(screen)
         self.window = self.statdisplay
@@ -43,6 +48,7 @@ class TestDisplay:
             self.statdisplay.visualizeNPCs(self.city.GetNpcs())
 
             #self.UpdateVillage()
+            self.moveNpcs()
             for npc in self.city.GetNpcs():
                 npc.Advance(15)
 
@@ -140,6 +146,20 @@ class TestDisplay:
 
     def testText(self):
         self.statdisplay.addText("La Trappen markkinahinta: 12")
+
+    def moveNpcs(self):
+        npcs = self.city.GetNpcs()
+        for npc in npcs:
+            x_movement = random.randint(-1, 1)
+            y_movement = random.randint(-1, 1)
+            npc.x += x_movement
+            npc.y += y_movement
+
+    def randomizeNpcLocations(self):
+        npcs = self.city.GetNpcs()
+        for npc in npcs:
+            npc.x = random.randint(0, SCREEN_WIDTH)
+            npc.y = random.randint(0, SCREEN_HEIGHT)       
 
 if __name__ == "__main__":
     test = TestDisplay()
