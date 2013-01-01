@@ -1,4 +1,4 @@
-from action import Action
+from action import *
 from city import City
 from npc import Npc
 from npcstrategy import *
@@ -40,20 +40,20 @@ class Farmer(Occupation):
         return "Farmer"
 
     def AddDefaultSchedule(self, schedule, possession):
-        schedule.AddAction(Action("Farming", self.inputs, self.outputs, Farmer.duration, possession))
+        schedule.AddAction(ProduceAction("Farming", self.inputs, self.outputs, Farmer.duration, possession))
 
 class Hunter(Occupation):
     duration = 4 * 60
 
     def __init__(self):
         self.inputs = []
-        self.outputs = [Meat]
+        self.outputs = [Meat, Meat]
 
     def __str__(self):
         return "Hunter"
 
     def AddDefaultSchedule(self, schedule, possession):
-        schedule.AddAction(Action("Hunting", self.inputs, self.outputs, Hunter.duration, possession))
+        schedule.AddAction(ProduceAction("Hunting", self.inputs, self.outputs, Hunter.duration, possession))
 
 class Brewer(Occupation):
     duration = 7 * 60
@@ -66,5 +66,5 @@ class Brewer(Occupation):
         return "Brewer"
 
     def AddDefaultSchedule(self, schedule, possession):
-        schedule.AddAction(Action("Brewing beer", self.inputs, self.outputs, Brewer.duration, possession))
+        schedule.AddAction(ProduceAction("Brewing beer", self.inputs, self.outputs, Brewer.duration, possession))
 

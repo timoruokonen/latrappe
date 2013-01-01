@@ -5,7 +5,7 @@ General action that requires input resources and produces output resources in gi
 When the action is started, input resources are removed from the given possession instance.
 When the action is finished, created output resources are added to the given possession instance.
 '''
-class Action(object):
+class ProduceAction(object):
     def __init__(self, name, inputs, outputs, duration, possession):
         self.started = False
         self.name = name
@@ -49,4 +49,8 @@ class Action(object):
         for outputResource in self.outputs:
             createdOutput = ResourceFactory.CreateResource(outputResource, self.possession)
             self.createdOutputs.append(createdOutput)
+
+    #@staticmethod
+    #def CreateSellAction(resourcesToBeSold, possession):
+    #    return Action("Selling goods", [],  
 

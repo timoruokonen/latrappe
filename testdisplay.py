@@ -24,11 +24,13 @@ class TestDisplay:
 
         self.olutta = 100
         self.kaljaa = 50
-        self.meat = 0
-        self.grain = 0
-        self.beer = 0
+
+        self.meat = BarAmount(0)
+        self.grain = BarAmount(0)
+        self.beer = BarAmount(0)
 
         ResourceFactory.resourceCreatedSubscribers.append(self)
+        ResourceFactory.resourceDestroyedSubscribers.append(self)
         self.CreateTestVillage()
         Npc.defaultFoodConsumption = 0 #no food problems :)
         self.testBars()
@@ -66,12 +68,11 @@ class TestDisplay:
     def CreateTestVillage(self):
         npcs = []
         self.city = City()
-        npcHunter = Npc(Hunter())
-        npcs.append(npcHunter)
-        self.npcFarmer = Npc(Farmer())
-        npcs.append(self.npcFarmer)
-        self.npcBrewer = Npc(Brewer())
-        npcs.append(self.npcBrewer)
+        npcs.append(Npc(Farmer()))
+        npcs.append(Npc(Farmer()))
+        npcs.append(Npc(Farmer()))
+        npcs.append(Npc(Hunter()))
+        npcs.append(Npc(Brewer()))
         self.stock = StockMarket()
 
         #set prices
@@ -80,11 +81,9 @@ class TestDisplay:
         self.stock.SetPrice(Beer, 50)
         #add some stuff to stock
         for i in range(50):
-            self.stock.possession.AddResource(Meat())
-        self.stock.possession.AddResource(Grain())
-        self.stock.possession.AddResource(Grain())
-        self.stock.possession.AddResource(Grain())
-        self.stock.possession.AddResource(Grain())
+            self.stock.possession.AddResource(ResourceFactory.CreateResource(Meat, self.stock.possession))
+        self.stock.possession.AddResource(ResourceFactory.CreateResource(Grain, self.stock.possession))
+        self.stock.possession.AddResource(ResourceFactory.CreateResource(Grain, self.stock.possession))
 
         self.city.AddStockMarket(self.stock)
         for n in npcs:
@@ -101,13 +100,21 @@ class TestDisplay:
 #            self.npcBrewer.possession.GiveMoney(self.stock.GetPrice(Grain), self.npcFarmer.possession)
     
     def OnResourceCreated(self, resource):
-        print "Resource created!"
+        print "created resource " + str(resource)
         if isinstance(resource, Meat):
-            self.meat += 1
+            self.meat.AddAmount(1)
         elif isinstance(resource, Grain):
-            self.grain += 1
+            self.grain.AddAmount(1)
         elif isinstance(resource, Beer):
-            self.beer += 1
+            self.beer.AddAmount(1)
+
+    def OnResourceDestroyed(self, resource):
+        if isinstance(resource, Meat):
+            self.meat.AddAmount(-1)
+        elif isinstance(resource, Grain):
+            self.grain.AddAmount(-1)
+        elif isinstance(resource, Beer):
+            self.beer.AddAmount(-1)
 
     def testBars(self):
         self.olutta += 1
@@ -118,11 +125,11 @@ class TestDisplay:
         if (self.kaljaa < 0):
             self.kaljaa = 160
         
-        group2 = BarGroup(int(300), int(300))
-        group2.addBar("Kinkkua", 150, 1000, (128,192,64))        
-        group2.addBar("Viljaa", self.olutta, 2000, (192,225,50))
-        group2.addBar("Toolsseja", self.kaljaa, 200, (64,32,192))
-        self.window.addBarGroup(group2)
+        #group2 = BarGroup(int(300), int(300))
+        #group2.addBar("Kinkkua", 150, 1000, (128,192,64))        
+        #group2.addBar("Viljaa", self.olutta, 2000, (192,225,50))
+        #group2.addBar("Toolsseja", self.kaljaa, 200, (64,32,192))
+        #self.window.addBarGroup(group2)
         
         group = BarGroup(int(200), int(100))
         group.addBar("Beer", self.beer, 160, (32, 255, 32)) 

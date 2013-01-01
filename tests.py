@@ -36,7 +36,7 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(0, len(npc.possession.resources))
         self.AdvanceNpc(npc, Npc.sleepDuration) #sleeping time
         self.AdvanceNpc(npc, Hunter.duration) #action time
-        self.assertEqual(1, len(npc.possession.resources))
+        self.assertEqual(2, len(npc.possession.resources))
         self.assertTrue(npc.possession.HasResources([Meat]))
 
     def test_brewer_creates_beer(self):
@@ -67,7 +67,7 @@ class TestSequenceFunctions(unittest.TestCase):
         self.AdvanceNpc(npc, Hunter.duration / 2) #half of the action time
         self.assertEqual(0, len(npc.possession.resources))
         self.AdvanceNpc(npc, Hunter.duration / 2) #half of the action time
-        self.assertEqual(1, len(npc.possession.resources))
+        self.assertEqual(2, len(npc.possession.resources))
         self.assertTrue(npc.possession.HasResources([Meat]))
 
 
@@ -126,15 +126,15 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def test_npc_produces_the_food_it_needs_next_day(self):
         npc = Npc(Hunter())
-        #npc has food for one day by default and produces one food per day (one day ration)
+        #npc has food for one day by default and produces two foods per day (one day ration)
         #so npc is self contained, advance one week. 
         self.AdvanceNpc(npc, Schedule.MaxTime * 7)
-        self.assertEqual(1, len(npc.possession.resources))
+        self.assertEqual(8, len(npc.possession.resources))
         self.assertTrue(npc.possession.HasResources([Meat]))
         self.assertTrue(npc.IsAlive())
         #starting of next day, npc should have to eat the meat it produced last day       
         self.AdvanceNpc(npc, Schedule.MaxTime / 4)
-        self.assertEqual(0, len(npc.possession.resources))
+        self.assertEqual(7, len(npc.possession.resources))
         self.assertTrue(npc.IsAlive())
 
     def test_stock_prices(self):

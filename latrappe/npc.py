@@ -1,6 +1,6 @@
 from schedule import Schedule
 from possession import Possession
-from action import Action
+from action import *
 
 '''
 Game NPC. Each NPC instance must be advanced when the game is advanced. 
@@ -59,10 +59,10 @@ class Npc(object):
     def CreateSchedule(self):
         self.schedule = Schedule()
         if self.strategy == None:
-            self._AddDefaultActions()
+            self._AddMandatoryActions()
             self.occupation.AddDefaultSchedule(self.schedule, self.possession)
         else:
-            self._AddDefaultActions()
+            self._AddMandatoryActions()
             self.strategy.CreateSchedule()
 
     def _ConsumeFood(self, time):
@@ -80,6 +80,6 @@ class Npc(object):
             self.hungerLevel -= consumedAmount * self.foodConsumption            
             time -= consumedAmount
 
-    def _AddDefaultActions(self):
-        self.schedule.AddAction(Action("Sleep", [],[], Npc.sleepDuration, self.possession))
+    def _AddMandatoryActions(self):
+        self.schedule.AddAction(ProduceAction("Sleep", [],[], Npc.sleepDuration, self.possession))
 

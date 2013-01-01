@@ -2,6 +2,7 @@ from resource import *
 
 class NpcStrategySimpleGreedy(object):
     minimumFood = 2
+    maximumFood = 5
 
     def __init__(self, npc):
         self.npc = npc
@@ -30,15 +31,20 @@ class NpcStrategySimpleGreedy(object):
         #add occupation action
         self.npc.occupation.AddDefaultSchedule(self.npc.schedule, self.npc.possession)
 
-        #sell produced goods (if not food, TODO: QUICK FIX FOR HUNTER!!)
         produced = self.npc.occupation.GetResourcesToBeProduced()
         for resourceType in produced:
             resource = self.npc.possession.GetResource(resourceType)
-            if resource != None and not isinstance(resource, FoodResource):
-                if self._SellResource(resource):
-                    print "Greedy strategy (" + self.ToString() + "): Sold resource! (" + str(resource) + ")"
-                else:
-                    print "Greedy strategy (" + self.ToString() + "): Could not sell resource! (" + str(resource) + ")"
+            if resource == None:
+                continue
+
+            #sell food away only if npc has enough food for the bad times
+            if isinstance(resource, FoodResource) and len(self.npc.possession.GetFoods()) < NpcStrategySimpleGreedy.maximumFood:
+                continue
+
+            if self._SellResource(resource):
+                print "Greedy strategy (" + self.ToString() + "): Sold resource! (" + str(resource) + ")"
+            else:
+                print "Greedy strategy (" + self.ToString() + "): Could not sell resource! (" + str(resource) + ")"
                                                     
 
     def _BuyResource(self, resourceType):
@@ -47,6 +53,8 @@ class NpcStrategySimpleGreedy(object):
             resource = stocks[0].FindResource(resourceType)
             if resource != None:
                 return stocks[0].BuyResource(resource, self.npc.possession)
+            print "Stock is out of " + str(resourceType) + "!"
+            return False
         print "No stock market available!"
         return False
 

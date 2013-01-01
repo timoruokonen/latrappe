@@ -1,4 +1,5 @@
 from resource import *
+from resourcefactory import ResourceFactory
 
 '''
 Handles ownings of an entity. Contains a list of resources and amount of money.
@@ -14,6 +15,7 @@ class Possession(object):
     def DestroyResource(self, resource):
         #print "Removing " + str(resource)
         self.resources.remove(resource)
+        ResourceFactory.OnResourceDestroyed(resource)
 
     def GiveResource(self, resource, newOwner):
         self.resources.remove(resource)

@@ -74,12 +74,12 @@ class BarGroup:
 
     def draw(self, screen):
         for bar in self.bars:
-            titleDisplay = bar.title + " (" + str(bar.amount) + "/" + str(bar.max) + ")"
+            titleDisplay = bar.title + " (" + str(bar.amount.GetAmount()) + "/" + str(bar.max) + ")"
             text = self.font.render(titleDisplay, True, (255,255, 255))
 
             leftBorder = self.x
             rightBorder = self.x + self.maxwidth
-            amountX = int((rightBorder - leftBorder) * (float(bar.amount) / float(bar.max)))
+            amountX = int((rightBorder - leftBorder) * (float(bar.amount.GetAmount()) / float(bar.max)))
 
             textRect = text.get_rect()
             textRect.left = leftBorder + 5
@@ -101,3 +101,17 @@ class Bar:
         self.amount = amount
         self.max = max
         self.color = color
+
+class BarAmount:
+    def __init__(self, amount):
+        self.amount = amount
+
+    def SetAmount(self, amount):
+        self.amount = amount
+
+    def AddAmount(self, amount):
+        self.amount += amount
+
+    def GetAmount(self):
+        return self.amount
+
