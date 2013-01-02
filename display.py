@@ -42,12 +42,14 @@ class Display:
     def reset(self):
         self.textRows = 0
 
+    def advance(self, time):
+        pass
+
     def draw(self):
         self.addTitle()
         for group in self.barGroups:
             group.draw(self.screen)
 
-        pygame.display.update()
 
     def visualizeNPCs(self, npcs):
         for npc in npcs:
