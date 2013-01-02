@@ -79,7 +79,10 @@ class BarGroup:
 
             leftBorder = self.x
             rightBorder = self.x + self.maxwidth
-            amountX = int((rightBorder - leftBorder) * (float(bar.amount.GetAmount()) / float(bar.max)))
+            fillRate = float(bar.amount.GetAmount()) / float(bar.max)
+            if fillRate > 1.0:
+                fillRate = 1.0
+            amountX = int((rightBorder - leftBorder) * fillRate)
 
             textRect = text.get_rect()
             textRect.left = leftBorder + 5
