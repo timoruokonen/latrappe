@@ -12,8 +12,8 @@ if not pygame.mixer: print 'Warning, sound disabled'
 
 class TileDisplay:
     def __init__(self, screen, city):
-        self.width = screen.get_width()
-        self.height = screen.get_height()
+        #self.width = screen.get_width()
+        #self.height = screen.get_height()
         self.screen = screen
         self.font = pygame.font.Font(None, 17)
         self.titleFont = pygame.font.Font(None, 40)
@@ -22,24 +22,28 @@ class TileDisplay:
         self.MAP_TILE_WIDTH = 32
         self.MAP_TILE_HEIGHT = 32
         self.MAP_CACHE = {
-        'tiles.png': self.load_tile_table('tiles.png', self.MAP_TILE_WIDTH, self.MAP_TILE_HEIGHT),
+        'tiles.png': self.loadTileTable('tiles.png', self.MAP_TILE_WIDTH, self.MAP_TILE_HEIGHT),
         }
-        self.load_file()
+        self.loadFile(city.filename)
+        self.camerax = 0
+        self.cameray = 0
+        self.mapsurface = pygame.Surface((self.mapwidth*self.MAP_TILE_WIDTH, self.mapheight*self.MAP_TILE_HEIGHT))
 
-    def drawNpcs(self, screen):
+    def drawNpcs(self):
     	npcs = self.city.GetNpcs()
     	for npc in npcs:
-            screen.blit(self.npcimage, (npc.x,npc.y))
+            self.mapsurface.blit(self.npcimage, (npc.x,npc.y))
 
     def draw(self):
-    	self.drawCity(self.screen)
-    	self.drawNpcs(self.screen)
+    	self.drawCity()
+    	self.drawNpcs()
+    	self.screen.blit(self.mapsurface, (-self.camerax,-self.cameray))
         pygame.display.update()
 
     def reset(self):
     	pass
 
-    def load_tile_table(self, filename, width, height):
+    def loadTileTable(self, filename, width, height):
         image = pygame.image.load(filename).convert()
         image_width, image_height = image.get_size()
         tile_table = []
@@ -51,7 +55,7 @@ class TileDisplay:
                 line.append(image.subsurface(rect))
         return tile_table
 
-    def load_file(self, filename="level.map"):
+    def loadFile(self, filename="level.map"):
         self.map = []
         self.key = {}
         parser = ConfigParser.ConfigParser()
@@ -63,13 +67,12 @@ class TileDisplay:
                 desc = dict(parser.items(section))
                 self.key[section] = desc
 
-        self.width = len(self.map[0])
-        self.height = len(self.map)
+        self.mapwidth = len(self.map[0]) 
+        self.mapheight = len(self.map)
 
-    def drawCity(self, screen):
+    def drawCity(self):
         tiles = self.MAP_CACHE[self.tileset]
         #print 'Tiles length' + str(len(tiles))
-        image = pygame.Surface((self.width*self.MAP_TILE_WIDTH, self.height*self.MAP_TILE_HEIGHT))
         for map_y, line in enumerate(self.map):
             for map_x, c in enumerate(line):
                 try:
@@ -82,6 +85,6 @@ class TileDisplay:
 
                 #print 'tile: ' + str(tile[0]) + ',' + str(tile[1])
                 tile_image = tiles[tile[0]][tile[1]]
-                image.blit(tile_image, (map_x*self.MAP_TILE_WIDTH, map_y*self.MAP_TILE_HEIGHT))
+                self.mapsurface.blit(tile_image, (map_x*self.MAP_TILE_WIDTH, map_y*self.MAP_TILE_HEIGHT))
 
-        screen.blit(image, (0,0))
+        

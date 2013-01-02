@@ -36,6 +36,7 @@ class TestDisplay:
         self.tiledisplay = TileDisplay(screen, self.city)
         self.statdisplay = Display(screen)
         self.window = self.statdisplay
+        self.camera_movement = (0,0)
 
         Npc.defaultFoodConsumption = 0 #no food problems :)
         self.testBars()
@@ -52,6 +53,7 @@ class TestDisplay:
             for npc in self.city.GetNpcs():
                 npc.Advance(15)
 
+            self.moveCamera()
             self.window.draw()
 
             msElapsed = clock.tick(30)
@@ -70,6 +72,17 @@ class TestDisplay:
                         self.window = self.statdisplay
                         # Show statistics display
                         pass
+                    if (event.key == K_RIGHT):
+                        self.camera_movement = (1,0)
+
+                    if (event.key == K_LEFT):
+                        self.camera_movement = (-1,0)
+
+                    if (event.key == K_UP):
+                        self.camera_movement = (0,-1)
+
+                    if (event.key == K_DOWN):
+                        self.camera_movement = (0,1)
 
     def CreateTestVillage(self):
         npcs = []
@@ -154,6 +167,10 @@ class TestDisplay:
             y_movement = random.randint(-1, 1)
             npc.x += x_movement
             npc.y += y_movement
+
+    def moveCamera(self):
+        self.tiledisplay.camerax += self.camera_movement[0]
+        self.tiledisplay.cameray += self.camera_movement[1]
 
     def randomizeNpcLocations(self):
         npcs = self.city.GetNpcs()
