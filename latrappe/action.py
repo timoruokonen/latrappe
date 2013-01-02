@@ -48,7 +48,7 @@ class ProduceAction(Action):
         #create the output stuff right away also, so that resources are "reserved"
         #Don't give the results to the caller until duraton is passed
         for output_resource in self.outputs:
-            created_output = ResourceFactory.CreateResource(output_resource, self.possession)
+            created_output = ResourceFactory.create_resource(output_resource, self.possession)
             self.created_outputs.append(created_output)
 
     def _end_action(self):

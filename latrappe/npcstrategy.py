@@ -19,7 +19,7 @@ class NpcStrategySimpleGreedy(object):
                 print "Greedy strategy (" + self.ToString() + "): Could not buy food!"
                         
         #try to get ingredients for occupation
-        required = self.npc.occupation.GetRequiredResources()
+        required = self.npc.occupation.get_required_resources()
         if not self.npc.possession.has_resources(required):
             for resourceType in required:
                 if self._BuyResource(resourceType):
@@ -29,9 +29,9 @@ class NpcStrategySimpleGreedy(object):
                     
 
         #add occupation action
-        self.npc.occupation.AddDefaultSchedule(self.npc.schedule, self.npc.possession)
+        self.npc.occupation.add_default_schedule(self.npc.schedule, self.npc.possession)
 
-        produced = self.npc.occupation.GetResourcesToBeProduced()
+        produced = self.npc.occupation.get_resources_to_be_produced()
         for resourceType in produced:
             resource = self.npc.possession.get_resource(resourceType)
             if resource == None:

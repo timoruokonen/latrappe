@@ -62,7 +62,7 @@ class Npc(object):
         self.schedule = Schedule()
         if self.strategy == None:
             self._AddMandatoryActions()
-            self.occupation.AddDefaultSchedule(self.schedule, self.possession)
+            self.occupation.add_default_schedule(self.schedule, self.possession)
         else:
             self._AddMandatoryActions()
             self.strategy.CreateSchedule()
@@ -77,7 +77,7 @@ class Npc(object):
                     return
                 #just eat the first thing from the inventory...
                 self.possession.destroy_resource(foods[0])
-                self.hungerLevel += foods[0].nutritionalValue
+                self.hungerLevel += foods[0].NUTRITIONAL_VALUE
             consumedAmount = min(time, self.hungerLevel)
             self.hungerLevel -= consumedAmount * self.foodConsumption            
             time -= consumedAmount

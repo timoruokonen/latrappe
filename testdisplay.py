@@ -28,8 +28,8 @@ class TestDisplay:
         self.grain = BarAmount(0)
         self.beer = BarAmount(0)
 
-        ResourceFactory.resourceCreatedSubscribers.append(self)
-        ResourceFactory.resourceDestroyedSubscribers.append(self)
+        ResourceFactory.resource_created_subscribers.append(self)
+        ResourceFactory.resource_destroyed_subscribers.append(self)
 
         self.CreateTestVillage()
         self.randomizeNpcLocations()
@@ -100,9 +100,9 @@ class TestDisplay:
         self.stock.set_price(Beer, 50)
         #add some stuff to stock
         for i in range(50):
-            self.stock.possession.add_resource(ResourceFactory.CreateResource(Meat, self.stock.possession))
-        self.stock.possession.add_resource(ResourceFactory.CreateResource(Grain, self.stock.possession))
-        self.stock.possession.add_resource(ResourceFactory.CreateResource(Grain, self.stock.possession))
+            self.stock.possession.add_resource(ResourceFactory.create_resource(Meat, self.stock.possession))
+        self.stock.possession.add_resource(ResourceFactory.create_resource(Grain, self.stock.possession))
+        self.stock.possession.add_resource(ResourceFactory.create_resource(Grain, self.stock.possession))
 
         self.city.AddStockMarket(self.stock)
         for n in npcs:
@@ -119,7 +119,7 @@ class TestDisplay:
 #            self.npcFarmer.possession.GiveResource(grain, self.npcBrewer.possession)
 #            self.npcBrewer.possession.GiveMoney(self.stock.GetPrice(Grain), self.npcFarmer.possession)
     
-    def OnResourceCreated(self, resource):
+    def on_resource_created(self, resource):
         print "created resource " + str(resource)
         if isinstance(resource, Meat):
             self.meat.AddAmount(1)
@@ -128,7 +128,7 @@ class TestDisplay:
         elif isinstance(resource, Beer):
             self.beer.AddAmount(1)
 
-    def OnResourceDestroyed(self, resource):
+    def on_resource_destroyed(self, resource):
         if isinstance(resource, Meat):
             self.meat.AddAmount(-1)
         elif isinstance(resource, Grain):

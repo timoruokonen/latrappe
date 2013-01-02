@@ -15,7 +15,7 @@ class Possession(object):
     def destroy_resource(self, resource):
         #print "Removing " + str(resource)
         self.resources.remove(resource)
-        ResourceFactory.OnResourceDestroyed(resource)
+        ResourceFactory.on_resource_destroyed(resource)
 
     def give_resource(self, resource, new_owner):
         self.resources.remove(resource)
