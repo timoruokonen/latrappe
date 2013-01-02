@@ -20,13 +20,13 @@ class Occupation(object):
     def __str__(self):
         return "Nothing"
 
-    def AddDefaultSchedule(self, schedule, possession):
+    def add_default_schedule(self, schedule, possession):
         pass
 
-    def GetRequiredResources(self):
+    def get_required_resources(self):
         return self.inputs
 
-    def GetResourcesToBeProduced(self):
+    def get_resources_to_be_produced(self):
         return self.outputs
 
 class Farmer(Occupation):
@@ -39,7 +39,7 @@ class Farmer(Occupation):
     def __str__(self):
         return "Farmer"
 
-    def AddDefaultSchedule(self, schedule, possession):
+    def add_default_schedule(self, schedule, possession):
         schedule.AddAction(ProduceAction("Farming", self.inputs, self.outputs, Farmer.duration, possession))
 
 class Hunter(Occupation):
@@ -52,7 +52,7 @@ class Hunter(Occupation):
     def __str__(self):
         return "Hunter"
 
-    def AddDefaultSchedule(self, schedule, possession):
+    def add_default_schedule(self, schedule, possession):
         schedule.AddAction(ProduceAction("Hunting", self.inputs, self.outputs, Hunter.duration, possession))
 
 class Brewer(Occupation):
@@ -65,6 +65,6 @@ class Brewer(Occupation):
     def __str__(self):
         return "Brewer"
 
-    def AddDefaultSchedule(self, schedule, possession):
+    def add_default_schedule(self, schedule, possession):
         schedule.AddAction(ProduceAction("Brewing beer", self.inputs, self.outputs, Brewer.duration, possession))
 

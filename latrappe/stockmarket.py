@@ -1,56 +1,56 @@
 from possession import Possession
 
 class StockMarket(object):
-    defaultPrice = 5
-    initialMoney = 500
+    DEFAULT_PRICE = 5
+    INITIAL_MONEY = 500
 
     def __init__(self):
         self.possession = Possession()
         self.prices = {}
 
         #get some initial cash from loan sharks :D
-        self.LoanMoney(StockMarket.initialMoney)
+        self.loan_money(StockMarket.INITIAL_MONEY)
 
-    def LoanMoney(self, amount):
+    def loan_money(self, amount):
         #TODO: How the hell make this loan system...
         loanShark = Possession()
         loanShark.money = amount
-        loanShark.GiveMoney(amount, self.possession)
+        loanShark.give_money(amount, self.possession)
 
 
-    def GetPrice(self, resource):
+    def get_price(self, resource):
         if type(resource) != type:
             resource = type(resource)
         if not resource in self.prices:
-            self.prices[resource] = StockMarket.defaultPrice            
+            self.prices[resource] = StockMarket.DEFAULT_PRICE            
         return self.prices[resource]
 
-    def SetPrice(self, resource, price):
+    def set_price(self, resource, price):
         if type(resource) == type:
             self.prices[resource] = price
         else:
             self.prices[type(resource)] = price
 
-    def FindResource(self, resourceType):
-        return self.possession.GetResource(resourceType)
+    def find_resource(self, resourceType):
+        return self.possession.get_resource(resourceType)
 
-    def SellResource(self, resource, seller):
-        if self.possession.GetMoney() < self.GetPrice(resource):
+    def sell_resource(self, resource, seller):
+        if self.possession.get_money() < self.get_price(resource):
             return False
-        seller.GiveResource(resource, self.possession)
-        self.possession.GiveMoney(self.GetPrice(resource), seller)
+        seller.give_resource(resource, self.possession)
+        self.possession.give_money(self.get_price(resource), seller)
         return True
 
-    def BuyResource(self, resource, buyer):
-        if buyer.GetMoney() < self.GetPrice(resource):
+    def buy_resource(self, resource, buyer):
+        if buyer.get_money() < self.get_price(resource):
             print "Buyer has not enough money"
             return False
         if type(resource) == type:
-            resource = self.FindResource(resource)
+            resource = self.find_resource(resource)
             if resource == None:
                 print "Stock has not required resource"
                 return False
-        self.possession.GiveResource(resource, buyer)
-        buyer.GiveMoney(self.GetPrice(resource), self.possession)
+        self.possession.give_resource(resource, buyer)
+        buyer.give_money(self.get_price(resource), self.possession)
         return True
 

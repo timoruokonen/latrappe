@@ -5,40 +5,40 @@ creating resources. When a resource is created, all the possible input resources
 possession instance of the entity that is creating a new resource.
 '''
 class ResourceFactory(object):
-    resourceCreatedSubscribers = []
-    resourceDestroyedSubscribers = []
+    resource_created_subscribers = []
+    resource_destroyed_subscribers = []
 
     def __init__(self):
         pass
 
     @staticmethod
-    def CreateResource(target, possession):
-        copyPossession = possession
+    def create_resource(target, possession):
+        copy_possession = possession
         for resource in target.materials:
             found = False
-            for posResource in possession.resources:
-                if (isinstance(resource, type(posResource))):
-                    possession.DestroyResource(posResource)
+            for pos_resource in possession.resources:
+                if (isinstance(resource, type(pos_resource))):
+                    possession.destroy_resource(pos_resource)
                     found = True
                     break;
             if not found:
                 raise Exception("Could not create " + str(target) + ", not enough resources!!")
         print "New " + str(target) + " was created!"
-        createdResource = target()
-        ResourceFactory.OnResourceCreated(createdResource)
-        return createdResource
+        created_resource = target()
+        ResourceFactory.on_resource_created(created_resource)
+        return created_resource
 
     @staticmethod
-    def DestroyResource(resource):
-        ResourceFactory.OnResourceDestroyed(resource)
+    def destroy_resource(resource):
+        ResourceFactory.on_resource_destroyed(resource)
 
     @staticmethod
-    def OnResourceCreated(resource):
-        for subscriber in ResourceFactory.resourceCreatedSubscribers:
-            subscriber.OnResourceCreated(resource)
+    def on_resource_created(resource):
+        for subscriber in ResourceFactory.resource_created_subscribers:
+            subscriber.on_resource_created(resource)
     
     @staticmethod
-    def OnResourceDestroyed(resource):
-        for subscriber in ResourceFactory.resourceDestroyedSubscribers:
-            subscriber.OnResourceDestroyed(resource)
+    def on_resource_destroyed(resource):
+        for subscriber in ResourceFactory.resource_destroyed_subscribers:
+            subscriber.on_resource_destroyed(resource)
 
