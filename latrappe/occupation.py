@@ -40,7 +40,7 @@ class Farmer(Occupation):
         return "Farmer"
 
     def add_default_schedule(self, schedule, possession):
-        schedule.AddAction(ProduceAction("Farming", self.inputs, self.outputs, Farmer.duration, possession))
+        schedule.add_action(ProduceAction("Farming", self.inputs, self.outputs, Farmer.duration, possession))
 
 class Hunter(Occupation):
     duration = 4 * 60
@@ -53,7 +53,7 @@ class Hunter(Occupation):
         return "Hunter"
 
     def add_default_schedule(self, schedule, possession):
-        schedule.AddAction(ProduceAction("Hunting", self.inputs, self.outputs, Hunter.duration, possession))
+        schedule.add_action(ProduceAction("Hunting", self.inputs, self.outputs, Hunter.duration, possession))
 
 class Brewer(Occupation):
     duration = 7 * 60
@@ -66,5 +66,5 @@ class Brewer(Occupation):
         return "Brewer"
 
     def add_default_schedule(self, schedule, possession):
-        schedule.AddAction(ProduceAction("Brewing beer", self.inputs, self.outputs, Brewer.duration, possession))
+        schedule.add_action(ProduceAction("Brewing beer", self.inputs, self.outputs, Brewer.duration, possession))
 

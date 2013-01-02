@@ -7,52 +7,52 @@ tasks are still unfinished, these should be moved to the next day.
 '''
 class Schedule(object):
     #Lame, just use minutes now
-    MaxTime = 24 * 60
+    MAX_TIME = 24 * 60
 
     def __init__(self):
         self.actions = []
-        self.totalRemainingTime = Schedule.MaxTime
+        self.total_remaining_time = Schedule.MAX_TIME
 
-    def GetTotalRemainingTime(self):
-        return self.totalRemainingTime
+    def get_total_remaining_time(self):
+        return self.total_remaining_time
 
-    def AddAction(self, action):
+    def add_action(self, action):
         self.actions.append(action)
 
-    def Advance(self, time):
-        timeToSpend = min(time, self.totalRemainingTime)
-        timeLeft = time - timeToSpend
-        self.totalRemainingTime -= timeToSpend
+    def advance(self, time):
+        time_to_spend = min(time, self.total_remaining_time)
+        timeLeft = time - time_to_spend
+        self.total_remaining_time -= time_to_spend
 
         #advance through actions and remove if completed
-        while (timeToSpend > 0):
-            action = self.GetCurrentAction()
+        while (time_to_spend > 0):
+            action = self.get_current_action()
             if (action != None):
-                #print "Advancing action " + action.name + ". Time left of day: " + str(self.totalRemainingTime)       
-                timeToSpend = action.advance(timeToSpend)
+                #print "Advancing action " + action.name + ". Time left of day: " + str(self.total_remaining_time)       
+                time_to_spend = action.advance(time_to_spend)
                 if (action.is_done()):
-                    self._RemoveAction(action)
+                    self._remove_action(action)
             else:
-                #print "Doing nothing..." + ". Time left of day: " + str(self.totalRemainingTime)
+                #print "Doing nothing..." + ". Time left of day: " + str(self.total_remaining_time)
                 break;
         return timeLeft
 
-    def GetCurrentAction(self):
+    def get_current_action(self):
         if (len(self.actions) > 0):
             return self.actions[0]
         return None
 
-    def GetCurrentActionName(self):
+    def get_current_action_name(self):
         if (len(self.actions) > 0):
             return self.actions[0].name
         return "Lazing around"
 
-    def IsDone(self):
-        return self.totalRemainingTime <= 0
+    def is_done(self):
+        return self.total_remaining_time <= 0
 
-    def GetListOfNotFinishedActions(self):
+    def get_ist_of_not_finished_actions(self):
         return self.actions
 
-    def _RemoveAction(self, action):
+    def _remove_action(self, action):
         self.actions.remove(action)
 

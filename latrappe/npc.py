@@ -13,7 +13,7 @@ class Npc(object):
         self.occupation = occupation
         self.schedule = Schedule()
         #TODO: Cannot think... just advance schedule so that it is already done when Advance is called the first time...
-        self.schedule.Advance(Schedule.MaxTime)
+        self.schedule.advance(Schedule.MAX_TIME)
         self.possession = Possession()
         self.hungerLevel = 24 * 60 #enough for one day
         self.foodConsumption = Npc.defaultFoodConsumption
@@ -48,10 +48,10 @@ class Npc(object):
                 return
 
             #Day is completed, create new schedule
-            if (self.schedule.IsDone()):
+            if (self.schedule.is_done()):
                 self.CreateSchedule()
             
-            timeLeft = self.schedule.Advance(time) 
+            timeLeft = self.schedule.advance(time) 
             self._ConsumeFood(time - timeLeft)
             time = timeLeft
 
@@ -65,7 +65,7 @@ class Npc(object):
             self.occupation.add_default_schedule(self.schedule, self.possession)
         else:
             self._AddMandatoryActions()
-            self.strategy.CreateSchedule()
+            self.strategy.create_schedule()
 
     def _ConsumeFood(self, time):
         while (time > 0):
@@ -83,7 +83,7 @@ class Npc(object):
             time -= consumedAmount
 
     def _AddMandatoryActions(self):
-        self.schedule.AddAction(ProduceAction("Sleep", [],[], Npc.sleepDuration, self.possession))
+        self.schedule.add_action(ProduceAction("Sleep", [],[], Npc.sleepDuration, self.possession))
 
 
 

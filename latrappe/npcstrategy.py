@@ -1,31 +1,31 @@
 from resource import *
 
 class NpcStrategySimpleGreedy(object):
-    minimumFood = 2
-    maximumFood = 5
+    MINIMUM_FOOD = 2
+    MAXIMUM_FOOD = 5
 
     def __init__(self, npc):
         self.npc = npc
 
-    def ToString(self):
+    def to_string(self):
         return str(self.npc.occupation)
 
-    def CreateSchedule(self):
+    def create_schedule(self):
         #if food is getting low, try to get more
-        if len(self.npc.possession.get_foods()) < NpcStrategySimpleGreedy.minimumFood:
-            if self._BuyResource(Meat):
-                print "Greedy strategy (" + self.ToString() + "): Bought food!"
+        if len(self.npc.possession.get_foods()) < NpcStrategySimpleGreedy.MINIMUM_FOOD:
+            if self._buy_resource(Meat):
+                print "Greedy strategy (" + self.to_string() + "): Bought food!"
             else:
-                print "Greedy strategy (" + self.ToString() + "): Could not buy food!"
+                print "Greedy strategy (" + self.to_string() + "): Could not buy food!"
                         
         #try to get ingredients for occupation
         required = self.npc.occupation.get_required_resources()
         if not self.npc.possession.has_resources(required):
             for resourceType in required:
-                if self._BuyResource(resourceType):
-                    print "Greedy strategy (" + self.ToString() + "): Bought resource (" + str(resourceType) + ")!" 
+                if self._buy_resource(resourceType):
+                    print "Greedy strategy (" + self.to_string() + "): Bought resource (" + str(resourceType) + ")!" 
                 else:
-                    print "Greedy strategy (" + self.ToString() + "): Could not buy resource (" + str(resourceType) + ")!" 
+                    print "Greedy strategy (" + self.to_string() + "): Could not buy resource (" + str(resourceType) + ")!" 
                     
 
         #add occupation action
@@ -38,16 +38,16 @@ class NpcStrategySimpleGreedy(object):
                 continue
 
             #sell food away only if npc has enough food for the bad times
-            if isinstance(resource, FoodResource) and len(self.npc.possession.get_foods()) < NpcStrategySimpleGreedy.maximumFood:
+            if isinstance(resource, FoodResource) and len(self.npc.possession.get_foods()) < NpcStrategySimpleGreedy.MAXIMUM_FOOD:
                 continue
 
-            if self._SellResource(resource):
-                print "Greedy strategy (" + self.ToString() + "): Sold resource! (" + str(resource) + ")"
+            if self._sell_resource(resource):
+                print "Greedy strategy (" + self.to_string() + "): Sold resource! (" + str(resource) + ")"
             else:
-                print "Greedy strategy (" + self.ToString() + "): Could not sell resource! (" + str(resource) + ")"
+                print "Greedy strategy (" + self.to_string() + "): Could not sell resource! (" + str(resource) + ")"
                                                     
 
-    def _BuyResource(self, resourceType):
+    def _buy_resource(self, resourceType):
         stocks = self.npc.GetCity().GetStockMarkets()
         if len(stocks) > 0:
             resource = stocks[0].find_resource(resourceType)
@@ -58,7 +58,7 @@ class NpcStrategySimpleGreedy(object):
         print "No stock market available!"
         return False
 
-    def _SellResource(self, resource):
+    def _sell_resource(self, resource):
         stocks = self.npc.GetCity().GetStockMarkets()
         if len(stocks) > 0:
             return stocks[0].sell_resource(resource, self.npc.possession)

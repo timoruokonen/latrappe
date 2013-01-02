@@ -54,7 +54,7 @@ class TestSequenceFunctions(unittest.TestCase):
         npc.possession.add_resource(Grain())
         npc.possession.add_resource(Grain())
         npc.possession.add_resource(Grain())
-        self.AdvanceNpc(npc, npc.schedule.GetTotalRemainingTime()) #rest of the day
+        self.AdvanceNpc(npc, npc.schedule.get_total_remaining_time()) #rest of the day
         self.AdvanceNpc(npc, Npc.sleepDuration) #sleeping time
         self.AdvanceNpc(npc, Brewer.duration) #brewing time
         self.assertEqual(3, len(npc.possession.resources))
@@ -84,7 +84,7 @@ class TestSequenceFunctions(unittest.TestCase):
         npc = Npc(Farmer())
         self.assertEqual(0, len(npc.possession.resources))
         #advance one full day, both sleeping and farming should be done       
-        self.AdvanceNpc(npc, Schedule.MaxTime)
+        self.AdvanceNpc(npc, Schedule.MAX_TIME)
         self.assertEqual(1, len(npc.possession.resources))
         self.assertTrue(npc.possession.has_resources([Grain]))
 
@@ -93,33 +93,33 @@ class TestSequenceFunctions(unittest.TestCase):
         npc.foodConsumption = 0 #lets not worry about food in this test
         self.assertEqual(0, len(npc.possession.resources))
         #advance two full days, two sleepings and farmings should be done       
-        self.AdvanceNpc(npc, Schedule.MaxTime * 2)
+        self.AdvanceNpc(npc, Schedule.MAX_TIME * 2)
         self.assertEqual(2, len(npc.possession.resources))
         self.assertTrue(npc.possession.has_resources([Grain, Grain]))
 
     def test_npc_eats(self):
         npc = Npc(Farmer())
         #npc has food for one day by default
-        self.AdvanceNpc(npc, Schedule.MaxTime)
+        self.AdvanceNpc(npc, Schedule.MAX_TIME)
         self.assertEqual(1, len(npc.possession.resources))
         self.assertTrue(npc.possession.has_resources([Grain]))
         
         #give foor for the next day and check that it is consumed
         npc.possession.add_resource(Meat())
-        self.AdvanceNpc(npc, Schedule.MaxTime)
+        self.AdvanceNpc(npc, Schedule.MAX_TIME)
         self.assertEqual(2, len(npc.possession.resources))
         self.assertTrue(npc.possession.has_resources([Grain, Grain]))
 
     def test_npc_dies_with_hunger(self):
         npc = Npc(Farmer())
         #npc has food for one day by default
-        self.AdvanceNpc(npc, Schedule.MaxTime)
+        self.AdvanceNpc(npc, Schedule.MAX_TIME)
         self.assertEqual(1, len(npc.possession.resources))
         self.assertTrue(npc.possession.has_resources([Grain]))
         self.assertTrue(npc.IsAlive())
         
         #don't give more food so npc should die
-        self.AdvanceNpc(npc, Schedule.MaxTime)
+        self.AdvanceNpc(npc, Schedule.MAX_TIME)
         self.assertEqual(1, len(npc.possession.resources)) #couldn't farm anymore
         self.assertTrue(npc.possession.has_resources([Grain]))
         self.assertFalse(npc.IsAlive())
@@ -128,12 +128,12 @@ class TestSequenceFunctions(unittest.TestCase):
         npc = Npc(Hunter())
         #npc has food for one day by default and produces two foods per day (one day ration)
         #so npc is self contained, advance one week. 
-        self.AdvanceNpc(npc, Schedule.MaxTime * 7)
+        self.AdvanceNpc(npc, Schedule.MAX_TIME * 7)
         self.assertEqual(8, len(npc.possession.resources))
         self.assertTrue(npc.possession.has_resources([Meat]))
         self.assertTrue(npc.IsAlive())
         #starting of next day, npc should have to eat the meat it produced last day       
-        self.AdvanceNpc(npc, Schedule.MaxTime / 4)
+        self.AdvanceNpc(npc, Schedule.MAX_TIME / 4)
         self.assertEqual(7, len(npc.possession.resources))
         self.assertTrue(npc.IsAlive())
 
@@ -231,29 +231,29 @@ class TestSequenceFunctions(unittest.TestCase):
         #add simple strategy to npc
         npc = Npc(Brewer())
         city.AddNpc(npc)
-        for i in range(NpcStrategySimpleGreedy.minimumFood):
+        for i in range(NpcStrategySimpleGreedy.MINIMUM_FOOD):
            npc.possession.add_resource(Meat())
         money = 200
         npc.possession.money = money
         npc.SetStrategy(NpcStrategySimpleGreedy(npc))
-        self.AdvanceNpc(npc, Schedule.MaxTime * 2)
+        self.AdvanceNpc(npc, Schedule.MAX_TIME * 2)
 
         #npc should have spend one food and have now less food than minimum and buy more
-        self.AdvanceNpc(npc, Schedule.MaxTime)
+        self.AdvanceNpc(npc, Schedule.MAX_TIME)
         money -= self.meatDefaultPrice
         self.assertEqual(money, npc.possession.get_money()) 
 
         #add needed resources to stock so npc should try to buy food and resources
         stock.possession.add_resource(Grain())
         stock.possession.add_resource(Grain())
-        self.AdvanceNpc(npc, Schedule.MaxTime)
+        self.AdvanceNpc(npc, Schedule.MAX_TIME)
         money -= self.meatDefaultPrice
         money -= self.grainDefaultPrice * 2
         self.assertEqual(money, npc.possession.get_money()) 
         self.assertTrue(npc.possession.has_resources([Beer]))
 
         #next day, npc should try to buy food and sell beer (there are no resources to buy)
-        self.AdvanceNpc(npc, Schedule.MaxTime)
+        self.AdvanceNpc(npc, Schedule.MAX_TIME)
         money -= self.meatDefaultPrice
         money += self.beerDefaultPrice
         self.assertEqual(money, npc.possession.get_money()) 
