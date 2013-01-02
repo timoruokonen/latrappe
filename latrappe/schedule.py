@@ -29,8 +29,8 @@ class Schedule(object):
             action = self.GetCurrentAction()
             if (action != None):
                 #print "Advancing action " + action.name + ". Time left of day: " + str(self.totalRemainingTime)       
-                timeToSpend = action.Advance(timeToSpend)
-                if (action.IsDone()):
+                timeToSpend = action.advance(timeToSpend)
+                if (action.is_done()):
                     self._RemoveAction(action)
             else:
                 #print "Doing nothing..." + ". Time left of day: " + str(self.totalRemainingTime)
