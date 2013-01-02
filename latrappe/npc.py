@@ -6,8 +6,8 @@ from action import *
 Game NPC. Each NPC instance must be advanced when the game is advanced. 
 '''
 class Npc(object):
-    sleepDuration = 7 * 60
-    defaultFoodConsumption = 1 #amount of food needed per unit of time (now minute...)
+    SLEEP_DURATION = 7 * 60
+    DEFAULT_FOOD_CONSUMPTION = 1 #amount of food needed per unit of time (now minute...)
 
     def __init__(self, occupation):
         self.occupation = occupation
@@ -16,58 +16,58 @@ class Npc(object):
         self.schedule.advance(Schedule.MAX_TIME)
         self.possession = Possession()
         self.hungerLevel = 24 * 60 #enough for one day
-        self.foodConsumption = Npc.defaultFoodConsumption
+        self.food_consumption = Npc.DEFAULT_FOOD_CONSUMPTION
         self.alive = True
         self.strategy = None
         self.city = None
         self.x = 100
         self.y = 100
 
-    def PrintStatus(self):
+    def print_status(self):
         if not self.alive:
             print "Npc is DEAD!"
         print "Npc (" + str(self.occupation) + ") has " + str(self.possession.money) + " money, owns:"
         for pos in self.possession.resources:
             print pos
 
-    def SetCity(self, city):
+    def set_city(self, city):
         self.city = city
 
-    def GetCity(self):
+    def get_city(self):
         return self.city
 
-    def SetStrategy(self, strategy):
+    def set_strategy(self, strategy):
         self.strategy = strategy
 
     #TODO: How to handle time advancing. Now advancing goes fine if the time interval is smalles possible.
     #If the interval is increased, first schedule is advanced and then food. This leads to not wanted scenarios
     #where npc can do work without food.
-    def Advance(self, time):
+    def advance(self, time):
         while (time > 0):
             if not self.alive:
                 return
 
             #Day is completed, create new schedule
             if (self.schedule.is_done()):
-                self.CreateSchedule()
+                self.create_schedule()
             
             timeLeft = self.schedule.advance(time) 
-            self._ConsumeFood(time - timeLeft)
+            self._consume_food(time - timeLeft)
             time = timeLeft
 
-    def IsAlive(self):
+    def is_alive(self):
         return self.alive;
             
-    def CreateSchedule(self):
+    def create_schedule(self):
         self.schedule = Schedule()
         if self.strategy == None:
-            self._AddMandatoryActions()
+            self._add_mandatory_actions()
             self.occupation.add_default_schedule(self.schedule, self.possession)
         else:
-            self._AddMandatoryActions()
+            self._add_mandatory_actions()
             self.strategy.create_schedule()
 
-    def _ConsumeFood(self, time):
+    def _consume_food(self, time):
         while (time > 0):
             if (self.hungerLevel <= 0):
                 foods = self.possession.get_foods()
@@ -79,11 +79,11 @@ class Npc(object):
                 self.possession.destroy_resource(foods[0])
                 self.hungerLevel += foods[0].NUTRITIONAL_VALUE
             consumedAmount = min(time, self.hungerLevel)
-            self.hungerLevel -= consumedAmount * self.foodConsumption            
+            self.hungerLevel -= consumedAmount * self.food_consumption            
             time -= consumedAmount
 
-    def _AddMandatoryActions(self):
-        self.schedule.add_action(ProduceAction("Sleep", [],[], Npc.sleepDuration, self.possession))
+    def _add_mandatory_actions(self):
+        self.schedule.add_action(ProduceAction("Sleep", [],[], Npc.SLEEP_DURATION, self.possession))
 
 
 

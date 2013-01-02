@@ -52,7 +52,7 @@ class TestDisplay:
             #self.UpdateVillage()
             self.moveNpcs()
             for npc in self.city.GetNpcs():
-                npc.Advance(15)
+                npc.advance(15)
 
             self.moveCamera()
             self.window.advance(self.time)
@@ -112,7 +112,7 @@ class TestDisplay:
         self.city.AddStockMarket(self.stock)
         for n in npcs:
             n.possession.money = 100
-            n.SetStrategy(NpcStrategySimpleGreedy(n))
+            n.set_strategy(NpcStrategySimpleGreedy(n))
             self.city.AddNpc(n)
         
         return self.city

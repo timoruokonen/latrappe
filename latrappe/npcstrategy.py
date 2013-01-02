@@ -48,7 +48,7 @@ class NpcStrategySimpleGreedy(object):
                                                     
 
     def _buy_resource(self, resourceType):
-        stocks = self.npc.GetCity().GetStockMarkets()
+        stocks = self.npc.get_city().GetStockMarkets()
         if len(stocks) > 0:
             resource = stocks[0].find_resource(resourceType)
             if resource != None:
@@ -59,7 +59,7 @@ class NpcStrategySimpleGreedy(object):
         return False
 
     def _sell_resource(self, resource):
-        stocks = self.npc.GetCity().GetStockMarkets()
+        stocks = self.npc.get_city().GetStockMarkets()
         if len(stocks) > 0:
             return stocks[0].sell_resource(resource, self.npc.possession)
         return False
