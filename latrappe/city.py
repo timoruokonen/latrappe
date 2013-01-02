@@ -3,6 +3,7 @@ class City(object):
     def __init__(self, filename="level.map"):
         self.npcs = []
         self.stocks = []
+        self.filename = filename
 
     def AddNpc(self, npc):
         npc.SetCity(self)
