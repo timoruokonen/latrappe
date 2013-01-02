@@ -37,6 +37,7 @@ class TestDisplay:
         self.statdisplay = Display(screen)
         self.window = self.statdisplay
         self.camera_movement = (0,0)
+        self.time = 0
 
         Npc.defaultFoodConsumption = 0 #no food problems :)
         self.testBars()
@@ -54,12 +55,16 @@ class TestDisplay:
                 npc.Advance(15)
 
             self.moveCamera()
+            self.window.advance(self.time)
             self.window.draw()
+            pygame.display.update()
 
             msElapsed = clock.tick(30)
+            self.time += 30
             for event in pygame.event.get():
                 if event.type == KEYDOWN:
                     if (event.key == K_ESCAPE):
+                        pygame.quit()
                         sys.exit()
                         window.reset()
                     if (event.key == K_1):

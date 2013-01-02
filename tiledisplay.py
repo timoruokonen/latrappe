@@ -6,6 +6,7 @@ import pygame
 from pygame.locals import *
 from latrappe import *
 import ConfigParser
+from AnimatedSprite import AnimatedSprite
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
@@ -18,7 +19,12 @@ class TileDisplay:
         self.font = pygame.font.Font(None, 17)
         self.titleFont = pygame.font.Font(None, 40)
         self.city = city
+
+        # FIXME: Just test images for now
         self.npcimage = pygame.image.load("duff.png").convert()
+        self.animation_images = self.load_sliced_sprites(64, 64, 'bird.png')
+        self.npc_animated_img = AnimatedSprite(self.animation_images, 30)
+
         self.MAP_TILE_WIDTH = 32
         self.MAP_TILE_HEIGHT = 32
         self.MAP_CACHE = {
@@ -29,16 +35,29 @@ class TileDisplay:
         self.cameray = 0
         self.mapsurface = pygame.Surface((self.mapwidth*self.MAP_TILE_WIDTH, self.mapheight*self.MAP_TILE_HEIGHT))
 
+        self.npc_anim = {}
+
+
+    def init_npc_anim(self):
+    	npcs = self.city.GetNpcs()
+    	#for npc in npcs:
+    	#	self.npc_anim.append((npc))  	
+
+    def advance(self, time):
+    	self.npc_animated_img.update(time)
+
     def drawNpcs(self):
     	npcs = self.city.GetNpcs()
     	for npc in npcs:
-            self.mapsurface.blit(self.npcimage, (npc.x,npc.y))
+            self.mapsurface.blit(self.npc_animated_img.image, (npc.x,npc.y))
 
     def draw(self):
+    	# Draw all the stuff into one big surface buffer
     	self.drawCity()
     	self.drawNpcs()
+
+    	# Blit visible part of buffer onto screen
     	self.screen.blit(self.mapsurface, (-self.camerax,-self.cameray))
-        pygame.display.update()
 
     def reset(self):
     	pass
@@ -86,5 +105,17 @@ class TileDisplay:
                 #print 'tile: ' + str(tile[0]) + ',' + str(tile[1])
                 tile_image = tiles[tile[0]][tile[1]]
                 self.mapsurface.blit(tile_image, (map_x*self.MAP_TILE_WIDTH, map_y*self.MAP_TILE_HEIGHT))
+
+    def load_sliced_sprites(self, w, h, filename):
+        images = []
+        master_image = pygame.image.load(filename).convert_alpha()
+
+        master_width, master_height = master_image.get_size()
+        for y in xrange(int(master_height/h)):
+            for i in xrange(int(master_width/w)):
+    	        images.append(master_image.subsurface(i*w,y*h,w,h))
+
+    	print 'Image count:' + str(len(images))
+        return images
 
         
