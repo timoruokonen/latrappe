@@ -9,51 +9,50 @@ class Possession(object):
         self.resources = []
         self.money = 0
 
-    def AddResource(self, resource):
+    def add_resource(self, resource):
         self.resources.append(resource)
 
-    def DestroyResource(self, resource):
+    def destroy_resource(self, resource):
         #print "Removing " + str(resource)
         self.resources.remove(resource)
         ResourceFactory.OnResourceDestroyed(resource)
 
-    def GiveResource(self, resource, newOwner):
+    def give_resource(self, resource, new_owner):
         self.resources.remove(resource)
-        newOwner.resources.append(resource)
+        new_owner.resources.append(resource)
 
-    def GetResource(self, resourceType):
+    def get_resource(self, resource_type):
         for resource in self.resources:
-            if (isinstance(resource, resourceType)):
+            if (isinstance(resource, resource_type)):
                 return resource
         return None
 
-    def HasResources(self, resources):
-        usedResources = []
-        for inputResource in resources:
+    def has_resources(self, resources):
+        used_resources = []
+        for input_resource in resources:
             found = False
             for resource in self.resources:
-                if (resource in usedResources):
+                if (resource in used_resources):
                     continue
-                #print "Comparing " + str(resource) + " to " + str(inputResource)
-                if (isinstance(resource, inputResource)):
-                    usedResources.append(resource)
+                if (isinstance(resource, input_resource)):
+                    used_resources.append(resource)
                     found = True
                     break;
             if not found:
                 return False
         return True
 
-    def GetFoods(self):
+    def get_foods(self):
         foods = []
         for resource in self.resources:
             if (isinstance(resource, FoodResource)):
                 foods.append(resource)
         return foods
 
-    def GetMoney(self):
+    def get_money(self):
         return self.money;
 
-    def GiveMoney(self, amount, newOwner):
+    def give_money(self, amount, newOwner):
         if amount > self.money:
             return False
         self.money -= amount

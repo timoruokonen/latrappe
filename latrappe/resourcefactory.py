@@ -18,7 +18,7 @@ class ResourceFactory(object):
             found = False
             for posResource in possession.resources:
                 if (isinstance(resource, type(posResource))):
-                    possession.DestroyResource(posResource)
+                    possession.destroy_resource(posResource)
                     found = True
                     break;
             if not found:

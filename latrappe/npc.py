@@ -70,13 +70,13 @@ class Npc(object):
     def _ConsumeFood(self, time):
         while (time > 0):
             if (self.hungerLevel <= 0):
-                foods = self.possession.GetFoods()
+                foods = self.possession.get_foods()
                 if len(foods) == 0:
                     self.alive = False
                     print "NPC (" + str(self.occupation) + ") died from hunger!"
                     return
                 #just eat the first thing from the inventory...
-                self.possession.DestroyResource(foods[0])
+                self.possession.destroy_resource(foods[0])
                 self.hungerLevel += foods[0].nutritionalValue
             consumedAmount = min(time, self.hungerLevel)
             self.hungerLevel -= consumedAmount * self.foodConsumption            

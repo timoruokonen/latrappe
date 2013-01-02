@@ -82,14 +82,14 @@ class TestDisplay:
         self.stock = StockMarket()
 
         #set prices
-        self.stock.SetPrice(Grain, 10)
-        self.stock.SetPrice(Meat, 15)
-        self.stock.SetPrice(Beer, 50)
+        self.stock.set_price(Grain, 10)
+        self.stock.set_price(Meat, 15)
+        self.stock.set_price(Beer, 50)
         #add some stuff to stock
         for i in range(50):
-            self.stock.possession.AddResource(ResourceFactory.CreateResource(Meat, self.stock.possession))
-        self.stock.possession.AddResource(ResourceFactory.CreateResource(Grain, self.stock.possession))
-        self.stock.possession.AddResource(ResourceFactory.CreateResource(Grain, self.stock.possession))
+            self.stock.possession.add_resource(ResourceFactory.CreateResource(Meat, self.stock.possession))
+        self.stock.possession.add_resource(ResourceFactory.CreateResource(Grain, self.stock.possession))
+        self.stock.possession.add_resource(ResourceFactory.CreateResource(Grain, self.stock.possession))
 
         self.city.AddStockMarket(self.stock)
         for n in npcs:
