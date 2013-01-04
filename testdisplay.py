@@ -98,6 +98,7 @@ class TestDisplay:
         npcs.append(Npc(Hunter()))
         npcs.append(Npc(Brewer()))
         self.stock = StockMarket()
+        self.stock.set_location(30,30)
 
         #set prices
         self.stock.set_price(Grain, 10)
@@ -166,6 +167,7 @@ class TestDisplay:
         self.statdisplay.addText("La Trappen markkinahinta: 12")
 
     def moveNpcs(self):
+        return
         npcs = self.city.get_npcs()
         for npc in npcs:
             x_movement = random.randint(-1, 1)

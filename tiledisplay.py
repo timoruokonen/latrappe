@@ -39,7 +39,7 @@ class TileDisplay:
 
 
     def init_npc_anim(self):
-    	npcs = self.city.GetNpcs()
+    	npcs = self.city.get_npcs()
     	#for npc in npcs:
     	#	self.npc_anim.append((npc))  	
 
@@ -47,7 +47,7 @@ class TileDisplay:
     	self.npc_animated_img.update(time)
 
     def drawNpcs(self):
-    	npcs = self.city.GetNpcs()
+    	npcs = self.city.get_npcs()
     	for npc in npcs:
             self.mapsurface.blit(self.npc_animated_img.image, (npc.x,npc.y))
 

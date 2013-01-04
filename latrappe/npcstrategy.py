@@ -1,5 +1,6 @@
 from resource import *
 from action import *
+from occupation import *
 
 class NpcStrategySimpleGreedy(object):
     MINIMUM_FOOD = 2
@@ -39,7 +40,8 @@ class NpcStrategySimpleGreedy(object):
         self._add_stock_action(to_buy, to_sell)
                     
         #add occupation action
-        self.npc.occupation.add_default_schedule(self.npc.schedule, self.npc.possession)
+        self.npc.schedule.add_action(MoveAction("Moving", self.npc, self.npc.occupation.POS_X, self.npc.occupation.POS_Y))
+        self.npc.occupation.add_default_schedule(self.npc, self.npc.possession)
 
                                                     
     def _add_stock_action(self, to_buy, to_sell):
@@ -52,6 +54,7 @@ class NpcStrategySimpleGreedy(object):
     
         stocks = self.npc.get_city().get_stock_markets()
         if len(stocks) > 0:
+            self.npc.schedule.add_action(MoveAction("Moving", self.npc, stocks[0].get_x(), stocks[0].get_y()))
             self.npc.schedule.add_action(StockAction("Stock", to_buy, to_sell, self.npc.possession, stocks[0]))
             return
         print "No stock market available!"

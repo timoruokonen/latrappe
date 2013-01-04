@@ -22,7 +22,7 @@ class TestSequenceFunctions(unittest.TestCase):
         stock.set_price(Meat, self.meatDefaultPrice)
         stock.set_price(Beer, self.beerDefaultPrice)
 
-
+    
     def test_farmer_creates_grain(self):
         npc = Npc(Farmer())
         self.assertEqual(0, len(npc.possession.resources))
@@ -287,8 +287,22 @@ class TestSequenceFunctions(unittest.TestCase):
         money -= stock.get_price(Grain) * 2 + stock.get_price(Meat)
         money += stock.get_price(Beer) * 2
         self.assertEqual(money, npc.possession.get_money()) 
+        
+    def test_move_action(self):
+        npc = Npc(Brewer())
+        x = 50
+        y = 60
+        npc.set_location(x, y)
+        #directly test adding a move action
+        target_x = 105
+        target_y = 35
+        npc.schedule = Schedule()
+        npc.schedule.add_action(MoveAction("Moving", npc, target_x, target_y))
 
-
+        #advance and check that npc moved
+        self.AdvanceNpc(npc, Schedule.MAX_TIME)
+        self.assertEqual(target_x, npc.get_x()) 
+        self.assertEqual(target_y, npc.get_y()) 
 
 
 if __name__ == '__main__':

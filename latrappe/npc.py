@@ -30,6 +30,16 @@ class Npc(object):
         for pos in self.possession.resources:
             print pos
 
+    def get_x(self):
+        return self.x
+
+    def get_y(self):
+        return self.y
+
+    def set_location(self, x, y):
+        self.x = x
+        self.y = y
+
     def set_city(self, city):
         self.city = city
 
@@ -62,7 +72,7 @@ class Npc(object):
         self.schedule = Schedule()
         if self.strategy == None:
             self._add_mandatory_actions()
-            self.occupation.add_default_schedule(self.schedule, self.possession)
+            self.occupation.add_default_schedule(self, self.possession)
         else:
             self._add_mandatory_actions()
             self.strategy.create_schedule()
