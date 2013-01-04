@@ -200,29 +200,29 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def test_city_with_npcs_and_stock_markets(self):
         city = City()
-        self.assertEqual(0, len(city.GetNpcs()))
-        self.assertEqual(0, len(city.GetStockMarkets()))
+        self.assertEqual(0, len(city.get_npcs()))
+        self.assertEqual(0, len(city.get_stock_markets()))
         npc1 = Npc(Brewer())
         npc2 = Npc(Farmer())
         stock = StockMarket()
         self.assertEqual(None, npc1.get_city())
         self.assertEqual(None, npc2.get_city())
-        city.AddNpc(npc1)
-        city.AddNpc(npc2)
-        city.AddStockMarket(stock)
+        city.add_npc(npc1)
+        city.add_npc(npc2)
+        city.add_stock_market(stock)
         self.assertEqual(city, npc1.get_city())
         self.assertEqual(city, npc2.get_city())
-        self.assertEqual(2, len(city.GetNpcs()))
-        self.assertEqual(1, len(city.GetStockMarkets()))
-        self.assertTrue(npc1 in city.GetNpcs())
-        self.assertTrue(npc2 in city.GetNpcs())
-        self.assertTrue(stock in city.GetStockMarkets())
+        self.assertEqual(2, len(city.get_npcs()))
+        self.assertEqual(1, len(city.get_stock_markets()))
+        self.assertTrue(npc1 in city.get_npcs())
+        self.assertTrue(npc2 in city.get_npcs())
+        self.assertTrue(stock in city.get_stock_markets())
         
     def test_simple_npc_strategy(self):
         #setup city, stock and add some food there
         city = City()
         stock = StockMarket()
-        city.AddStockMarket(stock)
+        city.add_stock_market(stock)
         self.SetDefaultPrices(stock)
         stock.possession.add_resource(Meat())
         stock.possession.add_resource(Meat())
@@ -230,7 +230,7 @@ class TestSequenceFunctions(unittest.TestCase):
 
         #add simple strategy to npc
         npc = Npc(Brewer())
-        city.AddNpc(npc)
+        city.add_npc(npc)
         for i in range(NpcStrategySimpleGreedy.MINIMUM_FOOD):
            npc.possession.add_resource(Meat())
         money = 200
@@ -263,7 +263,7 @@ class TestSequenceFunctions(unittest.TestCase):
         #setup city, stock and add some food there
         city = City()
         stock = StockMarket()
-        city.AddStockMarket(stock)
+        city.add_stock_market(stock)
         self.SetDefaultPrices(stock)
         stock.possession.add_resource(Meat())
         stock.possession.add_resource(Meat())

@@ -5,17 +5,17 @@ class City(object):
         self.stocks = []
         self.filename = filename
 
-    def AddNpc(self, npc):
+    def add_npc(self, npc):
         npc.set_city(self)
         self.npcs.append(npc)
 
-    def GetNpcs(self):
+    def get_npcs(self):
         return self.npcs
     
-    def AddStockMarket(self, stock):
+    def add_stock_market(self, stock):
         self.stocks.append(stock)
 
-    def GetStockMarkets(self):
+    def get_stock_markets(self):
         return self.stocks
 
 
