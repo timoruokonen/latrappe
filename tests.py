@@ -27,7 +27,7 @@ class TestSequenceFunctions(unittest.TestCase):
         npc = Npc(Farmer())
         self.assertEqual(0, len(npc.possession.resources))
         self.AdvanceNpc(npc, Npc.SLEEP_DURATION) #sleeping time
-        self.AdvanceNpc(npc, Farmer.duration) #farming time
+        self.AdvanceNpc(npc, Farmer.DURATION) #farming time
         self.assertEqual(1, len(npc.possession.resources))
         self.assertTrue(npc.possession.has_resources([Grain]))
 
@@ -35,7 +35,7 @@ class TestSequenceFunctions(unittest.TestCase):
         npc = Npc(Hunter())
         self.assertEqual(0, len(npc.possession.resources))
         self.AdvanceNpc(npc, Npc.SLEEP_DURATION) #sleeping time
-        self.AdvanceNpc(npc, Hunter.duration) #action time
+        self.AdvanceNpc(npc, Hunter.DURATION) #action time
         self.assertEqual(2, len(npc.possession.resources))
         self.assertTrue(npc.possession.has_resources([Meat]))
 
@@ -46,7 +46,7 @@ class TestSequenceFunctions(unittest.TestCase):
         npc.possession.add_resource(Grain())
         self.assertEqual(2, len(npc.possession.resources))
         self.AdvanceNpc(npc, Npc.SLEEP_DURATION) #sleeping time
-        self.AdvanceNpc(npc, Brewer.duration) #brewing time
+        self.AdvanceNpc(npc, Brewer.DURATION) #brewing time
         self.assertEqual(1, len(npc.possession.resources))
         self.assertTrue(npc.possession.has_resources([Beer]))
 
@@ -56,7 +56,7 @@ class TestSequenceFunctions(unittest.TestCase):
         npc.possession.add_resource(Grain())
         self.AdvanceNpc(npc, npc.schedule.get_total_remaining_time()) #rest of the day
         self.AdvanceNpc(npc, Npc.SLEEP_DURATION) #sleeping time
-        self.AdvanceNpc(npc, Brewer.duration) #brewing time
+        self.AdvanceNpc(npc, Brewer.DURATION) #brewing time
         self.assertEqual(3, len(npc.possession.resources))
         self.assertTrue(npc.possession.has_resources([Beer, Beer, Grain]))
 
@@ -64,9 +64,9 @@ class TestSequenceFunctions(unittest.TestCase):
         npc = Npc(Hunter())
         self.assertEqual(0, len(npc.possession.resources))
         self.AdvanceNpc(npc, Npc.SLEEP_DURATION) #sleeping time
-        self.AdvanceNpc(npc, Hunter.duration / 2) #half of the action time
+        self.AdvanceNpc(npc, Hunter.DURATION / 2) #half of the action time
         self.assertEqual(0, len(npc.possession.resources))
-        self.AdvanceNpc(npc, Hunter.duration / 2) #half of the action time
+        self.AdvanceNpc(npc, Hunter.DURATION / 2) #half of the action time
         self.assertEqual(2, len(npc.possession.resources))
         self.assertTrue(npc.possession.has_resources([Meat]))
 
@@ -76,7 +76,7 @@ class TestSequenceFunctions(unittest.TestCase):
         #brewing needs to grains, only one is given       
         npc.possession.add_resource(Grain())
         self.AdvanceNpc(npc, Npc.SLEEP_DURATION) #sleeping time
-        self.AdvanceNpc(npc, Brewer.duration) #brewing time
+        self.AdvanceNpc(npc, Brewer.DURATION) #brewing time
         self.assertEqual(1, len(npc.possession.resources))
         self.assertTrue(npc.possession.has_resources([Grain]))
 
@@ -258,6 +258,36 @@ class TestSequenceFunctions(unittest.TestCase):
         money += self.beerDefaultPrice
         self.assertEqual(money, npc.possession.get_money()) 
         self.assertFalse(npc.possession.has_resources([Beer]))
+
+    def test_stock_action(self):
+        #setup city, stock and add some food there
+        city = City()
+        stock = StockMarket()
+        city.AddStockMarket(stock)
+        self.SetDefaultPrices(stock)
+        stock.possession.add_resource(Meat())
+        stock.possession.add_resource(Meat())
+        stock.possession.add_resource(Grain())
+        stock.possession.add_resource(Grain())
+
+        npc = Npc(Brewer())
+        money = 500
+        npc.possession.money = money
+        npc.possession.add_resource(Beer())
+        npc.possession.add_resource(Beer())
+        #directly test adding a stock action
+        npc.schedule = Schedule()
+        npc.schedule.add_action(StockAction("Buying and selling", [Meat, Grain, Grain],
+            [Beer, Beer], npc.possession, stock))
+
+        #advance and check that right resources were sold and bought
+        self.AdvanceNpc(npc, Schedule.MAX_TIME)
+        self.assertTrue(npc.possession.has_resources([Meat, Grain, Grain]))
+        self.assertTrue(stock.possession.has_resources([Meat, Beer, Beer]))
+        money -= stock.get_price(Grain) * 2 + stock.get_price(Meat)
+        money += stock.get_price(Beer) * 2
+        self.assertEqual(money, npc.possession.get_money()) 
+
 
 
 

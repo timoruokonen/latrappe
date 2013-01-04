@@ -60,9 +60,11 @@ class ProduceAction(Action):
     #def CreateSellAction(resourcesToBeSold, possession):
     #    return Action("Selling goods", [],  
 
-class StockAction(object):
-    def __init__(self, name, resources_to_sell, resources_to_buy, duration, buyer_seller, stock):
-        Action.__init__(self, name, duration)
+class StockAction(Action):
+    DURATION = 60
+
+    def __init__(self, name, resources_to_buy, resources_to_sell, buyer_seller, stock):
+        Action.__init__(self, name, StockAction.DURATION)
         self.resources_to_sell = resources_to_sell
         self.resources_to_buy = resources_to_buy
         self.buyer_seller = buyer_seller
@@ -72,7 +74,17 @@ class StockAction(object):
     def _start_action(self):
         #TODO: think how to best implement this. Now stuff is just moved/sold already in start of the action...
         for resource in self.resources_to_sell:
-            self.stock.sell_resource(resource, self.buyer_seller)
+            if self.stock.sell_resource(resource, self.buyer_seller):
+                print str(self.buyer_seller), " sold ", str(resource)
+            else:
+                print str(self.buyer_seller), " failed to sell ", str(resource)
+
+        for resource in self.resources_to_buy:
+            if self.stock.buy_resource(resource, self.buyer_seller):
+                print str(self.buyer_seller), " bought ", str(resource)
+            else:
+                print str(self.buyer_seller), " failed to buy ", str(resource)
+                
 
     def _end_action(self):
         pass
