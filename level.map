@@ -8,11 +8,11 @@ map = XXXXXX.............................
       ........................-----......
       ###################################
       ...................................
-      .xxxxx....#.................#......
-      .x...x.#..........##..............#
-      .x...x.............................
-      .x...x..........#..........#.......
-      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      .bbbbb....#.................#......
+      .bwwwb.#..........##..............#
+      .bwwwb.............................
+      .bwwwb..........#..........#.......
+      xbbbbbxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -43,3 +43,14 @@ block = true
 name = rocks2
 tile = 6,1
 block = true
+
+[w]
+name = wood_floor
+tile = 0,2
+block = true
+
+[b]
+name = brick_wall
+tile = 1,2
+block = true
+
