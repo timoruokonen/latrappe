@@ -7,7 +7,7 @@ Handles ownings of an entity. Contains a list of resources and amount of money.
 class Possession(object):
     def __init__(self):
         self.resources = []
-        self.money = 0
+        self._money = 0
 
     def add_resource(self, resource):
         self.resources.append(resource)
@@ -61,7 +61,7 @@ class Possession(object):
                 if (isinstance(resource, input_resource)):
                     used_resources.append(resource)
                     found = True
-                    break;
+                    break
             if not found:
                 return False
         return True
@@ -73,12 +73,22 @@ class Possession(object):
                 foods.append(resource)
         return foods    
 
-    def get_money(self):
-        return self.money;
+    @property
+    def money(self):
+        return self._money
+
+    @money.setter
+    def money(self, value):
+        raise Exception("Money setter is not allowed")
+
+    #TODO: Decide how to set money in tests/stock initialization etc. Now direct setter is not allowed
+    #but those cases use this private setter...
+    def _set_money(self, money):
+        self._money = money
 
     def give_money(self, amount, newOwner):
-        if amount > self.money:
+        if amount > self._money:
             return False
-        self.money -= amount
-        newOwner.money += amount
+        self._money -= amount
+        newOwner._money += amount
 

@@ -115,7 +115,7 @@ class TestDisplay:
 
         self.city.add_stock_market(self.stock)
         for n in npcs:
-            n.possession.money = 100
+            n.possession._set_money(100)
             n.strategy = NpcStrategySimpleGreedy(n)
             self.city.add_npc(n)
         
