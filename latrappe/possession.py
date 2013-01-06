@@ -6,72 +6,67 @@ Handles ownings of an entity. Contains a list of resources and amount of money.
 '''
 class Possession(object):
     def __init__(self):
-        self.resources = []
+        self._resource_heaps = {}
         self._money = 0
 
-    def add_resource(self, resource):
-        self.resources.append(resource)
+    def add_resource(self,  resource):
+        self._get_resource_heap(resource).add(resource)
 
     def destroy_resource(self, resource):
         #print "Removing " + str(resource)
-        self.resources.remove(resource)
+        self._get_resource_heap(resource).remove(resource)
         ResourceFactory.on_resource_destroyed(resource)
 
     def give_resource(self, resource, new_owner):
-        #verify that owner has the given instance or resource type 
-        res = self.get_resource(resource)
+        #verify that owner has the given instance or resource type
+        heap_giver = self._get_resource_heap(resource)
+        res = heap_giver.get(resource) 
         if res == None:
             return False
 
-        self.resources.remove(res)
-        new_owner.resources.append(res)
+        heap_giver.remove(res)
+        new_owner._get_resource_heap(resource).add(res)
         return True
 
     def get_resource_types(self):
         types = []
-        for res in self.resources:
-            if type(res) in types:
-                continue
-            types.append(type(res))
+        for heap in self._resource_heaps.values():
+            if heap.count > 0:
+                types.append(heap.resource_type)
         return types
 
     def get_resource(self, resource):
-        if type(resource) == type:
-            for res in self.resources:
-                if (isinstance(res, resource)):
-                    return res
-        if resource in self.resources:
-            return resource
-        return None
+        heap = self._get_resource_heap(resource) 
+        return heap.get(resource)
 
     def get_resource_count(self, resource):
-        count = 0
-        for res in self.resources:
-            if isinstance(res, resource):
-                count += 1
-        return count
+        return self._get_resource_heap(resource).count
 
     def has_resources(self, resources):
-        used_resources = []
-        for input_resource in resources:
-            found = False
-            for resource in self.resources:
-                if (resource in used_resources):
-                    continue
-                if (isinstance(resource, input_resource)):
-                    used_resources.append(resource)
-                    found = True
-                    break
-            if not found:
+        handled_res_types = []
+        for res_type in resources:
+            if res_type in handled_res_types:
+                continue
+
+            heap = self._get_resource_heap(res_type) 
+            if heap.count < resources.count(res_type):
                 return False
+
+            handled_res_types.append(res_type)
         return True
 
     def get_foods(self):
         foods = []
-        for resource in self.resources:
-            if (isinstance(resource, FoodResource)):
-                foods.append(resource)
+        for heap in self._resource_heaps.values():
+            if (issubclass(heap.resource_type, FoodResource)):
+                foods.extend(heap.get_all())
         return foods    
+
+    def get_all(self):
+        resources = []
+        for heap in self._resource_heaps.values():
+            resources.extend(heap.get_all())
+        return resources   
 
     @property
     def money(self):
@@ -91,4 +86,13 @@ class Possession(object):
             return False
         self._money -= amount
         newOwner._money += amount
+
+
+    def _get_resource_heap(self, resource):
+        if type(resource) != type:
+            resource = type(resource)
+        if not resource in self._resource_heaps.keys():
+            self._resource_heaps[resource] = ResourceHeap(resource)
+        return self._resource_heaps[resource]
+    
 

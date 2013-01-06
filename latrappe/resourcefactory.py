@@ -13,16 +13,12 @@ class ResourceFactory(object):
 
     @staticmethod
     def create_resource(target, possession):
-        copy_possession = possession
+        if not possession.has_resources(target.materials):
+            raise Exception("Could not create " + str(target) + ", not enough resources!!")
+        
         for resource in target.materials:
-            found = False
-            for pos_resource in possession.resources:
-                if (isinstance(resource, type(pos_resource))):
-                    possession.destroy_resource(pos_resource)
-                    found = True
-                    break;
-            if not found:
-                raise Exception("Could not create " + str(target) + ", not enough resources!!")
+            possession.destroy_resource(resource)
+        
         print "New " + str(target) + " was created!"
         created_resource = target()
         ResourceFactory.on_resource_created(created_resource)
