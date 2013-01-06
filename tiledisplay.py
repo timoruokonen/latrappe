@@ -107,16 +107,17 @@ class TileDisplay:
                 self.draw_stock_item(resource, (x,y), count)
                 index += 1
 
+
     def get_next_stock_item_pos(self, stock, index):
         x, y = self.stock_items_position[index]
         x *= self.MAP_TILE_WIDTH
         y *= self.MAP_TILE_HEIGHT
         x += stock.x
         y += stock.y
+        #print 'Index: ' + str(index) + ' gave coordinates: ' + str(x) + ',' + str(y)
         return x, y
 
     def draw_stock_item(self, resource, pos, count):
-        #print 'Count  ' + str(resource) + ':' + str(count)
         stock_image = pygame.image.load("default_resource.png")
         if resource == Beer:
             stock_image = pygame.image.load("beerkeg.png")
@@ -126,6 +127,13 @@ class TileDisplay:
             stock_image = pygame.image.load("meat.png")
 
         self.mapsurface.blit(stock_image, pos)
+
+        text = self.font.render(str(count), True, (255,255, 255))
+        textRect = text.get_rect()
+        textRect.left = pos[0] + (self.MAP_TILE_WIDTH / 2)
+        textRect.top = pos[1] + (self.MAP_TILE_HEIGHT / 2)
+
+        self.mapsurface.blit(text, textRect)
 
 
     def draw_tiles(self):
