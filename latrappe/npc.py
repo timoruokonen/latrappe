@@ -9,7 +9,7 @@ class Npc(object):
     SLEEP_DURATION = 7 * 60
     DEFAULT_FOOD_CONSUMPTION = 1 #amount of food needed per unit of time (now minute...)
 
-    def __init__(self, occupation):
+    def __init__(self, occupation, name="Unknown"):
         self.occupation = occupation
         self.schedule = Schedule()
         #TODO: Cannot think... just advance schedule so that it is already done when Advance is called the first time...
@@ -22,6 +22,7 @@ class Npc(object):
         self.city = None
         self.x = 100
         self.y = 100
+        self.name = name
 
     def print_status(self):
         if not self.alive:

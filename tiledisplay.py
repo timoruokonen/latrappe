@@ -21,9 +21,11 @@ class TileDisplay:
         self.city = city
 
         # FIXME: Just test images for now
-        self.npcimage = pygame.image.load("duff.png").convert()
-        self.animation_images = self.load_sliced_sprites(32, 32, 'monk.png')
-        self.npc_animated_img = AnimatedSprite(self.animation_images, 30)
+        self.npc_dead_img = pygame.image.load("monk_dead.png")
+        self.npc_alive_img = pygame.image.load("monk.png")
+        self.npcimage = self.npc_alive_img
+        self.work_animation_images = self.load_sliced_sprites(32, 32, 'monk_working.png')
+        self.npc_animation = AnimatedSprite(self.work_animation_images, 30)
 
         self.MAP_TILE_WIDTH = 32
         self.MAP_TILE_HEIGHT = 32
@@ -35,7 +37,6 @@ class TileDisplay:
         self.cameray = 0
         self.mapsurface = pygame.Surface((self.mapwidth*self.MAP_TILE_WIDTH, self.mapheight*self.MAP_TILE_HEIGHT))
 
-        self.npc_anim = {}
         self.stock_items_position = { 0:(0,0), 1:(1,0), 2:(0,1), 3:(1,1), 4:(-1,0), 5:(0,-1), 6:(-1,-1) }
 
 
@@ -45,12 +46,28 @@ class TileDisplay:
     	#	self.npc_anim.append((npc))  	
 
     def advance(self, time):
-    	self.npc_animated_img.update(time)
+    	self.npc_animation.update(time)
 
     def draw_npcs(self):
     	npcs = self.city.get_npcs()
     	for npc in npcs:
-            self.mapsurface.blit(self.npc_animated_img.image, (npc.x,npc.y))
+            # Npc image
+            if npc.is_alive():
+                self.npcimage = self.npc_alive_img
+            else:
+                self.npcimage = self.npc_dead_img
+
+            if type(npc.schedule.get_current_action()) == ProduceAction and npc.is_alive():
+                self.mapsurface.blit(self.npc_animation.image, (npc.x, npc.y))
+            else:
+                self.mapsurface.blit(self.npcimage, (npc.x,npc.y))
+
+            # Npc name
+            text = self.font.render(npc.name, True, (255,255, 255))
+            textRect = text.get_rect()
+            textRect.left = npc.x - (self.MAP_TILE_WIDTH / 2)
+            textRect.top = npc.y + (self.MAP_TILE_HEIGHT)
+            self.mapsurface.blit(text, textRect)
 
     def draw(self):
     	# Draw all the stuff into one big surface buffer
@@ -107,16 +124,17 @@ class TileDisplay:
                 self.draw_stock_item(resource, (x,y), count)
                 index += 1
 
+
     def get_next_stock_item_pos(self, stock, index):
         x, y = self.stock_items_position[index]
         x *= self.MAP_TILE_WIDTH
         y *= self.MAP_TILE_HEIGHT
         x += stock.x
         y += stock.y
+        #print 'Index: ' + str(index) + ' gave coordinates: ' + str(x) + ',' + str(y)
         return x, y
 
     def draw_stock_item(self, resource, pos, count):
-        #print 'Count  ' + str(resource) + ':' + str(count)
         stock_image = pygame.image.load("default_resource.png")
         if resource == Beer:
             stock_image = pygame.image.load("beerkeg.png")
@@ -126,6 +144,13 @@ class TileDisplay:
             stock_image = pygame.image.load("meat.png")
 
         self.mapsurface.blit(stock_image, pos)
+
+        text = self.font.render(str(count), True, (255,255, 255))
+        textRect = text.get_rect()
+        textRect.left = pos[0] + (self.MAP_TILE_WIDTH / 2)
+        textRect.top = pos[1] + (self.MAP_TILE_HEIGHT / 2)
+
+        self.mapsurface.blit(text, textRect)
 
 
     def draw_tiles(self):

@@ -93,12 +93,12 @@ class TestDisplay:
     def CreateTestVillage(self):
         npcs = []
         self.city = City()
-        npcs.append(Npc(Farmer()))
-        npcs.append(Npc(Farmer()))
-        npcs.append(Npc(Farmer()))
-        npcs.append(Npc(Hunter()))
-        npcs.append(Npc(Hunter()))
-        npcs.append(Npc(Brewer()))
+        npcs.append(Npc(Farmer(), "Pertti"))
+        npcs.append(Npc(Farmer(), "Keijo"))
+        npcs.append(Npc(Farmer(), "Kake"))
+        npcs.append(Npc(Hunter(), "Villageidiot"))
+        npcs.append(Npc(Hunter(), "Sir Robin"))
+        npcs.append(Npc(Brewer(), "Mr Trappe"))
         self.stock = StockMarket()
         self.stock.x = 30
         self.stock.y = 30
