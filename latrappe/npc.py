@@ -22,6 +22,8 @@ class Npc(object):
         self.city = None
         self.x = 100
         self.y = 100
+        self.home_x = 0
+        self.home_y = 0
         self.name = name
 
     def print_status(self):
@@ -75,7 +77,7 @@ class Npc(object):
             time -= consumedAmount
 
     def _add_mandatory_actions(self):
-        self.schedule.add_action(ProduceAction("Sleep", [],[], Npc.SLEEP_DURATION, self.possession))
+        self.schedule.add_action(Action("Sleep", Npc.SLEEP_DURATION))
 
 
 

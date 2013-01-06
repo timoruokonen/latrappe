@@ -93,19 +93,38 @@ class TestDisplay:
     def CreateTestVillage(self):
         npcs = []
         self.city = City()
-        npcs.append(Npc(Farmer(), "Pertti"))
-        npcs.append(Npc(Farmer(), "Keijo"))
-        npcs.append(Npc(Farmer(), "Kake"))
-        npcs.append(Npc(Hunter(), "Villageidiot"))
-        npcs.append(Npc(Hunter(), "Sir Robin"))
-        npcs.append(Npc(Brewer(), "Mr Trappe"))
+        la_trappe = Npc(Brewer(), "Mr Trappe")
+        pertti = Npc(Farmer(), "Pertti") 
+        keijo = Npc(Farmer(), "Keijo")
+        idiot = Npc(Hunter(), "Villageidiot")
+        robin = Npc(Hunter(), "Sir Robin") 
+        npcs.append(robin)
+        npcs.append(idiot)
+        npcs.append(keijo)
+        npcs.append(pertti)
+        npcs.append(la_trappe)
+
+        idiot.home_x = 750
+        idiot.home_y = 220
+        robin.home_x = 680
+        robin.home_y = 220
+        keijo.home_x = 560
+        keijo.home_y = 320
+        pertti.home_x = 510
+        pertti.home_y = 320
+        la_trappe.home_x = 350
+        la_trappe.home_y = 320
+
         self.stock = StockMarket()
         self.stock.x = 30
         self.stock.y = 30
+        
+        #add enough cash for stock
+        self.stock.possession._set_money(5000)
 
         #set prices
-        self.stock.set_price(Grain, 10)
-        self.stock.set_price(Meat, 15)
+        self.stock.set_price(Grain, 15)
+        self.stock.set_price(Meat, 10)
         self.stock.set_price(Beer, 50)
         #add some stuff to stock
         for i in range(50):

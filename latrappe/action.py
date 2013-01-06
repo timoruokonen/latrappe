@@ -116,7 +116,7 @@ class MoveAction(Action):
 
         #finish the action if npc arrives to destination
         if new_x == self.x and new_y == self.y:
-            print(str(self.npc), " reached destination (", self.x, ", ", self.y, ")!")
+            #print(str(self.npc), " reached destination (", self.x, ", ", self.y, ")!")
             self.time_left = 0
         else:
             self.time_left = MoveAction.DURATION

@@ -64,8 +64,8 @@ class Hunter(Occupation):
 
 class Brewer(Occupation):
     DURATION = 7 * 60
-    POS_X = 70
-    POS_Y = 300
+    POS_X = 90
+    POS_Y = 310
 
     def __init__(self):
         self.inputs = [Grain, Grain]

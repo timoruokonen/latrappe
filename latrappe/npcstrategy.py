@@ -46,6 +46,9 @@ class NpcStrategySimpleGreedy(object):
         self.npc.schedule.add_action(MoveAction("Moving", self.npc, self.npc.occupation.POS_X, self.npc.occupation.POS_Y))
         self.npc.occupation.add_default_schedule(self.npc, self.npc.possession)
 
+        #Go home to sleep
+        self.npc.schedule.add_action(MoveAction("Moving", self.npc, self.npc.home_x, self.npc.home_y))
+
                                                     
     def _add_stock_action(self, to_buy, to_sell):
         if len(to_buy) > 0:
