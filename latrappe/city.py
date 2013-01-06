@@ -6,7 +6,7 @@ class City(object):
         self.filename = filename
 
     def add_npc(self, npc):
-        npc.set_city(self)
+        npc.city = self
         self.npcs.append(npc)
 
     def get_npcs(self):

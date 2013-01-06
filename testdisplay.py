@@ -96,9 +96,11 @@ class TestDisplay:
         npcs.append(Npc(Farmer()))
         npcs.append(Npc(Farmer()))
         npcs.append(Npc(Hunter()))
+        npcs.append(Npc(Hunter()))
         npcs.append(Npc(Brewer()))
         self.stock = StockMarket()
-        self.stock.set_location(30,30)
+        self.stock.x = 30
+        self.stock.y = 30
 
         #set prices
         self.stock.set_price(Grain, 10)
@@ -113,7 +115,7 @@ class TestDisplay:
         self.city.add_stock_market(self.stock)
         for n in npcs:
             n.possession.money = 100
-            n.set_strategy(NpcStrategySimpleGreedy(n))
+            n.strategy = NpcStrategySimpleGreedy(n)
             self.city.add_npc(n)
         
         return self.city

@@ -30,25 +30,6 @@ class Npc(object):
         for pos in self.possession.resources:
             print pos
 
-    def get_x(self):
-        return self.x
-
-    def get_y(self):
-        return self.y
-
-    def set_location(self, x, y):
-        self.x = x
-        self.y = y
-
-    def set_city(self, city):
-        self.city = city
-
-    def get_city(self):
-        return self.city
-
-    def set_strategy(self, strategy):
-        self.strategy = strategy
-
     #TODO: How to handle time advancing. Now advancing goes fine if the time interval is smalles possible.
     #If the interval is increased, first schedule is advanced and then food. This leads to not wanted scenarios
     #where npc can do work without food.

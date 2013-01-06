@@ -205,13 +205,13 @@ class TestSequenceFunctions(unittest.TestCase):
         npc1 = Npc(Brewer())
         npc2 = Npc(Farmer())
         stock = StockMarket()
-        self.assertEqual(None, npc1.get_city())
-        self.assertEqual(None, npc2.get_city())
+        self.assertEqual(None, npc1.city)
+        self.assertEqual(None, npc2.city)
         city.add_npc(npc1)
         city.add_npc(npc2)
         city.add_stock_market(stock)
-        self.assertEqual(city, npc1.get_city())
-        self.assertEqual(city, npc2.get_city())
+        self.assertEqual(city, npc1.city)
+        self.assertEqual(city, npc2.city)
         self.assertEqual(2, len(city.get_npcs()))
         self.assertEqual(1, len(city.get_stock_markets()))
         self.assertTrue(npc1 in city.get_npcs())
@@ -235,7 +235,7 @@ class TestSequenceFunctions(unittest.TestCase):
            npc.possession.add_resource(Meat())
         money = 200
         npc.possession.money = money
-        npc.set_strategy(NpcStrategySimpleGreedy(npc))
+        npc.strategy = NpcStrategySimpleGreedy(npc)
         self.AdvanceNpc(npc, Schedule.MAX_TIME * 2)
 
         #npc should have spend one food and have now less food than minimum and buy more
@@ -292,7 +292,8 @@ class TestSequenceFunctions(unittest.TestCase):
         npc = Npc(Brewer())
         x = 50
         y = 60
-        npc.set_location(x, y)
+        npc.x = x
+        npc.y = y
         #directly test adding a move action
         target_x = 105
         target_y = 35
@@ -301,8 +302,8 @@ class TestSequenceFunctions(unittest.TestCase):
 
         #advance and check that npc moved
         self.AdvanceNpc(npc, Schedule.MAX_TIME)
-        self.assertEqual(target_x, npc.get_x()) 
-        self.assertEqual(target_y, npc.get_y()) 
+        self.assertEqual(target_x, npc.x) 
+        self.assertEqual(target_y, npc.y) 
 
 
 if __name__ == '__main__':

@@ -111,8 +111,8 @@ class MoveAction(Action):
 
     def _advance(self, time):
         #start moving towards the destination
-        new_x = self.npc.get_x()
-        new_y = self.npc.get_y()
+        new_x = self.npc.x
+        new_y = self.npc.y
 
         #finish the action if npc arrives to destination
         if new_x == self.x and new_y == self.y:
@@ -131,5 +131,6 @@ class MoveAction(Action):
         elif (new_y > self.y):
             new_y -= min(new_y - self.y, time * MoveAction.SPEED)
 
-        self.npc.set_location(new_x, new_y)
+        self.npc.x = new_x
+        self.npc.y = new_y
                 

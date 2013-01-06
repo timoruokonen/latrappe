@@ -19,16 +19,6 @@ class StockMarket(object):
         loanShark.money = amount
         loanShark.give_money(amount, self.possession)
 
-    def get_x(self):
-        return self.x
-
-    def get_y(self):
-        return self.y
-
-    def set_location(self, x, y):
-        self.x = x
-        self.y = y
-
     def get_price(self, resource):
         if type(resource) != type:
             resource = type(resource)
