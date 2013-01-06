@@ -16,7 +16,7 @@ class StockMarket(object):
     def loan_money(self, amount):
         #TODO: How the hell make this loan system...
         loanShark = Possession()
-        loanShark.money = amount
+        loanShark._set_money(amount)
         loanShark.give_money(amount, self.possession)
 
     def get_price(self, resource):
@@ -36,14 +36,14 @@ class StockMarket(object):
         return self.possession.get_resource(resourceType)
 
     def sell_resource(self, resource, seller):
-        if self.possession.get_money() < self.get_price(resource):
+        if self.possession.money < self.get_price(resource):
             return False
         seller.give_resource(resource, self.possession)
         self.possession.give_money(self.get_price(resource), seller)
         return True
 
     def buy_resource(self, resource, buyer):
-        if buyer.get_money() < self.get_price(resource):
+        if buyer.money < self.get_price(resource):
             print "Buyer has not enough money"
             return False
         if type(resource) == type:

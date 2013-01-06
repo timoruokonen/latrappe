@@ -157,11 +157,11 @@ class TestSequenceFunctions(unittest.TestCase):
         npc = Npc(Brewer())
         beer = Beer()
         npc.possession.add_resource(beer)
-        self.assertEqual(0, npc.possession.get_money())
+        self.assertEqual(0, npc.possession.money)
         self.assertEqual(None, stock.find_resource(Beer))
         self.assertTrue(stock.sell_resource(beer, npc.possession)) 
         self.assertEqual(0, len(npc.possession.resources))
-        self.assertEqual(self.beerDefaultPrice, npc.possession.get_money()) 
+        self.assertEqual(self.beerDefaultPrice, npc.possession.money) 
         self.assertEqual(1, len(stock.possession.resources))
         self.assertTrue(stock.possession.has_resources([Beer]))
         self.assertEqual(beer, stock.find_resource(Beer))
@@ -175,15 +175,15 @@ class TestSequenceFunctions(unittest.TestCase):
         
         npc = Npc(Brewer())
         money = 100
-        npc.possession.money = money
-        self.assertEqual(money, npc.possession.get_money())
-        self.assertEqual(StockMarket.INITIAL_MONEY, stock.possession.get_money())
+        npc.possession._set_money(money)
+        self.assertEqual(money, npc.possession.money)
+        self.assertEqual(StockMarket.INITIAL_MONEY, stock.possession.money)
         #buy with type
         self.assertTrue(stock.buy_resource(Beer, npc.possession)) 
         self.assertEqual(1, len(npc.possession.resources))
         self.assertTrue(npc.possession.has_resources([Beer]))
-        self.assertEqual(money - self.beerDefaultPrice, npc.possession.get_money()) 
-        self.assertEqual(StockMarket.INITIAL_MONEY + self.beerDefaultPrice, stock.possession.get_money()) 
+        self.assertEqual(money - self.beerDefaultPrice, npc.possession.money) 
+        self.assertEqual(StockMarket.INITIAL_MONEY + self.beerDefaultPrice, stock.possession.money) 
         self.assertEqual(2, len(stock.possession.resources))
         self.assertFalse(stock.possession.has_resources([Beer]))
         self.assertTrue(stock.possession.has_resources([Meat, Grain]))
@@ -192,8 +192,8 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertTrue(stock.buy_resource(grain, npc.possession)) 
         self.assertEqual(2, len(npc.possession.resources))
         self.assertTrue(npc.possession.has_resources([Grain, Beer]))
-        self.assertEqual(money - self.beerDefaultPrice - self.grainDefaultPrice, npc.possession.get_money()) 
-        self.assertEqual(StockMarket.INITIAL_MONEY + self.beerDefaultPrice + self.grainDefaultPrice, stock.possession.get_money()) 
+        self.assertEqual(money - self.beerDefaultPrice - self.grainDefaultPrice, npc.possession.money) 
+        self.assertEqual(StockMarket.INITIAL_MONEY + self.beerDefaultPrice + self.grainDefaultPrice, stock.possession.money) 
         self.assertEqual(1, len(stock.possession.resources))
         self.assertFalse(stock.possession.has_resources([Grain]))
         self.assertTrue(stock.possession.has_resources([Meat]))
@@ -234,14 +234,14 @@ class TestSequenceFunctions(unittest.TestCase):
         for i in range(NpcStrategySimpleGreedy.MINIMUM_FOOD):
            npc.possession.add_resource(Meat())
         money = 200
-        npc.possession.money = money
+        npc.possession._set_money(money)
         npc.strategy = NpcStrategySimpleGreedy(npc)
         self.AdvanceNpc(npc, Schedule.MAX_TIME * 2)
 
         #npc should have spend one food and have now less food than minimum and buy more
         self.AdvanceNpc(npc, Schedule.MAX_TIME)
         money -= self.meatDefaultPrice
-        self.assertEqual(money, npc.possession.get_money()) 
+        self.assertEqual(money, npc.possession.money) 
 
         #add needed resources to stock so npc should try to buy food and resources
         stock.possession.add_resource(Grain())
@@ -249,14 +249,14 @@ class TestSequenceFunctions(unittest.TestCase):
         self.AdvanceNpc(npc, Schedule.MAX_TIME)
         money -= self.meatDefaultPrice
         money -= self.grainDefaultPrice * 2
-        self.assertEqual(money, npc.possession.get_money()) 
+        self.assertEqual(money, npc.possession.money) 
         self.assertTrue(npc.possession.has_resources([Beer]))
 
         #next day, npc should try to buy food and sell beer (there are no resources to buy)
         self.AdvanceNpc(npc, Schedule.MAX_TIME)
         money -= self.meatDefaultPrice
         money += self.beerDefaultPrice
-        self.assertEqual(money, npc.possession.get_money()) 
+        self.assertEqual(money, npc.possession.money) 
         self.assertFalse(npc.possession.has_resources([Beer]))
 
     def test_stock_action(self):
@@ -272,7 +272,7 @@ class TestSequenceFunctions(unittest.TestCase):
 
         npc = Npc(Brewer())
         money = 500
-        npc.possession.money = money
+        npc.possession._set_money(money)
         npc.possession.add_resource(Beer())
         npc.possession.add_resource(Beer())
         #directly test adding a stock action
@@ -286,7 +286,7 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertTrue(stock.possession.has_resources([Meat, Beer, Beer]))
         money -= stock.get_price(Grain) * 2 + stock.get_price(Meat)
         money += stock.get_price(Beer) * 2
-        self.assertEqual(money, npc.possession.get_money()) 
+        self.assertEqual(money, npc.possession.money) 
         
     def test_move_action(self):
         npc = Npc(Brewer())
@@ -349,6 +349,7 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(1, npc2.possession.get_resource_count(Beer))
         self.assertEqual(1, len(npc.possession.get_resource_types()))
         self.assertTrue(Grain in npc.possession.get_resource_types())
+
 
 
 if __name__ == '__main__':
