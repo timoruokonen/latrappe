@@ -36,6 +36,13 @@ class Possession(object):
             return resource
         return None
 
+    def get_resource_count(self, resource):
+        count = 0
+        for res in self.resources:
+            if isinstance(res, resource):
+                count += 1
+        return count
+
     def has_resources(self, resources):
         used_resources = []
         for input_resource in resources:
@@ -56,7 +63,7 @@ class Possession(object):
         for resource in self.resources:
             if (isinstance(resource, FoodResource)):
                 foods.append(resource)
-        return foods
+        return foods    
 
     def get_money(self):
         return self.money;
