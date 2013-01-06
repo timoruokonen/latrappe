@@ -52,12 +52,12 @@ class TileDisplay:
     	npcs = self.city.get_npcs()
     	for npc in npcs:
             # Npc image
-            if npc.is_alive():
+            if npc.alive:
                 self.npcimage = self.npc_alive_img
             else:
                 self.npcimage = self.npc_dead_img
 
-            if type(npc.schedule.get_current_action()) == ProduceAction and npc.is_alive():
+            if type(npc.schedule.get_current_action()) == ProduceAction and npc.alive:
                 self.mapsurface.blit(self.npc_animation.image, (npc.x, npc.y))
             else:
                 self.mapsurface.blit(self.npcimage, (npc.x,npc.y))

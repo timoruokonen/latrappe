@@ -64,7 +64,7 @@ class Display:
             self.visualizeNPC(npc)
 
     def visualizeNPC(self, npc):
-        if (npc.is_alive()):
+        if (npc.alive):
             self.addText("NPC " + str(npc.name) + " occupation: " + str(npc.occupation) + " money: " + str(npc.possession.money) + " action: " + str(npc.schedule.get_current_action_name()))
         else:
             self.addText("*DEAD* NPC " + str(npc.name) + " occupation: " + str(npc.occupation) + " money: " + str(npc.possession.money))

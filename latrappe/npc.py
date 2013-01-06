@@ -48,10 +48,7 @@ class Npc(object):
             timeLeft = self.schedule.advance(time) 
             self._consume_food(time - timeLeft)
             time = timeLeft
-
-    def is_alive(self):
-        return self.alive;
-            
+ 
     def create_schedule(self):
         self.schedule = Schedule()
         if self.strategy == None:

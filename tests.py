@@ -117,13 +117,13 @@ class TestSequenceFunctions(unittest.TestCase):
         self.AdvanceNpc(npc, Schedule.MAX_TIME)
         self.assertEqual(1, len(npc.possession.get_all()))
         self.assertTrue(npc.possession.has_resources([Grain]))
-        self.assertTrue(npc.is_alive())
+        self.assertTrue(npc.alive)
         
         #don't give more food so npc should die
         self.AdvanceNpc(npc, Schedule.MAX_TIME)
         self.assertEqual(1, len(npc.possession.get_all())) #couldn't farm anymore
         self.assertTrue(npc.possession.has_resources([Grain]))
-        self.assertFalse(npc.is_alive())
+        self.assertFalse(npc.alive)
 
     def test_npc_produces_the_food_it_needs_next_day(self):
         npc = Npc(Hunter())
@@ -132,11 +132,11 @@ class TestSequenceFunctions(unittest.TestCase):
         self.AdvanceNpc(npc, Schedule.MAX_TIME * 7)
         self.assertEqual(8, len(npc.possession.get_all()))
         self.assertTrue(npc.possession.has_resources([Meat]))
-        self.assertTrue(npc.is_alive())
+        self.assertTrue(npc.alive)
         #starting of next day, npc should have to eat the meat it produced last day       
         self.AdvanceNpc(npc, Schedule.MAX_TIME / 4)
         self.assertEqual(7, len(npc.possession.get_all()))
-        self.assertTrue(npc.is_alive())
+        self.assertTrue(npc.alive)
 
     def test_stock_prices(self):
         stock = StockMarket()
