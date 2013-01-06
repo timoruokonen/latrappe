@@ -21,7 +21,9 @@ class TileDisplay:
         self.city = city
 
         # FIXME: Just test images for now
-        self.npcimage = pygame.image.load("monk.png")
+        self.npc_dead_img = pygame.image.load("monk_dead.png")
+        self.npc_alive_img = pygame.image.load("monk.png")
+        self.npcimage = self.npc_alive_img
         self.work_animation_images = self.load_sliced_sprites(32, 32, 'monk_working.png')
         self.npc_animation = AnimatedSprite(self.work_animation_images, 30)
 
@@ -50,7 +52,12 @@ class TileDisplay:
     	npcs = self.city.get_npcs()
     	for npc in npcs:
             # Npc image
-            if type(npc.schedule.get_current_action()) == ProduceAction:
+            if npc.is_alive():
+                self.npcimage = self.npc_alive_img
+            else:
+                self.npcimage = self.npc_dead_img
+
+            if type(npc.schedule.get_current_action()) == ProduceAction and npc.is_alive():
                 self.mapsurface.blit(self.npc_animation.image, (npc.x, npc.y))
             else:
                 self.mapsurface.blit(self.npcimage, (npc.x,npc.y))
