@@ -36,6 +36,7 @@ class TileDisplay:
         self.mapsurface = pygame.Surface((self.mapwidth*self.MAP_TILE_WIDTH, self.mapheight*self.MAP_TILE_HEIGHT))
 
         self.npc_anim = {}
+        self.stock_items_position = { 0:(0,0), 1:(1,0), 2:(0,1), 3:(1,1), 4:(-1,0), 5:(0,-1), 6:(-1,-1) }
 
 
     def init_npc_anim(self):
@@ -97,18 +98,32 @@ class TileDisplay:
     def draw_stocks(self):
         stocks = self.city.get_stock_markets()
         for stock in stocks:
-            x = stock.x
-            y = stock.y
             possession = stock.possession
             resources = possession.get_resource_types()
+            index = 0
             for resource in resources:
                 count = possession.get_resource_count(resource)
+                x, y = self.get_next_stock_item_pos(stock, index)
                 self.draw_stock_item(resource, (x,y), count)
+                index += 1
+
+    def get_next_stock_item_pos(self, stock, index):
+        x, y = self.stock_items_position[index]
+        x *= self.MAP_TILE_WIDTH
+        y *= self.MAP_TILE_HEIGHT
+        x += stock.x
+        y += stock.y
+        return x, y
 
     def draw_stock_item(self, resource, pos, count):
+        #print 'Count  ' + str(resource) + ':' + str(count)
         stock_image = pygame.image.load("default_resource.png")
-        if type(resource) == Beer:
-            stock_image = pygame.image.load("beerkeg.png").convert()
+        if resource == Beer:
+            stock_image = pygame.image.load("beerkeg.png")
+        if resource == Grain:
+            stock_image = pygame.image.load("grain.png")
+        if resource == Meat:
+            stock_image = pygame.image.load("meat.png")
 
         self.mapsurface.blit(stock_image, pos)
 
