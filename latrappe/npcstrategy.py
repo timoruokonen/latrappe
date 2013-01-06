@@ -1,66 +1,61 @@
 from resource import *
+from action import *
+from occupation import *
 
 class NpcStrategySimpleGreedy(object):
-    minimumFood = 2
-    maximumFood = 5
+    MINIMUM_FOOD = 2
+    MAXIMUM_FOOD = 5
 
     def __init__(self, npc):
         self.npc = npc
 
-    def ToString(self):
+    def to_string(self):
         return str(self.npc.occupation)
 
-    def CreateSchedule(self):
+    def create_schedule(self):
+        to_buy = []
+        to_sell = []
+
         #if food is getting low, try to get more
-        if len(self.npc.possession.get_foods()) < NpcStrategySimpleGreedy.minimumFood:
-            if self._BuyResource(Meat):
-                print "Greedy strategy (" + self.ToString() + "): Bought food!"
-            else:
-                print "Greedy strategy (" + self.ToString() + "): Could not buy food!"
+        if len(self.npc.possession.get_foods()) < NpcStrategySimpleGreedy.MINIMUM_FOOD:
+            to_buy.append(Meat)
                         
         #try to get ingredients for occupation
         required = self.npc.occupation.get_required_resources()
         if not self.npc.possession.has_resources(required):
             for resourceType in required:
-                if self._BuyResource(resourceType):
-                    print "Greedy strategy (" + self.ToString() + "): Bought resource (" + str(resourceType) + ")!" 
-                else:
-                    print "Greedy strategy (" + self.ToString() + "): Could not buy resource (" + str(resourceType) + ")!" 
-                    
-
-        #add occupation action
-        self.npc.occupation.add_default_schedule(self.npc.schedule, self.npc.possession)
-
+                to_buy.append(resourceType)
+                   
+        #sell stuff
         produced = self.npc.occupation.get_resources_to_be_produced()
         for resourceType in produced:
             resource = self.npc.possession.get_resource(resourceType)
             if resource == None:
                 continue
-
             #sell food away only if npc has enough food for the bad times
-            if isinstance(resource, FoodResource) and len(self.npc.possession.get_foods()) < NpcStrategySimpleGreedy.maximumFood:
+            if isinstance(resource, FoodResource) and len(self.npc.possession.get_foods()) < NpcStrategySimpleGreedy.MAXIMUM_FOOD:
                 continue
+            to_sell.append(resource)
+        
+        self._add_stock_action(to_buy, to_sell)
+                    
+        #add occupation action
+        self.npc.schedule.add_action(MoveAction("Moving", self.npc, self.npc.occupation.POS_X, self.npc.occupation.POS_Y))
+        self.npc.occupation.add_default_schedule(self.npc, self.npc.possession)
 
-            if self._SellResource(resource):
-                print "Greedy strategy (" + self.ToString() + "): Sold resource! (" + str(resource) + ")"
-            else:
-                print "Greedy strategy (" + self.ToString() + "): Could not sell resource! (" + str(resource) + ")"
                                                     
-
-    def _BuyResource(self, resourceType):
-        stocks = self.npc.GetCity().GetStockMarkets()
+    def _add_stock_action(self, to_buy, to_sell):
+        if len(to_buy) > 0:
+            print "Greedy strategy (" + self.to_string() + "): Adding to buy: " + str(to_buy)
+        if len(to_sell) > 0:
+            print "Greedy strategy (" + self.to_string() + "): Adding to sell: " + str(to_sell)
+        if len(to_sell) == 0 and len(to_buy) == 0:
+            return
+    
+        stocks = self.npc.get_city().get_stock_markets()
         if len(stocks) > 0:
-            resource = stocks[0].find_resource(resourceType)
-            if resource != None:
-                return stocks[0].buy_resource(resource, self.npc.possession)
-            print "Stock is out of " + str(resourceType) + "!"
-            return False
+            self.npc.schedule.add_action(MoveAction("Moving", self.npc, stocks[0].get_x(), stocks[0].get_y()))
+            self.npc.schedule.add_action(StockAction("Stock", to_buy, to_sell, self.npc.possession, stocks[0]))
+            return
         print "No stock market available!"
-        return False
-
-    def _SellResource(self, resource):
-        stocks = self.npc.GetCity().GetStockMarkets()
-        if len(stocks) > 0:
-            return stocks[0].sell_resource(resource, self.npc.possession)
-        return False
 

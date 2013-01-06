@@ -47,12 +47,12 @@ class TestDisplay:
             self.testText()
             
             #self.testNPC()
-            self.statdisplay.visualizeNPCs(self.city.GetNpcs())
+            self.statdisplay.visualizeNPCs(self.city.get_npcs())
 
             #self.UpdateVillage()
             self.moveNpcs()
-            for npc in self.city.GetNpcs():
-                npc.Advance(15)
+            for npc in self.city.get_npcs():
+                npc.advance(15)
 
             self.moveCamera()
             self.window.advance(self.time)
@@ -98,6 +98,7 @@ class TestDisplay:
         npcs.append(Npc(Hunter()))
         npcs.append(Npc(Brewer()))
         self.stock = StockMarket()
+        self.stock.set_location(30,30)
 
         #set prices
         self.stock.set_price(Grain, 10)
@@ -109,11 +110,11 @@ class TestDisplay:
         self.stock.possession.add_resource(ResourceFactory.create_resource(Grain, self.stock.possession))
         self.stock.possession.add_resource(ResourceFactory.create_resource(Grain, self.stock.possession))
 
-        self.city.AddStockMarket(self.stock)
+        self.city.add_stock_market(self.stock)
         for n in npcs:
             n.possession.money = 100
-            n.SetStrategy(NpcStrategySimpleGreedy(n))
-            self.city.AddNpc(n)
+            n.set_strategy(NpcStrategySimpleGreedy(n))
+            self.city.add_npc(n)
         
         return self.city
 
@@ -166,7 +167,8 @@ class TestDisplay:
         self.statdisplay.addText("La Trappen markkinahinta: 12")
 
     def moveNpcs(self):
-        npcs = self.city.GetNpcs()
+        return
+        npcs = self.city.get_npcs()
         for npc in npcs:
             x_movement = random.randint(-1, 1)
             y_movement = random.randint(-1, 1)
@@ -178,7 +180,7 @@ class TestDisplay:
         self.tiledisplay.cameray += self.camera_movement[1]
 
     def randomizeNpcLocations(self):
-        npcs = self.city.GetNpcs()
+        npcs = self.city.get_npcs()
         for npc in npcs:
             npc.x = random.randint(0, SCREEN_WIDTH)
             npc.y = random.randint(0, SCREEN_HEIGHT)       

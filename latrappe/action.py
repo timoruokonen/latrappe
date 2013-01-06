@@ -17,6 +17,8 @@ class Action(object):
             self._start_action()
 
         self.time_left -= time
+        self._advance(time)
+
         if (self.is_done()):
             self._end_action()
 
@@ -24,6 +26,15 @@ class Action(object):
             #action was completed and some time was left
             return -self.time_left
         return 0
+
+    def _start_action(self):
+        pass
+
+    def _end_action(self):
+        pass
+
+    def _advance(self, time):
+        pass
 
 '''
 General action that requires input resources and produces output resources in given time. 
@@ -60,9 +71,11 @@ class ProduceAction(Action):
     #def CreateSellAction(resourcesToBeSold, possession):
     #    return Action("Selling goods", [],  
 
-class StockAction(object):
-    def __init__(self, name, resources_to_sell, resources_to_buy, duration, buyer_seller, stock):
-        Action.__init__(self, name, duration)
+class StockAction(Action):
+    DURATION = 60
+
+    def __init__(self, name, resources_to_buy, resources_to_sell, buyer_seller, stock):
+        Action.__init__(self, name, StockAction.DURATION)
         self.resources_to_sell = resources_to_sell
         self.resources_to_buy = resources_to_buy
         self.buyer_seller = buyer_seller
@@ -72,9 +85,51 @@ class StockAction(object):
     def _start_action(self):
         #TODO: think how to best implement this. Now stuff is just moved/sold already in start of the action...
         for resource in self.resources_to_sell:
-            self.stock.sell_resource(resource, self.buyer_seller)
+            if self.stock.sell_resource(resource, self.buyer_seller):
+                print str(self.buyer_seller), " sold ", str(resource)
+            else:
+                print str(self.buyer_seller), " failed to sell ", str(resource)
 
+        for resource in self.resources_to_buy:
+            if self.stock.buy_resource(resource, self.buyer_seller):
+                print str(self.buyer_seller), " bought ", str(resource)
+            else:
+                print str(self.buyer_seller), " failed to buy ", str(resource)
+                
     def _end_action(self):
         pass
 
+class MoveAction(Action):
+    DURATION = 60
+    SPEED = 5
 
+    def __init__(self, name, npc, x, y):
+        Action.__init__(self, name, MoveAction.DURATION)
+        self.npc = npc
+        self.x = x
+        self.y = y
+
+    def _advance(self, time):
+        #start moving towards the destination
+        new_x = self.npc.get_x()
+        new_y = self.npc.get_y()
+
+        #finish the action if npc arrives to destination
+        if new_x == self.x and new_y == self.y:
+            print(str(self.npc), " reached destination (", self.x, ", ", self.y, ")!")
+            self.time_left = 0
+        else:
+            self.time_left = MoveAction.DURATION
+
+
+        if (new_x < self.x):
+            new_x += min(self.x - new_x, time * MoveAction.SPEED)
+        elif (new_x > self.x):
+            new_x -= min(new_x - self.x, time * MoveAction.SPEED)
+        if (new_y < self.y):
+            new_y += min(self.y - new_y, time * MoveAction.SPEED)
+        elif (new_y > self.y):
+            new_y -= min(new_y - self.y, time * MoveAction.SPEED)
+
+        self.npc.set_location(new_x, new_y)
+                

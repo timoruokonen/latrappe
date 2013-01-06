@@ -7,6 +7,8 @@ class StockMarket(object):
     def __init__(self):
         self.possession = Possession()
         self.prices = {}
+        self.x = 0
+        self.y = 0
 
         #get some initial cash from loan sharks :D
         self.loan_money(StockMarket.INITIAL_MONEY)
@@ -17,6 +19,15 @@ class StockMarket(object):
         loanShark.money = amount
         loanShark.give_money(amount, self.possession)
 
+    def get_x(self):
+        return self.x
+
+    def get_y(self):
+        return self.y
+
+    def set_location(self, x, y):
+        self.x = x
+        self.y = y
 
     def get_price(self, resource):
         if type(resource) != type:

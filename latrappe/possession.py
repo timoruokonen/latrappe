@@ -18,13 +18,22 @@ class Possession(object):
         ResourceFactory.on_resource_destroyed(resource)
 
     def give_resource(self, resource, new_owner):
-        self.resources.remove(resource)
-        new_owner.resources.append(resource)
+        #verify that owner has the given instance or resource type 
+        res = self.get_resource(resource)
+        if res == None:
+            return False
 
-    def get_resource(self, resource_type):
-        for resource in self.resources:
-            if (isinstance(resource, resource_type)):
-                return resource
+        self.resources.remove(res)
+        new_owner.resources.append(res)
+        return True
+
+    def get_resource(self, resource):
+        if type(resource) == type:
+            for res in self.resources:
+                if (isinstance(res, resource)):
+                    return res
+        if resource in self.resources:
+            return resource
         return None
 
     def has_resources(self, resources):
