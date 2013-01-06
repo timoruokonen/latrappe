@@ -313,6 +313,7 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(0, npc.possession.get_resource_count(Beer))
         self.assertEqual(0, npc.possession.get_resource_count(Grain))
         self.assertEqual(0, npc.possession.get_resource_count(Meat))
+        self.assertEqual(0, len(npc.possession.get_resource_types()))
 
         npc.possession.add_resource(Grain())
         self.assertFalse(npc.possession.get_resource(Beer))
@@ -321,6 +322,8 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(0, npc.possession.get_resource_count(Beer))
         self.assertEqual(1, npc.possession.get_resource_count(Grain))
         self.assertEqual(0, npc.possession.get_resource_count(Meat))
+        self.assertEqual(1, len(npc.possession.get_resource_types()))
+        self.assertTrue(Grain in npc.possession.get_resource_types())
  
         npc.possession.add_resource(Grain())
         npc.possession.add_resource(Beer())
@@ -330,6 +333,9 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(1, npc.possession.get_resource_count(Beer))
         self.assertEqual(2, npc.possession.get_resource_count(Grain))
         self.assertEqual(0, npc.possession.get_resource_count(Meat))
+        self.assertEqual(2, len(npc.possession.get_resource_types()))
+        self.assertTrue(Grain in npc.possession.get_resource_types())
+        self.assertTrue(Beer in npc.possession.get_resource_types())
 
         npc2 = Npc(Farmer())
         npc.possession.give_resource(Beer, npc2.possession)
@@ -341,6 +347,8 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(0, npc.possession.get_resource_count(Meat))
         self.assertTrue(npc2.possession.get_resource(Beer))
         self.assertEqual(1, npc2.possession.get_resource_count(Beer))
+        self.assertEqual(1, len(npc.possession.get_resource_types()))
+        self.assertTrue(Grain in npc.possession.get_resource_types())
 
 
 if __name__ == '__main__':

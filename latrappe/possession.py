@@ -27,6 +27,14 @@ class Possession(object):
         new_owner.resources.append(res)
         return True
 
+    def get_resource_types(self):
+        types = []
+        for res in self.resources:
+            if type(res) in types:
+                continue
+            types.append(type(res))
+        return types
+
     def get_resource(self, resource):
         if type(resource) == type:
             for res in self.resources:
