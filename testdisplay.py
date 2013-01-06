@@ -35,12 +35,13 @@ class TestDisplay:
         self.randomizeNpcLocations()
         self.tiledisplay = TileDisplay(screen, self.city)
         self.statdisplay = Display(screen)
+        self.initStatDisplay(self.statdisplay)
         self.window = self.statdisplay
         self.camera_movement = (0,0)
         self.time = 0
 
         Npc.defaultFoodConsumption = 0 #no food problems :)
-        self.testBars()
+        #self.testBars()
         while 1:
             screen.fill((0,0,0))
             self.window.reset()
@@ -119,6 +120,10 @@ class TestDisplay:
             self.city.add_npc(n)
         
         return self.city
+
+    def initStatDisplay(self, disp):
+        for stock in self.city.stocks:
+            disp.addStock(stock)
 
 #    def UpdateVillage(self):
 #        #farmer sells grain when he has more than two ready

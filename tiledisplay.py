@@ -22,7 +22,7 @@ class TileDisplay:
 
         # FIXME: Just test images for now
         self.npcimage = pygame.image.load("duff.png").convert()
-        self.animation_images = self.load_sliced_sprites(64, 64, 'bird.png')
+        self.animation_images = self.load_sliced_sprites(32, 32, 'monk.png')
         self.npc_animated_img = AnimatedSprite(self.animation_images, 30)
 
         self.MAP_TILE_WIDTH = 32
@@ -46,15 +46,15 @@ class TileDisplay:
     def advance(self, time):
     	self.npc_animated_img.update(time)
 
-    def drawNpcs(self):
+    def draw_npcs(self):
     	npcs = self.city.get_npcs()
     	for npc in npcs:
             self.mapsurface.blit(self.npc_animated_img.image, (npc.x,npc.y))
 
     def draw(self):
     	# Draw all the stuff into one big surface buffer
-    	self.drawCity()
-    	self.drawNpcs()
+    	self.draw_city()
+    	#self.drawNpcs()
 
     	# Blit visible part of buffer onto screen
     	self.screen.blit(self.mapsurface, (-self.camerax,-self.cameray))
@@ -89,7 +89,31 @@ class TileDisplay:
         self.mapwidth = len(self.map[0]) 
         self.mapheight = len(self.map)
 
-    def drawCity(self):
+    def draw_city(self):
+        self.draw_tiles()
+        self.draw_npcs()
+        self.draw_stocks()
+
+    def draw_stocks(self):
+        stocks = self.city.get_stock_markets()
+        for stock in stocks:
+            x = stock.x
+            y = stock.y
+            possession = stock.possession
+            resources = possession.get_resource_types()
+            for resource in resources:
+                count = possession.get_resource_count(resource)
+                self.draw_stock_item(resource, (x,y), count)
+
+    def draw_stock_item(self, resource, pos, count):
+        stock_image = pygame.image.load("default_resource.png")
+        if type(resource) == Beer:
+            stock_image = pygame.image.load("beerkeg.png").convert()
+
+        self.mapsurface.blit(stock_image, pos)
+
+
+    def draw_tiles(self):
         tiles = self.MAP_CACHE[self.tileset]
         #print 'Tiles length' + str(len(tiles))
         for map_y, line in enumerate(self.map):

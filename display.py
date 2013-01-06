@@ -18,7 +18,8 @@ class Display:
         self.font = pygame.font.Font(None, 17)
         self.titleFont = pygame.font.Font(None, 40)
         self.textRows = 0
-        self.barGroups= []
+        self.barGroups = []
+        self.stockBarGroups = []
 
     def addTitle(self):
         text = self.titleFont.render("La Trappe stats", True, (255,255,255), (0,0,0))
@@ -38,6 +39,9 @@ class Display:
 
     def addBarGroup(self, barGroup):
         self.barGroups.append(barGroup)
+
+    def addStock(self, stock, x=100, y=300):
+        self.stockBarGroups.append(StockBarGroup(x, y, stock))
     
     def reset(self):
         self.textRows = 0
@@ -50,6 +54,10 @@ class Display:
         for group in self.barGroups:
             group.draw(self.screen)
 
+        for stockGroup in self.stockBarGroups:
+            stockGroup.updateValues()
+            stockGroup.draw(self.screen)
+
 
     def visualizeNPCs(self, npcs):
         for npc in npcs:
@@ -60,6 +68,9 @@ class Display:
             self.addText("NPC occupation: " + str(npc.occupation) + " money: " + str(npc.possession.money) + " action: " + str(npc.schedule.get_current_action_name()))
         else:
             self.addText("NPC DEAD occupation: " + str(npc.occupation) + " money: " + str(npc.possession.money))
+
+
+
     
 class BarGroup:
     def __init__(self, x, y, maxwidth=300, barHeight=20):
@@ -119,4 +130,20 @@ class BarAmount:
 
     def GetAmount(self):
         return self.amount
+
+class StockBarGroup(BarGroup):
+    def __init__(self, x, y, stock, maxwidth=300, barHeight=20):
+        BarGroup.__init__(self, x, y, maxwidth, barHeight)
+        self.stock = stock
+        self.beer = BarAmount(stock.possession.get_resource_count(Beer))
+        self.meat = BarAmount(stock.possession.get_resource_count(Meat))
+        self.grain = BarAmount(stock.possession.get_resource_count(Grain))
+        self.addBar("Beer", self.beer, 160, (32, 255, 32)) 
+        self.addBar("Grain", self.grain, 200, (255, 64, 0))
+        self.addBar("Meat", self.meat, 160, (32, 255, 32)) 
+
+    def updateValues(self):
+        self.beer.SetAmount(self.stock.possession.get_resource_count(Beer))
+        self.meat.SetAmount(self.stock.possession.get_resource_count(Meat))
+        self.grain.SetAmount(self.stock.possession.get_resource_count(Grain))
 
