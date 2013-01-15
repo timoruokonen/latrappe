@@ -53,7 +53,7 @@ class TestDisplay:
             #self.UpdateVillage()
             self.moveNpcs()
             for npc in self.city.get_npcs():
-                npc.advance(15)
+                npc.advance(5)
 
             self.moveCamera()
             self.window.advance(self.time)

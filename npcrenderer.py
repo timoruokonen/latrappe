@@ -19,6 +19,8 @@ class NpcRenderer:
         self.sleep_animation = AnimatedSprite(self.sleep_animation_images, 30)
         self.brewing_animation_images = TileUtils.load_sliced_sprites(32, 32, 'monk_brewing.png')
         self.brewing_animation = AnimatedSprite(self.brewing_animation_images, 8)
+        self.hunting_animation_images = TileUtils.load_sliced_sprites(32, 32, 'monk_hunting.png')
+        self.hunting_animation = AnimatedSprite(self.hunting_animation_images, 8)
 
         self.npc_animation = self.work_animation
 
@@ -27,7 +29,10 @@ class NpcRenderer:
         npcimage = self.npc_alive_img
         action = npc.schedule.get_current_action()
         if npc.alive:
-            if (type(action) == ProduceAction) and (type(npc.occupation) == Brewer):
+            if (type(action) == ProduceAction) and (type(npc.occupation) == Hunter):
+                self.npc_animation = self.hunting_animation
+                self.surface.blit(self.hunting_animation.image, (npc.x, npc.y))               
+            elif (type(action) == ProduceAction) and (type(npc.occupation) == Brewer):
                 self.npc_animation = self.brewing_animation
                 self.surface.blit(self.brewing_animation.image, (npc.x, npc.y))
             elif type(action) == ProduceAction:
@@ -55,3 +60,4 @@ class NpcRenderer:
         self.work_animation.update(time)
         self.brewing_animation.update(time)
         self.sleep_animation.update(time)
+        self.hunting_animation.update(time)
