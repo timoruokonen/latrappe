@@ -50,3 +50,8 @@ class NpcRenderer:
         textRect.left = npc.x - (self.MAP_TILE_WIDTH / 2)
         textRect.top = npc.y + (self.MAP_TILE_HEIGHT)
         self.surface.blit(text, textRect)
+
+    def update(self, time):
+        self.work_animation.update(time)
+        self.brewing_animation.update(time)
+        self.sleep_animation.update(time)

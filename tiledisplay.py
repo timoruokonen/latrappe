@@ -42,7 +42,7 @@ class TileDisplay:
     	#	self.npc_anim.append((npc))  	
 
     def advance(self, time):
-    	self.npc_renderer.npc_animation.update(time)
+    	self.npc_renderer.update(time)
 
     def draw_npcs(self):
     	npcs = self.city.get_npcs()
