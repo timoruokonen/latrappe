@@ -7,6 +7,7 @@ from pygame.locals import *
 from latrappe import *
 import ConfigParser
 from AnimatedSprite import AnimatedSprite
+from npcrenderer import NpcRenderer
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
@@ -20,13 +21,6 @@ class TileDisplay:
         self.titleFont = pygame.font.Font(None, 40)
         self.city = city
 
-        # FIXME: Just test images for now
-        self.npc_dead_img = pygame.image.load("monk_dead.png")
-        self.npc_alive_img = pygame.image.load("monk.png")
-        self.npcimage = self.npc_alive_img
-        self.work_animation_images = self.load_sliced_sprites(32, 32, 'monk_working.png')
-        self.npc_animation = AnimatedSprite(self.work_animation_images, 30)
-
         self.MAP_TILE_WIDTH = 32
         self.MAP_TILE_HEIGHT = 32
         self.MAP_CACHE = {
@@ -39,6 +33,8 @@ class TileDisplay:
 
         self.stock_items_position = { 0:(0,0), 1:(1,0), 2:(0,1), 3:(1,1), 4:(-1,0), 5:(0,-1), 6:(-1,-1) }
 
+        self.npc_renderer = NpcRenderer(self.mapsurface)
+
 
     def init_npc_anim(self):
     	npcs = self.city.get_npcs()
@@ -46,28 +42,14 @@ class TileDisplay:
     	#	self.npc_anim.append((npc))  	
 
     def advance(self, time):
-    	self.npc_animation.update(time)
+    	self.npc_renderer.npc_animation.update(time)
 
     def draw_npcs(self):
     	npcs = self.city.get_npcs()
     	for npc in npcs:
+            self.npc_renderer.draw_npc(npc)
             # Npc image
-            if npc.alive:
-                self.npcimage = self.npc_alive_img
-            else:
-                self.npcimage = self.npc_dead_img
 
-            if type(npc.schedule.get_current_action()) == ProduceAction and npc.alive:
-                self.mapsurface.blit(self.npc_animation.image, (npc.x, npc.y))
-            else:
-                self.mapsurface.blit(self.npcimage, (npc.x,npc.y))
-
-            # Npc name
-            text = self.font.render(npc.name, True, (255,255, 255))
-            textRect = text.get_rect()
-            textRect.left = npc.x - (self.MAP_TILE_WIDTH / 2)
-            textRect.top = npc.y + (self.MAP_TILE_HEIGHT)
-            self.mapsurface.blit(text, textRect)
 
     def draw(self):
     	# Draw all the stuff into one big surface buffer
@@ -170,16 +152,6 @@ class TileDisplay:
                 tile_image = tiles[tile[0]][tile[1]]
                 self.mapsurface.blit(tile_image, (map_x*self.MAP_TILE_WIDTH, map_y*self.MAP_TILE_HEIGHT))
 
-    def load_sliced_sprites(self, w, h, filename):
-        images = []
-        master_image = pygame.image.load(filename).convert_alpha()
 
-        master_width, master_height = master_image.get_size()
-        for y in xrange(int(master_height/h)):
-            for i in xrange(int(master_width/w)):
-    	        images.append(master_image.subsurface(i*w,y*h,w,h))
-
-    	print 'Image count:' + str(len(images))
-        return images
 
         
