@@ -1,0 +1,45 @@
+[Mr Trappe]
+occupation = Brewer
+home_x = 350
+home_y = 320
+x = 150
+y = 275
+money = 24501
+strategy = NpcStrategySimpleGreedy
+
+[Pertti]
+occupation = Farmer
+home_x = 510
+home_y = 160
+x = 33
+y = 457
+money = 43
+strategy = NpcStrategySimpleGreedy
+
+[Keijo]
+occupation = Farmer
+home_x = 560
+home_y = 320
+x = 0
+y = 0
+money = 100
+strategy = NpcStrategySimpleGreedy
+
+[Villageidiot]
+occupation = Hunter
+home_x = 750
+home_y = 220
+x = 0
+y = 0
+money = 100
+strategy = NpcStrategySimpleGreedy
+
+[Sir Robin]
+occupation = Hunter
+home_x = 680
+home_y = 220
+x = 0
+y = 0
+money = 100
+strategy = NpcStrategySimpleGreedy
+

@@ -371,6 +371,32 @@ class TestSequenceFunctions(unittest.TestCase):
         beers.remove(Beer)
         self.assertEqual(0, beers.count)
 
+    def test_loader_load_city(self):
+        loader = Loader()
+        city = loader.load_city('_testcity.txt')
+
+        self.assertEqual(5, len(city.npcs))
+        brewer = city.npcs[0]
+        self.assertEqual('Mr Trappe', brewer.name)
+        self.assertEqual(350, brewer.home_x)
+        self.assertEqual(320, brewer.home_y)
+        self.assertEqual(150, brewer.x)
+        self.assertEqual(275, brewer.y)
+        self.assertEqual(24501, brewer.possession.money)
+        self.assertEqual(Brewer, type(brewer.occupation))
+        self.assertEqual(NpcStrategySimpleGreedy, type(brewer.strategy))
+
+        farmer = city.npcs[1]
+        self.assertEqual('Pertti', farmer.name)
+        self.assertEqual(510, farmer.home_x)
+        self.assertEqual(160, farmer.home_y)
+        self.assertEqual(33, farmer.x)
+        self.assertEqual(457, farmer.y)
+        self.assertEqual(43, farmer.possession.money)
+        self.assertEqual(Farmer, type(farmer.occupation))
+        self.assertEqual(NpcStrategySimpleGreedy, type(farmer.strategy))
+
+
 
 if __name__ == '__main__':
     unittest.main()
