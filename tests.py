@@ -201,8 +201,8 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def test_city_with_npcs_and_stock_markets(self):
         city = City()
-        self.assertEqual(0, len(city.get_npcs()))
-        self.assertEqual(0, len(city.get_stock_markets()))
+        self.assertEqual(0, len(city.npcs))
+        self.assertEqual(0, len(city.stocks))
         npc1 = Npc(Brewer())
         npc2 = Npc(Farmer())
         stock = StockMarket()
@@ -213,11 +213,11 @@ class TestSequenceFunctions(unittest.TestCase):
         city.add_stock_market(stock)
         self.assertEqual(city, npc1.city)
         self.assertEqual(city, npc2.city)
-        self.assertEqual(2, len(city.get_npcs()))
-        self.assertEqual(1, len(city.get_stock_markets()))
-        self.assertTrue(npc1 in city.get_npcs())
-        self.assertTrue(npc2 in city.get_npcs())
-        self.assertTrue(stock in city.get_stock_markets())
+        self.assertEqual(2, len(city.npcs))
+        self.assertEqual(1, len(city.stocks))
+        self.assertTrue(npc1 in city.npcs)
+        self.assertTrue(npc2 in city.npcs)
+        self.assertTrue(stock in city.stocks)
         
     def test_simple_npc_strategy(self):
         #setup city, stock and add some food there

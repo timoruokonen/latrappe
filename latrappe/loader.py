@@ -3,11 +3,18 @@ from city import City
 from occupation import *
 from npcstrategy import *
 
+'''
+Loader for the LaTrappe. Can be used to save and load game state.
+Currently implements serialization and deserialization by using Python's config files.
+'''
 class Loader(object):
 
     def __init__(self):
         pass
 
+    '''
+    Loads a city instance from the given filename.
+    '''
     def load_city(self, filename):
         parser = ConfigParser.ConfigParser()
         parser.read(filename)
@@ -20,6 +27,9 @@ class Loader(object):
                 city.add_stock_market(self._create_stock(section, parser))
         return city
 
+    '''
+    Saves the given city instance to the given file.
+    '''
     def save_city(self, city, filename):
         parser = ConfigParser.ConfigParser()
         for npc in city.npcs:

@@ -8,14 +8,7 @@ class City(object):
     def add_npc(self, npc):
         npc.city = self
         self.npcs.append(npc)
-
-    def get_npcs(self):
-        return self.npcs
-    
+ 
     def add_stock_market(self, stock):
         self.stocks.append(stock)
-
-    def get_stock_markets(self):
-        return self.stocks
-
 

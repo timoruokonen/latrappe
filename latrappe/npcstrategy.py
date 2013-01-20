@@ -58,7 +58,7 @@ class NpcStrategySimpleGreedy(object):
         if len(to_sell) == 0 and len(to_buy) == 0:
             return
     
-        stocks = self.npc.city.get_stock_markets()
+        stocks = self.npc.city.stocks
         if len(stocks) > 0:
             self.npc.schedule.add_action(MoveAction("Moving", self.npc, stocks[0].x, stocks[0].y))
             self.npc.schedule.add_action(StockAction("Stock", to_buy, to_sell, self.npc.possession, stocks[0]))

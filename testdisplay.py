@@ -48,11 +48,11 @@ class TestDisplay:
             self.testText()
             
             #self.testNPC()
-            self.statdisplay.visualizeNPCs(self.city.get_npcs())
+            self.statdisplay.visualizeNPCs(self.city.npcs)
 
             #self.UpdateVillage()
             self.moveNpcs()
-            for npc in self.city.get_npcs():
+            for npc in self.city.npcs:
                 npc.advance(5)
 
             self.moveCamera()
@@ -149,8 +149,7 @@ class TestDisplay:
 
     def moveNpcs(self):
         return
-        npcs = self.city.get_npcs()
-        for npc in npcs:
+        for npc in self.city.npcs:
             x_movement = random.randint(-1, 1)
             y_movement = random.randint(-1, 1)
             npc.x += x_movement
@@ -161,8 +160,7 @@ class TestDisplay:
         self.tiledisplay.cameray += self.camera_movement[1]
 
     def randomizeNpcLocations(self):
-        npcs = self.city.get_npcs()
-        for npc in npcs:
+        for npc in self.city.npcs:
             npc.x = random.randint(0, SCREEN_WIDTH)
             npc.y = random.randint(0, SCREEN_HEIGHT)       
 

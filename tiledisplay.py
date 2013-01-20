@@ -37,7 +37,7 @@ class TileDisplay:
 
 
     def init_npc_anim(self):
-    	npcs = self.city.get_npcs()
+    	npcs = self.city.npcs
     	#for npc in npcs:
     	#	self.npc_anim.append((npc))  	
 
@@ -45,8 +45,7 @@ class TileDisplay:
     	self.npc_renderer.update(time)
 
     def draw_npcs(self):
-    	npcs = self.city.get_npcs()
-    	for npc in npcs:
+    	for npc in self.city.npcs:
             self.npc_renderer.draw_npc(npc)
             # Npc image
 
@@ -95,8 +94,7 @@ class TileDisplay:
         self.draw_stocks()
 
     def draw_stocks(self):
-        stocks = self.city.get_stock_markets()
-        for stock in stocks:
+        for stock in self.city.stocks:
             possession = stock.possession
             resources = possession.get_resource_types()
             index = 0
