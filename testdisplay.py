@@ -91,53 +91,8 @@ class TestDisplay:
                         self.camera_movement = (0,1)
 
     def CreateTestVillage(self):
-        npcs = []
-        self.city = City()
-        la_trappe = Npc(Brewer(), "Mr Trappe")
-        pertti = Npc(Farmer(), "Pertti") 
-        keijo = Npc(Farmer(), "Keijo")
-        idiot = Npc(Hunter(), "Villageidiot")
-        robin = Npc(Hunter(), "Sir Robin") 
-        npcs.append(robin)
-        npcs.append(idiot)
-        npcs.append(keijo)
-        npcs.append(pertti)
-        npcs.append(la_trappe)
-
-        idiot.home_x = 750
-        idiot.home_y = 220
-        robin.home_x = 680
-        robin.home_y = 220
-        keijo.home_x = 560
-        keijo.home_y = 320
-        pertti.home_x = 510
-        pertti.home_y = 320
-        la_trappe.home_x = 350
-        la_trappe.home_y = 320
-
-        self.stock = StockMarket()
-        self.stock.x = 30
-        self.stock.y = 30
-        
-        #add enough cash for stock
-        self.stock.possession._set_money(5000)
-
-        #set prices
-        self.stock.set_price(Grain, 15)
-        self.stock.set_price(Meat, 10)
-        self.stock.set_price(Beer, 50)
-        #add some stuff to stock
-        for i in range(50):
-            self.stock.possession.add_resource(ResourceFactory.create_resource(Meat, self.stock.possession))
-        self.stock.possession.add_resource(ResourceFactory.create_resource(Grain, self.stock.possession))
-        self.stock.possession.add_resource(ResourceFactory.create_resource(Grain, self.stock.possession))
-
-        self.city.add_stock_market(self.stock)
-        for n in npcs:
-            n.possession._set_money(100)
-            n.strategy = NpcStrategySimpleGreedy(n)
-            self.city.add_npc(n)
-        
+        loader = Loader()
+        self.city = loader.load_city('city.txt')
         return self.city
 
     def initStatDisplay(self, disp):

@@ -5,19 +5,19 @@ type = npc
 occupation = Brewer
 home_x = 350
 home_y = 320
-x = 150
-y = 275
-money = 24501
+x = 0
+y = 0
+money = 100
 strategy = NpcStrategySimpleGreedy
 
 [Pertti]
 type = npc
 occupation = Farmer
 home_x = 510
-home_y = 160
-x = 33
-y = 457
-money = 43
+home_y = 320
+x = 0
+y = 0
+money = 100
 strategy = NpcStrategySimpleGreedy
 
 [Keijo]
@@ -50,33 +50,21 @@ y = 0
 money = 100
 strategy = NpcStrategySimpleGreedy
 
+
 ###################################################################################
 #Stocks:
 
 [Stock1]
 type = stock
-x = 0
-y = 0
-money = 1323
+x = 30
+y = 30
+money = 5000
 prices = 
-    Grain: 50
-    Beer: 100
-    Meat: 35
+    Grain: 15
+    Beer: 50
+    Meat: 10
 resources =
-    Grain: 5
-    Beer: 3
-    Meat: 7
-
-[CheaterStock]
-type = stock
-x = 523
-y = 321
-money = 58300
-prices = 
-    Grain: 250
-    Beer: 900
-    Meat: 650
-resources =
-    Beer: 1
-    Meat: 0
+    Grain: 2
+    Beer: 0
+    Meat: 50
 

@@ -375,6 +375,7 @@ class TestSequenceFunctions(unittest.TestCase):
         loader = Loader()
         city = loader.load_city('_testcity.txt')
 
+        #check NPCs
         self.assertEqual(5, len(city.npcs))
         brewer = city.npcs[0]
         self.assertEqual('Mr Trappe', brewer.name)
@@ -396,6 +397,29 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(Farmer, type(farmer.occupation))
         self.assertEqual(NpcStrategySimpleGreedy, type(farmer.strategy))
 
+        #check stocks:
+        self.assertEqual(2, len(city.stocks))
+        stock1 = city.stocks[0]
+        self.assertEqual(0, stock1.x)
+        self.assertEqual(0, stock1.y)
+        self.assertEqual(1323, stock1.possession.money)
+        self.assertEqual(50, stock1.get_price(Grain))
+        self.assertEqual(100, stock1.get_price(Beer))
+        self.assertEqual(35, stock1.get_price(Meat))
+        self.assertEqual(7, stock1.possession.get_resource_count(Meat))
+        self.assertEqual(5, stock1.possession.get_resource_count(Grain))
+        self.assertEqual(3, stock1.possession.get_resource_count(Beer))
+        
+        stock2 = city.stocks[1]
+        self.assertEqual(523, stock2.x)
+        self.assertEqual(321, stock2.y)
+        self.assertEqual(58300, stock2.possession.money)
+        self.assertEqual(250, stock2.get_price(Grain))
+        self.assertEqual(900, stock2.get_price(Beer))
+        self.assertEqual(650, stock2.get_price(Meat))
+        self.assertEqual(0, stock2.possession.get_resource_count(Meat))
+        self.assertEqual(0, stock2.possession.get_resource_count(Grain))
+        self.assertEqual(1, stock2.possession.get_resource_count(Beer))
 
 
 if __name__ == '__main__':

@@ -18,7 +18,15 @@ class ResourceFactory(object):
         
         for resource in target.materials:
             possession.destroy_resource(resource)
-        
+
+        return ResourceFactory.create_resource_from_nothing(target, possession)
+
+    '''
+    Create resources without checking/reducing materials. 
+    Note: This method should only be used when loading world.
+    '''
+    @staticmethod
+    def create_resource_from_nothing(target, possession): 
         print "New " + str(target) + " was created!"
         created_resource = target()
         ResourceFactory.on_resource_created(created_resource)
