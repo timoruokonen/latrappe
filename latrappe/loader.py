@@ -20,6 +20,44 @@ class Loader(object):
                 city.add_stock_market(self._create_stock(section, parser))
         return city
 
+    def save_city(self, city, filename):
+        parser = ConfigParser.ConfigParser()
+        for npc in city.npcs:
+            parser.add_section(npc.name)
+            parser.set(npc.name, 'type', 'npc')
+            parser.set(npc.name, 'occupation', type(npc.occupation).__name__)
+            parser.set(npc.name, 'home_x', str(npc.home_x))
+            parser.set(npc.name, 'home_y', str(npc.home_y))
+            parser.set(npc.name, 'x', str(npc.x))
+            parser.set(npc.name, 'y', str(npc.y))
+            parser.set(npc.name, 'money', str(npc.possession.money))
+            parser.set(npc.name, 'strategy', type(npc.strategy).__name__)
+
+        for stock in city.stocks:
+            parser.add_section(stock.name)
+            parser.set(stock.name, 'type', 'stock')
+            parser.set(stock.name, 'x', str(stock.x))
+            parser.set(stock.name, 'y', str(stock.y))
+            parser.set(stock.name, 'money', str(stock.possession.money))
+            
+            #Store prices. Get all subclasses of Resource
+            #TODO: Now it also saves "grouping" classes like FoodResource
+            prices = "\n"
+            resource_types = self._itersubclasses(Resource)
+            for resource_type in resource_types:
+                prices += resource_type.__name__ + ": " + str(stock.get_price(resource_type)) + '\n'
+            parser.set(stock.name, 'prices', prices)
+
+            #store stock's resources
+            resources = "\n"
+            resource_types = stock.possession.get_resource_types()
+            for resource_type in resource_types:
+                resources += resource_type.__name__ + ": " + str(stock.possession.get_resource_count(resource_type)) + '\n'
+            parser.set(stock.name, 'resources', resources)
+
+        with open(filename, 'wb') as configfile:
+            parser.write(configfile)
+
     def _create_npc(self, npc_section, parser):
         occupation = eval(parser.get(npc_section, 'occupation'))
         home_x = int(parser.get(npc_section, 'home_x'))
@@ -44,6 +82,7 @@ class Loader(object):
         money = int(parser.get(stock_section, 'money'))
 
         stock = StockMarket();
+        stock.name = stock_section
         stock.x = x
         stock.y = y
         stock.possession._set_money(money)
@@ -66,4 +105,19 @@ class Loader(object):
                     ResourceFactory.create_resource_from_nothing(resource_type, stock.possession))
         return stock
          
+    def _itersubclasses(self, cls, _seen=None):
+        if not isinstance(cls, type):
+            raise TypeError('not a class')
+        if _seen is None: _seen = set()
+        try:
+            subs = cls.__subclasses__()
+        except TypeError: # fails only when cls is type
+            subs = cls.__subclasses__(cls)
+        for sub in subs:    
+            if sub not in _seen:
+                _seen.add(sub)
+                yield sub
+                for sub in self._itersubclasses(sub, _seen):
+                    yield sub
+
                 

@@ -4,11 +4,12 @@ class StockMarket(object):
     DEFAULT_PRICE = 5
     INITIAL_MONEY = 500
 
-    def __init__(self):
+    def __init__(self, name = "unknown"):
         self.possession = Possession()
         self.prices = {}
         self.x = 0
         self.y = 0
+        self.name = name
 
         #get some initial cash from loan sharks :D
         self.loan_money(StockMarket.INITIAL_MONEY)
@@ -54,4 +55,5 @@ class StockMarket(object):
         self.possession.give_resource(resource, buyer)
         buyer.give_money(self.get_price(resource), self.possession)
         return True
+ 
 

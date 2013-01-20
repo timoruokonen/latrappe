@@ -374,7 +374,17 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_loader_load_city(self):
         loader = Loader()
         city = loader.load_city('_testcity.txt')
+        self._ensure_city_is_testcity(city)
 
+
+    def test_loader_load_and_save_city(self):
+        loader = Loader()
+        city = loader.load_city('_testcity.txt')
+        loader.save_city(city, '_temptestcity.txt')
+        city2 = loader.load_city('_temptestcity.txt')
+        self._ensure_city_is_testcity(city2)
+
+    def _ensure_city_is_testcity(self, city):
         #check NPCs
         self.assertEqual(5, len(city.npcs))
         brewer = city.npcs[0]
@@ -420,6 +430,9 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(0, stock2.possession.get_resource_count(Meat))
         self.assertEqual(0, stock2.possession.get_resource_count(Grain))
         self.assertEqual(1, stock2.possession.get_resource_count(Beer))
+    
+
+
 
 
 if __name__ == '__main__':
