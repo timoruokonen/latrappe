@@ -396,6 +396,8 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(24501, brewer.possession.money)
         self.assertEqual(Brewer, type(brewer.occupation))
         self.assertEqual(NpcStrategySimpleGreedy, type(brewer.strategy))
+        self.assertEqual(2, len(brewer.possession.get_all()))
+        self.assertTrue(brewer.possession.has_resources([Grain, Meat]))
 
         farmer = city.npcs[1]
         self.assertEqual('Pertti', farmer.name)

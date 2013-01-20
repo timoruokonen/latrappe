@@ -9,6 +9,10 @@ x = 150
 y = 275
 money = 24501
 strategy = NpcStrategySimpleGreedy
+resources =
+    Grain: 1
+    Meat: 1
+    Beer: 0
 
 [Pertti]
 type = npc
@@ -49,6 +53,8 @@ x = 0
 y = 0
 money = 100
 strategy = NpcStrategySimpleGreedy
+resources =
+    Beer: 2
 
 ###################################################################################
 #Stocks:

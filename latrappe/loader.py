@@ -32,6 +32,8 @@ class Loader(object):
             parser.set(npc.name, 'y', str(npc.y))
             parser.set(npc.name, 'money', str(npc.possession.money))
             parser.set(npc.name, 'strategy', type(npc.strategy).__name__)
+            #store npc's resources
+            self._add_resources_option(npc.possession, npc.name, parser)
 
         for stock in city.stocks:
             parser.add_section(stock.name)
@@ -49,14 +51,20 @@ class Loader(object):
             parser.set(stock.name, 'prices', prices)
 
             #store stock's resources
-            resources = "\n"
-            resource_types = stock.possession.get_resource_types()
-            for resource_type in resource_types:
-                resources += resource_type.__name__ + ": " + str(stock.possession.get_resource_count(resource_type)) + '\n'
-            parser.set(stock.name, 'resources', resources)
+            self._add_resources_option(stock.possession, stock.name, parser)
 
         with open(filename, 'wb') as configfile:
             parser.write(configfile)
+
+    def _add_resources_option(self, possession, section, parser):
+        resources = "\n"
+        resource_types = possession.get_resource_types()
+        if len(resource_types) == 0:
+            return
+        for resource_type in resource_types:
+            resources += resource_type.__name__ + ": " + str(possession.get_resource_count(resource_type)) + '\n'
+        parser.set(section, 'resources', resources)
+
 
     def _create_npc(self, npc_section, parser):
         occupation = eval(parser.get(npc_section, 'occupation'))
@@ -74,6 +82,7 @@ class Loader(object):
         npc.y = y
         npc.possession._set_money(money)
         npc.strategy = strategy(npc)
+        self._add_resources(npc.possession, npc_section, parser)
         return npc
     
     def _create_stock(self, stock_section, parser):
@@ -94,16 +103,22 @@ class Loader(object):
             resource_price = int(price.split(':')[1])
             stock.set_price(resource_type, resource_price)
 
-        resources = parser.get(stock_section, 'resources').split('\n') 
+        self._add_resources(stock.possession, stock_section, parser)
+        return stock
+        
+    def _add_resources(self, possession, section, parser):
+        if not parser.has_option(section, 'resources'):
+            return 
+
+        resources = parser.get(section, 'resources').split('\n') 
         for resource in resources:
             if not ':' in resource:
                 continue
             resource_type = eval(resource.split(':')[0])
             resource_count = int(resource.split(':')[1])
             for i in range(resource_count):
-                stock.possession.add_resource(
-                    ResourceFactory.create_resource_from_nothing(resource_type, stock.possession))
-        return stock
+                possession.add_resource(
+                    ResourceFactory.create_resource_from_nothing(resource_type, possession))
          
     def _itersubclasses(self, cls, _seen=None):
         if not isinstance(cls, type):
