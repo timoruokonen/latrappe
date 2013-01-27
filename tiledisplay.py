@@ -8,6 +8,7 @@ from latrappe import *
 import ConfigParser
 from AnimatedSprite import AnimatedSprite
 from npcrenderer import NpcRenderer
+from PlayerRenderer import PlayerRenderer
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
@@ -34,32 +35,57 @@ class TileDisplay:
         self.stock_items_position = { 0:(0,0), 1:(1,0), 2:(0,1), 3:(1,1), 4:(-1,0), 5:(0,-1), 6:(-1,-1) }
 
         self.npc_renderer = NpcRenderer(self.mapsurface)
+        self.player_renderer = PlayerRenderer(self.mapsurface)
+        # Camera margin from edge of screen (pixels)
+        self.CAMERA_MARGIN = 100
+        self.SCREEN_WIDTH = 800
+        self.SCREEN_HEIGHT = 600
 
 
     def init_npc_anim(self):
-    	npcs = self.city.npcs
-    	#for npc in npcs:
-    	#	self.npc_anim.append((npc))  	
+        npcs = self.city.npcs
+        #for npc in npcs:
+        #   self.npc_anim.append((npc))     
 
     def advance(self, time):
-    	self.npc_renderer.update(time)
+        self.npc_renderer.update(time)
 
     def draw_npcs(self):
-    	for npc in self.city.npcs:
+        for npc in self.city.npcs:
             self.npc_renderer.draw_npc(npc)
             # Npc image
 
+    def draw_players(self):
+        for player in self.city.players:
+            self.player_renderer.draw(player)
 
     def draw(self):
-    	# Draw all the stuff into one big surface buffer
-    	self.draw_city()
-    	#self.drawNpcs()
+        self.adjust_camera()
+        # Draw all the stuff into one big surface buffer
+        self.draw_city()
+        #self.drawNpcs()
 
-    	# Blit visible part of buffer onto screen
-    	self.screen.blit(self.mapsurface, (-self.camerax,-self.cameray))
+        # Blit visible part of buffer onto screen
+        self.screen.blit(self.mapsurface, (-self.camerax,-self.cameray))
+
+    def adjust_camera(self):
+        player = self.city.get_controlled_player()
+        camera_speed = abs(player.speed_x + player.speed_y)
+        if player.x > (self.camerax + self.SCREEN_WIDTH - self.CAMERA_MARGIN):
+            self.camerax += camera_speed
+
+        if (player.x < (self.camerax + 0 + self.CAMERA_MARGIN)):
+            self.camerax -= camera_speed
+
+        if player.y > (self.cameray + self.SCREEN_HEIGHT - self.CAMERA_MARGIN):
+            self.cameray += camera_speed
+
+        if (player.y < (self.cameray + 0 + self.CAMERA_MARGIN)):
+            self.cameray -= camera_speed
+
 
     def reset(self):
-    	pass
+        pass
 
     def loadTileTable(self, filename, width, height):
         image = pygame.image.load(filename).convert()
@@ -92,6 +118,8 @@ class TileDisplay:
         self.draw_tiles()
         self.draw_npcs()
         self.draw_stocks()
+        self.draw_players()
+
 
     def draw_stocks(self):
         for stock in self.city.stocks:
@@ -132,15 +160,57 @@ class TileDisplay:
 
         self.mapsurface.blit(text, textRect)
 
+    def get_tile(self, x, y):
+        """Tell what's at the specified position of the map."""
+
+        try:
+            char = self.map[y][x]
+        except IndexError:
+            return {}
+        try:
+            return self.key[char]
+        except KeyError:
+            return {}
+
+    def get_bool(self, x, y, name):
+        """Tell if the specified flag is set for position on the map."""
+
+        value = self.get_tile(x, y).get(name)
+        return value in (True, 1, 'true', 'yes', 'True', 'Yes', '1', 'on', 'On')
+
+    def is_wall(self, x, y):
+        """Is there a wall?"""
+
+        return self.get_bool(x, y, 'wall')
+
+    def is_blocking(self, x, y):
+        """Is this place blocking movement?"""
+
+        if not 0 <= x < self.width or not 0 <= y < self.height:
+            return True
+        return self.get_bool(x, y, 'block')
 
     def draw_tiles(self):
         tiles = self.MAP_CACHE[self.tileset]
+        wall = self.is_wall
         #print 'Tiles length' + str(len(tiles))
         for map_y, line in enumerate(self.map):
             for map_x, c in enumerate(line):
                 try:
                     tile = self.key[c]['tile'].split(',')
                     tile = int(tile[0]), int(tile[1])
+                    #print str(tile)
+                    if wall(map_x, map_y):
+                        #print "Wall!"
+                        if not wall(map_x, map_y-1):
+                            if not wall(map_x-1, map_y):
+                                tile = int(tile[0])+1, int(tile[1])
+                            elif not wall(map_x+1, map_y):
+                                tile = int(tile[0])+2, int(tile[1])
+                    else:
+                        #print "Not a Wall!"
+                        # Normal tile
+                        tile = int(tile[0]), int(tile[1])
                 except (ValueError, KeyError):
                     # Default to ground tile
                     print 'Tile key error, using default tile'

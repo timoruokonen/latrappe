@@ -9,6 +9,7 @@ from latrappe import *
 from tiledisplay import *
 from pygame.locals import *
 from display import *
+from latrappe.player import Player
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -39,6 +40,7 @@ class TestDisplay:
         self.window = self.statdisplay
         self.camera_movement = (0,0)
         self.time = 0
+        self.player = self.city.get_controlled_player()
 
         Npc.defaultFoodConsumption = 0 #no food problems :)
         #self.testBars()
@@ -54,6 +56,9 @@ class TestDisplay:
             self.moveNpcs()
             for npc in self.city.npcs:
                 npc.advance(5)
+
+            for player in self.city.players:
+                player.advance(5)
 
             self.moveCamera()
             self.window.advance(self.time)
@@ -79,20 +84,21 @@ class TestDisplay:
                         # Show statistics display
                         pass
                     if (event.key == K_RIGHT):
-                        self.camera_movement = (1,0)
+                        self.player.move(2, 0)
 
                     if (event.key == K_LEFT):
-                        self.camera_movement = (-1,0)
+                        self.player.move(-2, 0)
 
                     if (event.key == K_UP):
-                        self.camera_movement = (0,-1)
+                        self.player.move(0, -2)
 
                     if (event.key == K_DOWN):
-                        self.camera_movement = (0,1)
+                        self.player.move(0, 2)
 
     def CreateTestVillage(self):
         loader = Loader()
         self.city = loader.load_city('city.txt')
+        self.city.add_player(Player())
         return self.city
 
     def initStatDisplay(self, disp):

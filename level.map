@@ -13,9 +13,9 @@ map = XXXXXX.............................
       .bwwwb....lwl..lwwwl...............
       .bwwwb....lll..lllll.#.....#.......
       xbbbbbxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-      XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      xxxxxx----xxxxxxxxxxxxxxxxxxxxxxxxx
+      xxxxxx----xxxxxxxxxxxxxxxxxxxxxxxxx
+      XXXXXX----XXXXXXXXXXXXXXXXXXXXXXXXX
       xxxxxxxxxXXXXXXXXXXXxxxxxxxxxxXxxxx
       XXXXXXXXXXXXXXXXXXXXXXXXXXXxxxxxxxx
 
@@ -25,14 +25,15 @@ name = floor
 tile = 1,1
 
 [#]
-name = wall
+name = bush
 tile = 2,1
-block = true
+block = false
 
 [-]
 name = water
-tile = 3,0
+tile = 0,0
 block = true
+wall = true
 
 [x]
 name = rocks1
@@ -47,7 +48,7 @@ block = true
 [w]
 name = wood_floor
 tile = 0,2
-block = true
+block = false
 
 [b]
 name = brick_wall
