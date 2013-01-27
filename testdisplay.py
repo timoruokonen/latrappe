@@ -10,6 +10,8 @@ from tiledisplay import *
 from pygame.locals import *
 from display import *
 from latrappe.player import Player
+from latrappe.animal import Animal
+
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -38,7 +40,7 @@ class TestDisplay:
         self.statdisplay = Display(screen)
         self.initStatDisplay(self.statdisplay)
         self.window = self.statdisplay
-        self.camera_movement = (0,0)
+        #self.camera_movement = (0,0)
         self.time = 0
         self.player = self.city.get_controlled_player()
 
@@ -60,7 +62,10 @@ class TestDisplay:
             for player in self.city.players:
                 player.advance(5)
 
-            self.moveCamera()
+            for animal in self.city.animals:
+                animal.advance(5)
+
+            #self.moveCamera()
             self.window.advance(self.time)
             self.window.draw()
             pygame.display.update()
@@ -99,6 +104,9 @@ class TestDisplay:
         loader = Loader()
         self.city = loader.load_city('city.txt')
         self.city.add_player(Player())
+        self.city.add_animal(Animal(200, 200))
+        self.city.add_animal(Animal(200, 240))
+        self.city.add_animal(Animal(245, 205))
         return self.city
 
     def initStatDisplay(self, disp):
@@ -161,9 +169,9 @@ class TestDisplay:
             npc.x += x_movement
             npc.y += y_movement
 
-    def moveCamera(self):
-        self.tiledisplay.camerax += self.camera_movement[0]
-        self.tiledisplay.cameray += self.camera_movement[1]
+    #def moveCamera(self):
+        #self.tiledisplay.camerax += self.camera_movement[0]
+        #self.tiledisplay.cameray += self.camera_movement[1]
 
     def randomizeNpcLocations(self):
         for npc in self.city.npcs:

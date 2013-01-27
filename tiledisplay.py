@@ -9,6 +9,7 @@ import ConfigParser
 from AnimatedSprite import AnimatedSprite
 from npcrenderer import NpcRenderer
 from PlayerRenderer import PlayerRenderer
+from AnimalRenderer import AnimalRenderer
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
@@ -36,6 +37,7 @@ class TileDisplay:
 
         self.npc_renderer = NpcRenderer(self.mapsurface)
         self.player_renderer = PlayerRenderer(self.mapsurface)
+        self.animal_renderer = AnimalRenderer(self.mapsurface)
         # Camera margin from edge of screen (pixels)
         self.CAMERA_MARGIN = 100
         self.SCREEN_WIDTH = 800
@@ -58,6 +60,10 @@ class TileDisplay:
     def draw_players(self):
         for player in self.city.players:
             self.player_renderer.draw(player)
+
+    def draw_animals(self):
+        for animal in self.city.animals:
+            self.animal_renderer.draw(animal)
 
     def draw(self):
         self.adjust_camera()
@@ -118,6 +124,7 @@ class TileDisplay:
         self.draw_tiles()
         self.draw_npcs()
         self.draw_stocks()
+        self.draw_animals()
         self.draw_players()
 
 
@@ -207,6 +214,11 @@ class TileDisplay:
                                 tile = int(tile[0])+1, int(tile[1])
                             elif not wall(map_x+1, map_y):
                                 tile = int(tile[0])+2, int(tile[1])
+                        elif not wall(map_x, map_y+1):
+                            if not wall(map_x-1, map_y):
+                                tile = int(tile[0])+3, int(tile[1])
+                            elif not wall(map_x+1, map_y):
+                                tile = int(tile[0])+4, int(tile[1])
                     else:
                         #print "Not a Wall!"
                         # Normal tile

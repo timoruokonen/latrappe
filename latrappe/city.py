@@ -4,6 +4,7 @@ class City(object):
         self.npcs = []
         self.stocks = []
         self.players = []
+        self.animals = []
         self.filename = filename
 
     def add_npc(self, npc):
@@ -15,6 +16,9 @@ class City(object):
 
     def add_player(self, player):
     	self.players.append(player)
+
+    def add_animal(self, animal):
+    	self.animals.append(animal)
 
     # TODO: Rethink this, for now just return always Player 1
     def get_controlled_player(self):
