@@ -28,10 +28,21 @@ class NpcStrategySimpleGreedy(object):
                    
         #sell stuff
         produced = self.npc.occupation.get_resources_to_be_produced()
+        handled = []
         for resourceType in produced:
+            if resourceType in handled:
+                continue
+            handled.append(resourceType)
             count = self.npc.possession.get_resource_count(resourceType)
             if count == 0:
                 continue
+            
+            #special case if input contains same types as output
+            if resourceType in required:
+                count -= required.count(resourceType)
+                if count <= 0:
+                    continue
+
             #sell food away only if npc has enough food for the bad times
             if issubclass(resourceType, FoodResource):
                 if len(self.npc.possession.get_foods()) < NpcStrategySimpleGreedy.MAXIMUM_FOOD:

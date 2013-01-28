@@ -23,6 +23,8 @@ x = 33
 y = 457
 money = 43
 strategy = NpcStrategySimpleGreedy
+real_properties =
+    FieldSquare: 50: 100
 
 [Keijo]
 type = npc

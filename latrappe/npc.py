@@ -11,6 +11,7 @@ class Npc(object):
 
     def __init__(self, occupation, name="Unknown"):
         self.occupation = occupation
+        self.occupation.npc = self
         self.schedule = Schedule()
         #TODO: Cannot think... just advance schedule so that it is already done when Advance is called the first time...
         self.schedule.advance(Schedule.MAX_TIME)

@@ -56,3 +56,31 @@ class Schedule(object):
     def _remove_action(self, action):
         self.actions.remove(action)
 
+class Scheduler(object):
+    _instance = None
+
+    def __init__(self):
+        self._actions = []
+
+    @staticmethod
+    def instance():
+        if Scheduler._instance == None:
+            Scheduler._instance = Scheduler()
+        return Scheduler._instance
+
+    def add_action(self, action):
+        self._actions.append(action)
+
+    def advance(self, time):
+        for action in self._actions:
+            #print "advancing action: ", action
+            action.advance(time)
+            if (action.is_done()):
+                self._actions.remove(action)
+
+
+
+        
+
+
+

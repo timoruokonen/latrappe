@@ -44,7 +44,7 @@ class Loader(object):
             parser.set(npc.name, 'strategy', type(npc.strategy).__name__)
             #store npc's resources
             self._add_resources_option(npc.possession, npc.name, parser)
-
+            self._add_real_properties_option(npc.possession, npc.name, parser)
         for stock in city.stocks:
             parser.add_section(stock.name)
             parser.set(stock.name, 'type', 'stock')
@@ -75,6 +75,12 @@ class Loader(object):
             resources += resource_type.__name__ + ": " + str(possession.get_resource_count(resource_type)) + '\n'
         parser.set(section, 'resources', resources)
 
+    def _add_real_properties_option(self, possession, section, parser):
+        properties = "\n"
+        for prop in possession.get_real_properties():
+            #TODO: real properties now stored as invidual lines
+            properties += type(prop).__name__ + ': ' + str(prop.x) + ': ' + str(prop.y) + '\n'
+        parser.set(section, 'real_properties', properties)
 
     def _create_npc(self, npc_section, parser):
         occupation = eval(parser.get(npc_section, 'occupation'))
@@ -93,6 +99,7 @@ class Loader(object):
         npc.possession._set_money(money)
         npc.strategy = strategy(npc)
         self._add_resources(npc.possession, npc_section, parser)
+        self._add_real_properties(npc.possession, npc_section, parser)
         return npc
     
     def _create_stock(self, stock_section, parser):
@@ -128,8 +135,24 @@ class Loader(object):
             resource_count = int(resource.split(':')[1])
             for i in range(resource_count):
                 possession.add_resource(
-                    ResourceFactory.create_resource_from_nothing(resource_type, possession))
+                    ResourceFactory.create_resource_from_nothing(resource_type))
          
+    def _add_real_properties(self, possession, section, parser):
+        if not parser.has_option(section, 'real_properties'):
+            return 
+
+        properties = parser.get(section, 'real_properties').split('\n') 
+        for property in properties:
+            if not ':' in property:
+                continue
+            property_type = eval(property.split(':')[0])
+            x = int(property.split(':')[1])
+            y = int(property.split(':')[2])
+            prop = ResourceFactory.create_resource_from_nothing(property_type)
+            prop.x = x
+            prop.y = y
+            possession.add_real_property(prop)
+
     def _itersubclasses(self, cls, _seen=None):
         if not isinstance(cls, type):
             raise TypeError('not a class')

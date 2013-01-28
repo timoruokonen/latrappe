@@ -1,5 +1,6 @@
 from resourcefactory import ResourceFactory
-
+from resource import *
+from schedule import *
 
 class Action(object):
     def __init__(self, name, duration):
@@ -133,4 +134,38 @@ class MoveAction(Action):
 
         self.npc.x = new_x
         self.npc.y = new_y
-                
+
+class FieldAction(Action):
+    def __init__(self, name, npc, field, target_status):
+        Action.__init__(self, name, field.get_action_duration(target_status))
+        self.npc = npc
+        self.field = field
+        self.target_status = target_status
+
+    def _advance(self, time):
+        pass
+
+    def _start_action(self):
+        #print self.npc.possession.get_all()
+        if self.target_status == FieldSquare.STATUS_SOWED:
+            if not self.npc.possession.has_resources(FieldSquare.SOWING_INPUTS):
+                print "Not enough resources to start sowing " + self.name + "! Go home..."
+                self.time_left = 0
+                return
+            #destroy input resources immediately
+            for resource in FieldSquare.SOWING_INPUTS:
+                self.npc.possession.destroy_resource(resource)
+    
+
+    def _end_action(self):
+        print "Finished field action: ", self.target_status
+        self.field.status = self.target_status
+        if self.target_status == FieldSquare.STATUS_SOWED:
+            #add scheduler task to "automatically" grow the weed
+            Scheduler.instance().add_action(FieldAction("Growing...", self.npc, self.field, FieldSquare.STATUS_READY_TO_BE_HARVESTED))
+        elif self.target_status == FieldSquare.STATUS_HARVESTED:
+            for output in FieldSquare.HARVEST_OUTPUTS:
+                self.npc.possession.add_resource(ResourceFactory.create_resource_from_nothing(output))
+            
+
+ 

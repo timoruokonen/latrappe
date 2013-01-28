@@ -19,6 +19,8 @@ x = 0
 y = 0
 money = 100
 strategy = NpcStrategySimpleGreedy
+real_properties =
+    FieldSquare: 50: 100
 
 [Keijo]
 type = npc
@@ -29,6 +31,8 @@ x = 0
 y = 0
 money = 100
 strategy = NpcStrategySimpleGreedy
+real_properties =
+    FieldSquare: 100: 100
 
 [Villageidiot]
 type = npc
@@ -64,7 +68,7 @@ prices =
     Beer: 50
     Meat: 10
 resources =
-    Grain: 2
+    Grain: 4
     Beer: 0
     Meat: 50
 

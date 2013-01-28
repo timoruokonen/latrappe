@@ -8,6 +8,25 @@ class Possession(object):
     def __init__(self):
         self._resource_heaps = {}
         self._money = 0
+        self._real_properties = []
+
+    def add_real_property(self, property):
+        self._real_properties.append(property)
+
+    def get_real_property(self, property):
+        if type(property) != type:
+            if property in self._real_properties:
+                return property
+            return None
+        
+        for prop in self._real_properties:
+            if type(prop) == property:
+                return prop
+        return None
+
+    def get_real_properties(self):
+        return self._real_properties
+            
 
     def add_resource(self,  resource):
         self._get_resource_heap(resource).add(resource)

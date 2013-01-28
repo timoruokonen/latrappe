@@ -20,6 +20,6 @@ class City(object):
     def get_controlled_player(self):
     	if (len(self.players) > 0):
     		return self.players[0]
-
     	return None
+
 

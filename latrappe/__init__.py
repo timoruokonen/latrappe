@@ -5,4 +5,5 @@ from occupation import *
 from resourcefactory import ResourceFactory
 from stockmarket import StockMarket
 from resource import *
+from schedule import Scheduler
 from loader import Loader

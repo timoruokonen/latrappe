@@ -38,14 +38,49 @@ class Farmer(Occupation):
     POS_Y = 100
 
     def __init__(self):
-        self.inputs = []
-        self.outputs = [Grain]
+        pass
 
     def __str__(self):
         return "Farmer"
 
     def add_default_schedule(self, npc, possession):
-        npc.schedule.add_action(ProduceAction("Farming", self.inputs, self.outputs, Farmer.DURATION, possession))
+        #TODO: only handle one field for now for sake of simplicity...
+        field = npc.possession.get_real_property(FieldSquare)
+        if field == None:
+            print "Farmer has no fields... Cannot add farming action"
+            return
+                
+        if field.status == FieldSquare.STATUS_HARVESTED:    
+            npc.schedule.add_action(FieldAction("Ploughing field", npc, field, FieldSquare.STATUS_PLOUGHED))
+        elif field.status == FieldSquare.STATUS_PLOUGHED:
+            npc.schedule.add_action(FieldAction("Sowing field", npc, field, FieldSquare.STATUS_SOWED))
+        elif field.status == FieldSquare.STATUS_SOWED:
+            npc.schedule.add_action(Action("Waiting for grain to grow...", Farmer.DURATION))
+        elif field.status == FieldSquare.STATUS_READY_TO_BE_HARVESTED:
+            npc.schedule.add_action(FieldAction("Harvesting field", npc, field, FieldSquare.STATUS_HARVESTED))
+
+    def get_required_resources(self):
+        #farmer needs only inputs when field state is harvested
+        #TODO: only handle one field for now for sake of simplicity...
+        field = self.npc.possession.get_real_property(FieldSquare)
+        if field == None:
+            print "Farmer has no fields... "
+            return []
+        #if field.status == FieldSquare.STATUS_HARVESTED:    
+        return FieldSquare.SOWING_INPUTS
+        #return []
+
+    def get_resources_to_be_produced(self):
+        #farmer only outputs when field state is ready to be harvested
+        #TODO: only handle one field for now for sake of simplicity...
+        field = self.npc.possession.get_real_property(FieldSquare)
+        if field == None:
+            print "Farmer has no fields... "
+            return []
+        #if field.status == FieldSquare.STATUS_READY_TO_BE_HARVESTED:    
+        return FieldSquare.HARVEST_OUTPUTS
+        #return []
+
 
 class Hunter(Occupation):
     DURATION = 4 * 60

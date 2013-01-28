@@ -54,6 +54,9 @@ class TestDisplay:
 
             #self.UpdateVillage()
             self.moveNpcs()
+
+            Scheduler.instance().advance(5)
+
             for npc in self.city.npcs:
                 npc.advance(5)
 
