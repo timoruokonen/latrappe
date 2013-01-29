@@ -6,10 +6,15 @@ class City(object):
         self.players = []
         self.animals = []
         self.filename = filename
+        self.real_properties = []
 
     def add_npc(self, npc):
         npc.city = self
         self.npcs.append(npc)
+        
+        #TODO: add static real properties for now.
+        for prop in npc.possession.get_real_properties():
+            self.real_properties.append(prop)
  
     def add_stock_market(self, stock):
         self.stocks.append(stock)

@@ -52,9 +52,20 @@ class NpcStrategySimpleGreedy(object):
                 to_sell.append(resourceType)
         
         self._add_stock_action(to_buy, to_sell)
-                    
+
+        #move to work place
+        if type(self.npc.occupation) == Farmer:
+            #go to the first owned field...
+            field = self.npc.possession.get_real_property(FieldSquare)
+            if field != None:
+                self.npc.schedule.add_action(MoveAction("Moving", self.npc, field.x, field.y - 30))
+            else:
+                #no fields, go home...               
+                self.npc.schedule.add_action(MoveAction("Moving", self.npc, self.npc.home_x, self.npc.home_y))
+        else:
+            self.npc.schedule.add_action(MoveAction("Moving", self.npc, self.npc.occupation.POS_X, self.npc.occupation.POS_Y))
+
         #add occupation action
-        self.npc.schedule.add_action(MoveAction("Moving", self.npc, self.npc.occupation.POS_X, self.npc.occupation.POS_Y))
         self.npc.occupation.add_default_schedule(self.npc, self.npc.possession)
 
         #Go home to sleep

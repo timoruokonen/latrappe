@@ -20,7 +20,7 @@ y = 0
 money = 100
 strategy = NpcStrategySimpleGreedy
 real_properties =
-    FieldSquare: 50: 100
+    FieldSquare: 290: 120
 
 [Keijo]
 type = npc
@@ -32,7 +32,7 @@ y = 0
 money = 100
 strategy = NpcStrategySimpleGreedy
 real_properties =
-    FieldSquare: 100: 100
+    FieldSquare: 340: 120
 
 [Villageidiot]
 type = npc

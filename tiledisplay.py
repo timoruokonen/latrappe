@@ -65,6 +65,22 @@ class TileDisplay:
         for animal in self.city.animals:
             self.animal_renderer.draw(animal)
 
+    def draw_properties(self):
+        for property in self.city.real_properties:
+            self.draw_property_item(property)
+
+    def draw_property_item(self, property):
+        if type(property) == FieldSquare:
+            if property.status == FieldSquare.STATUS_PLOUGHED:
+                image = pygame.image.load("field_plowed.png")
+            elif property.status == FieldSquare.STATUS_SOWED:
+                image = pygame.image.load("field_sowed.png")
+            elif property.status == FieldSquare.STATUS_READY_TO_BE_HARVESTED:
+                image = pygame.image.load("field_ready_harvest.png")
+            elif property.status == FieldSquare.STATUS_HARVESTED:
+                image = pygame.image.load("field_harvested.png")
+            self.mapsurface.blit(image, [property.x, property.y])
+
     def draw(self):
         self.adjust_camera()
         # Draw all the stuff into one big surface buffer
@@ -122,6 +138,7 @@ class TileDisplay:
 
     def draw_city(self):
         self.draw_tiles()
+        self.draw_properties()
         self.draw_npcs()
         self.draw_stocks()
         self.draw_animals()
