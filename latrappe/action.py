@@ -7,26 +7,33 @@ class Action(object):
         self.name = name
         self.time_left = duration
         self.started = False
+        self.aborted = False
 
     def is_done(self):
         return self.time_left <= 0
 
     def advance(self, time):
         if not self.started:
-            print "Starting action " + self.name               
+            print "Starting action " + self.name + ", duration: ", self.time_left               
             self.started = True            
             self._start_action()
 
         self.time_left -= time
         self._advance(time)
 
-        if (self.is_done()):
+        if self.is_done() and not self.aborted:
             self._end_action()
 
         if (self.time_left < 0):
             #action was completed and some time was left
             return -self.time_left
         return 0
+
+    def abort(self):
+        print "Action aborted: " + self.name
+        self.aborted = True
+        self.time_left = 0
+    
 
     def _start_action(self):
         pass
@@ -142,15 +149,19 @@ class FieldAction(Action):
         self.field = field
         self.target_status = target_status
 
+        print "perkele"
+        a = FieldSquare.STATUS_SOWED
+
     def _advance(self, time):
         pass
 
     def _start_action(self):
         #print self.npc.possession.get_all()
+        print "WTf?!"
         if self.target_status == FieldSquare.STATUS_SOWED:
             if not self.npc.possession.has_resources(FieldSquare.SOWING_INPUTS):
                 print "Not enough resources to start sowing " + self.name + "! Go home..."
-                self.time_left = 0
+                self.abort()
                 return
             #destroy input resources immediately
             for resource in FieldSquare.SOWING_INPUTS:
@@ -168,4 +179,36 @@ class FieldAction(Action):
                 self.npc.possession.add_resource(ResourceFactory.create_resource_from_nothing(output))
             
 
+class BrewAction(Action):
+    def __init__(self, npc, kettle):
+        target_status = kettle.next_status()
+        Action.__init__(self, kettle.name(target_status), kettle.duration(target_status))
+        self.npc = npc
+        self.kettle = kettle
+        self.target_status = target_status
+
+    def _advance(self, time):
+        pass
+
+    def _start_action(self):
+        inputs = self.kettle.inputs(self.target_status)
+        if not self.npc.possession.has_resources(inputs):
+            print "Not enough resources to start " + self.name + "! Go home..."
+            self.abort()
+            return
+        #destroy input resources immediately
+        for resource in inputs:
+            self.npc.possession.destroy_resource(resource)
+    
+    def _end_action(self):
+        print "Finished brewing action: ", self.kettle.name(self.target_status)
+        self.kettle.status = self.target_status
+
+        #if next status is "automatic" add a shceduled action to finnish it
+        if not self.kettle.needs_presence(self.kettle.next_status()):
+            Scheduler.instance().add_action(BrewAction(self.npc, self.kettle))
+        
+        outputs = self.kettle.outputs(self.target_status)
+        for output in outputs:
+            self.npc.possession.add_resource(ResourceFactory.create_resource_from_nothing(output))
  

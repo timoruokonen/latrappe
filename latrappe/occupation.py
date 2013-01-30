@@ -110,5 +110,32 @@ class Brewer(Occupation):
         return "Brewer"
 
     def add_default_schedule(self, npc, possession):
-        npc.schedule.add_action(ProduceAction("Brewing beer", self.inputs, self.outputs, Brewer.DURATION, possession))
+        kettle = npc.possession.get_real_property(BeerKettle)
+        if kettle == None:
+            print "Brewer has no beer kettle... Cannot make beer!"
+            return
+        
+        next_status = kettle.next_status()
+        if kettle.needs_presence(next_status):
+            npc.schedule.add_action(BrewAction(npc, kettle))
+        else:
+            npc.schedule.add_action(Action("Waiting for " + kettle.name(next_status) + " to finnish...", Brewer.DURATION))
+        #npc.schedule.add_action(ProduceAction("Brewing beer", self.inputs, self.outputs, Brewer.DURATION, possession))
+
+    def get_required_resources(self):
+        kettle = self.npc.possession.get_real_property(BeerKettle)
+        if kettle == None:
+            print "Brewer has no beer kettle... Cannot make beer!"
+            return []
+        return kettle.inputs(kettle.next_status())
+
+
+
+    def get_resources_to_be_produced(self):
+        kettle = self.npc.possession.get_real_property(BeerKettle)
+        if kettle == None:
+            print "Brewer has no beer kettle... Cannot make beer!"
+            return []
+
+        return kettle.final_outputs()
 

@@ -9,6 +9,8 @@ x = 0
 y = 0
 money = 100
 strategy = NpcStrategySimpleGreedy
+real_properties =
+    BeerKettle: 90: 330
 
 [Pertti]
 type = npc
@@ -67,8 +69,10 @@ prices =
     Grain: 15
     Beer: 50
     Meat: 10
+    Water: 1
 resources =
     Grain: 4
     Beer: 0
     Meat: 50
+    Water: 200
 

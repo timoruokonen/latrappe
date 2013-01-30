@@ -1,3 +1,4 @@
+
 class Resource(object):
     def __init__(self):
         self.needs_advancing = False
@@ -65,6 +66,10 @@ class Beer(Resource):
     def __init__(self):
         Resource.__init__(self) 
 
+class Water(Resource):
+    def __init__(self):
+        Resource.__init__(self) 
+
 class ResourceContainer(Resource):
     def __init__(self):
         Resource.__init__(self) 
@@ -85,7 +90,6 @@ class FieldSquare(ResourceContainer):
 
     def __init__(self):
         ResourceContainer.__init__(self)
-        self.needs_advancing = True
         self.status = FieldSquare.STATUS_HARVESTED
         self.started = False
         self.remaining_time = 0
@@ -103,7 +107,92 @@ class FieldSquare(ResourceContainer):
             return FieldSquare.HARVEST_DURATION
 
 
+class BeerKettle(ResourceContainer):
+    STATUS_MALTED = 0
+    STATUS_MASHED = 1
+    STATUS_BOILED = 2
+    STATUS_FERMENTED = 3
+    STATUS_CONDITIONED = 4
+    STATUS_PACKAGED = 5
 
+    STATES = [
+        {'name': 'Malting',
+        'duration': 8 * 60,
+        'inputs': [Grain],
+        'outputs': [],
+        'needs_presence': True
+        },
+        {'name': 'Mashing',
+        'duration': 8 * 60,
+        'inputs': [],
+        'outputs': [],
+        'needs_presence': True
+        },
+        {'name': 'Boiling',
+        'duration': 8 * 60,
+        'inputs': [Water],
+        'outputs': [],
+        'needs_presence': True
+        },
+        {'name': 'Fermentation',
+        'duration': 24 * 60 * 2,
+        'inputs': [],
+        'outputs': [],
+        'needs_presence': False
+        },
+        {'name': 'Conditioning',
+        'duration': 8 * 60,
+        'inputs': [],
+        'outputs': [],
+        'needs_presence': True
+        },
+        {'name': 'Packaging',
+        'duration': 8 * 60,
+        'inputs': [],
+        'outputs': [Beer, Beer, Beer, Beer, Beer, Beer, Beer],
+        'needs_presence': True
+        },
+        ]
+
+    def __init__(self):
+        ResourceContainer.__init__(self)
+        self._status = BeerKettle.STATUS_PACKAGED
+        self.started = False
+        self.remaining_time = 0
+        self.x = 0
+        self.y = 0
+
+    @property
+    def status(self):
+        return self._status
+
+    @status.setter
+    def status(self, new_status):
+        self._status = new_status
+                 
+    def next_status(self):
+        if self.status == BeerKettle.STATUS_PACKAGED:
+            return 0
+        return self.status + 1
+
+    def name(self, status):
+        return BeerKettle.STATES[status]['name']
+
+    def duration(self, status):
+        return BeerKettle.STATES[status]['duration']
+
+    def inputs(self, status):
+        return BeerKettle.STATES[status]['inputs']
+
+    def outputs(self, status):
+        return BeerKettle.STATES[status]['outputs']
+
+    def final_outputs(self):
+        return BeerKettle.STATES[len(BeerKettle.STATES) - 1]['outputs']
+
+
+    def needs_presence(self, status):
+        return BeerKettle.STATES[status]['needs_presence']
 
 
 

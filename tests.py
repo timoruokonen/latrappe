@@ -8,6 +8,7 @@ class TestSequenceFunctions(unittest.TestCase):
         self.grainDefaultPrice = 15
         self.meatDefaultPrice = 20
         self.beerDefaultPrice = 50
+        self.waterDefaultPrice = 1
         pass
 
     def AdvanceNpc(self, npc, amount):
@@ -28,6 +29,7 @@ class TestSequenceFunctions(unittest.TestCase):
         stock.set_price(Grain, self.grainDefaultPrice)
         stock.set_price(Meat, self.meatDefaultPrice)
         stock.set_price(Beer, self.beerDefaultPrice)
+        stock.set_price(Water, self.waterDefaultPrice) #TODO: Remove water from stock...
 
     
     def test_farmer_creates_grain(self):
@@ -74,24 +76,49 @@ class TestSequenceFunctions(unittest.TestCase):
     
     def test_brewer_creates_beer(self):
         npc = Npc(Brewer())
+        kettle = ResourceFactory.create_resource_from_nothing(BeerKettle)
+        npc.possession.add_real_property(kettle)
+
         npc.food_consumption = 0 #lets not worry about food in this test
         npc.possession.add_resource(Grain())
-        npc.possession.add_resource(Grain())
+        npc.possession.add_resource(Water())
         self.assertEqual(2, len(npc.possession.get_all()))
-        self.AdvanceNpc(npc, Npc.SLEEP_DURATION) #sleeping time
-        self.AdvanceNpc(npc, Brewer.DURATION) #brewing time
-        self.assertEqual(1, len(npc.possession.get_all()))
-        self.assertTrue(npc.possession.has_resources([Beer]))
 
-        #start next day and give more resources (one extra grain)
+        #malting
+        self.AdvanceGame(npc, Schedule.MAX_TIME)
+        self.assertEqual(1, len(npc.possession.get_all()))
+        self.assertEqual(BeerKettle.STATUS_MALTED, kettle.status)        
+
+        #mashing
+        self.AdvanceGame(npc, Schedule.MAX_TIME)
+        self.assertEqual(1, len(npc.possession.get_all()))
+        self.assertEqual(BeerKettle.STATUS_MASHED, kettle.status)        
+
+        #boiling
+        self.AdvanceGame(npc, Schedule.MAX_TIME)
+        self.assertEqual(0, len(npc.possession.get_all()))
+        self.assertEqual(BeerKettle.STATUS_BOILED, kettle.status)        
+
+        #fermentation
+        self.AdvanceGame(npc, Schedule.MAX_TIME * 2)
+        self.assertEqual(0, len(npc.possession.get_all()))
+        self.assertEqual(BeerKettle.STATUS_FERMENTED, kettle.status)        
+
+        #conditioning
+        self.AdvanceGame(npc, Schedule.MAX_TIME)
+        self.assertEqual(0, len(npc.possession.get_all()))
+        self.assertEqual(BeerKettle.STATUS_CONDITIONED, kettle.status)        
+
+        #packaging
+        self.AdvanceGame(npc, Schedule.MAX_TIME)
+        self.assertEqual(BeerKettle.STATUS_PACKAGED, kettle.status)         
+        self.assertEqual(len(kettle.outputs(BeerKettle.STATUS_PACKAGED)), npc.possession.get_resource_count(Beer))
+
+        #start next round and give more resources (one extra grain)
         npc.possession.add_resource(Grain())
-        npc.possession.add_resource(Grain())
-        npc.possession.add_resource(Grain())
-        self.AdvanceNpc(npc, npc.schedule.get_total_remaining_time()) #rest of the day
-        self.AdvanceNpc(npc, Npc.SLEEP_DURATION) #sleeping time
-        self.AdvanceNpc(npc, Brewer.DURATION) #brewing time
-        self.assertEqual(3, len(npc.possession.get_all()))
-        self.assertTrue(npc.possession.has_resources([Beer, Beer, Grain]))
+        npc.possession.add_resource(Water())
+        self.AdvanceGame(npc, Schedule.MAX_TIME * 7)
+        self.assertEqual(len(kettle.outputs(BeerKettle.STATUS_PACKAGED)) * 2, npc.possession.get_resource_count(Beer))
 
     
     def test_action_outputs_are_given_after_task_is_fully_done(self):
@@ -257,40 +284,50 @@ class TestSequenceFunctions(unittest.TestCase):
         stock = StockMarket()
         city.add_stock_market(stock)
         self.SetDefaultPrices(stock)
-        stock.possession.add_resource(Meat())
-        stock.possession.add_resource(Meat())
-        stock.possession.add_resource(Meat())
+        for i in range(20):
+            stock.possession.add_resource(Meat())
+            stock.possession.add_resource(Grain())
+            stock.possession.add_resource(Water())
 
         #add simple strategy to npc
         npc = Npc(Brewer())
+        kettle = ResourceFactory.create_resource_from_nothing(BeerKettle)
+        npc.possession.add_real_property(kettle)
         city.add_npc(npc)
         for i in range(NpcStrategySimpleGreedy.MINIMUM_FOOD):
            npc.possession.add_resource(Meat())
         money = 200
         npc.possession._set_money(money)
         npc.strategy = NpcStrategySimpleGreedy(npc)
-        self.AdvanceNpc(npc, Schedule.MAX_TIME * 2)
-
-        #npc should have spend one food and have now less food than minimum and buy more
-        self.AdvanceNpc(npc, Schedule.MAX_TIME)
-        money -= self.meatDefaultPrice
+        
+        #beer making requires currently seven days
+        self.AdvanceGame(npc, Schedule.MAX_TIME * 7)
+        #brewer should have bought grain, water and food
+        money -= self.meatDefaultPrice * 5
+        money -= self.grainDefaultPrice
+        money -= self.waterDefaultPrice
         self.assertEqual(money, npc.possession.money) 
+        self.assertEqual(len(kettle.outputs(BeerKettle.STATUS_PACKAGED)), npc.possession.get_resource_count(Beer))
 
-        #add needed resources to stock so npc should try to buy food and resources
-        stock.possession.add_resource(Grain())
-        stock.possession.add_resource(Grain())
-        self.AdvanceNpc(npc, Schedule.MAX_TIME)
+        #next day brewer should sell beers and buy food and grain (for next round)
+        self.AdvanceGame(npc, Schedule.MAX_TIME)
         money -= self.meatDefaultPrice
-        money -= self.grainDefaultPrice * 2
+        money -= self.grainDefaultPrice
+        money += self.beerDefaultPrice * len(kettle.outputs(BeerKettle.STATUS_PACKAGED))
         self.assertEqual(money, npc.possession.money) 
-        self.assertTrue(npc.possession.has_resources([Beer]))
+        self.assertEqual(0, npc.possession.get_resource_count(Beer))
 
-        #next day, npc should try to buy food and sell beer (there are no resources to buy)
-        self.AdvanceNpc(npc, Schedule.MAX_TIME)
-        money -= self.meatDefaultPrice
-        money += self.beerDefaultPrice
+        #after 6 days (malting already started last day), next beer round should be ready
+        self.AdvanceGame(npc, Schedule.MAX_TIME * 6)
+        self.assertEqual(len(kettle.outputs(BeerKettle.STATUS_PACKAGED)), npc.possession.get_resource_count(Beer))
+        #and after one day it should be sold
+        self.AdvanceGame(npc, Schedule.MAX_TIME)
+        money -= self.meatDefaultPrice * 7
+        money -= self.waterDefaultPrice
+        money -= self.grainDefaultPrice
+        money += self.beerDefaultPrice * len(kettle.outputs(BeerKettle.STATUS_PACKAGED))
         self.assertEqual(money, npc.possession.money) 
-        self.assertFalse(npc.possession.has_resources([Beer]))
+        self.assertEqual(0, npc.possession.get_resource_count(Beer))
 
     def test_simple_npc_strategy_farmer(self):
         #setup city, stock and add some food there

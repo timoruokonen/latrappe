@@ -53,7 +53,7 @@ class NpcStrategySimpleGreedy(object):
         
         self._add_stock_action(to_buy, to_sell)
 
-        #move to work place
+        #move to work place TODO: Refactor!!
         if type(self.npc.occupation) == Farmer:
             #go to the first owned field...
             field = self.npc.possession.get_real_property(FieldSquare)
@@ -61,6 +61,13 @@ class NpcStrategySimpleGreedy(object):
                 self.npc.schedule.add_action(MoveAction("Moving", self.npc, field.x, field.y - 30))
             else:
                 #no fields, go home...               
+                self.npc.schedule.add_action(MoveAction("Moving", self.npc, self.npc.home_x, self.npc.home_y))
+        elif type(self.npc.occupation) == Brewer:
+            #go to the first owned beer kettle...
+            kettle = self.npc.possession.get_real_property(BeerKettle)
+            if kettle != None:
+                self.npc.schedule.add_action(MoveAction("Moving", self.npc, kettle.x, kettle.y - 30))
+            else:
                 self.npc.schedule.add_action(MoveAction("Moving", self.npc, self.npc.home_x, self.npc.home_y))
         else:
             self.npc.schedule.add_action(MoveAction("Moving", self.npc, self.npc.occupation.POS_X, self.npc.occupation.POS_Y))
