@@ -14,7 +14,7 @@ class ResourceFactory(object):
     @staticmethod
     def create_resource(target, possession):
         if not possession.has_resources(target.materials):
-            raise Exception("Could not create " + str(target) + ", not enough resources!!")
+            raise Exception("Could not create " + target.__name__ + ", not enough resources!!")
         
         for resource in target.materials:
             possession.destroy_resource(resource)
@@ -27,7 +27,7 @@ class ResourceFactory(object):
     '''
     @staticmethod
     def create_resource_from_nothing(target): 
-        print "New " + str(target) + " was created!"
+        print "New " + target.__name__ + " was created!"
         created_resource = target()
         ResourceFactory.on_resource_created(created_resource)
         return created_resource

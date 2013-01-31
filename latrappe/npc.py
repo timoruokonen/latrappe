@@ -75,7 +75,7 @@ class Npc(object):
             time -= consumedAmount
 
     def _add_mandatory_actions(self):
-        self.schedule.add_action(Action("Sleep", Npc.SLEEP_DURATION))
+        self.schedule.add_action(Action(self, "Sleep", Npc.SLEEP_DURATION))
 
 
 

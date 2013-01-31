@@ -71,14 +71,34 @@ class TileDisplay:
 
     def draw_property_item(self, property):
         if type(property) == FieldSquare:
-            if property.status == FieldSquare.STATUS_PLOUGHED:
+            status = property.status
+            if property.in_progress:
+                status = property.next_status()
+            if status == FieldSquare.STATUS_PLOUGHED:
                 image = pygame.image.load("field_plowed.png")
-            elif property.status == FieldSquare.STATUS_SOWED:
+            elif status == FieldSquare.STATUS_SOWED:
                 image = pygame.image.load("field_sowed.png")
-            elif property.status == FieldSquare.STATUS_READY_TO_BE_HARVESTED:
+            elif status == FieldSquare.STATUS_READY_TO_BE_HARVESTED:
                 image = pygame.image.load("field_ready_harvest.png")
-            elif property.status == FieldSquare.STATUS_HARVESTED:
+            elif status == FieldSquare.STATUS_HARVESTED:
                 image = pygame.image.load("field_harvested.png")
+            self.mapsurface.blit(image, [property.x, property.y])
+        elif type(property) == BeerKettle:
+            status = property.status
+            if property.in_progress:
+                status = property.next_status()
+            if status == BeerKettle.STATUS_MALTED:
+                image = pygame.image.load("brew_malted.png")
+            elif status == BeerKettle.STATUS_MASHED:
+                image = pygame.image.load("brew_mashed.png")
+            elif status == BeerKettle.STATUS_BOILED:
+                image = pygame.image.load("brew_boiled.png")
+            elif status == BeerKettle.STATUS_FERMENTED:
+                image = pygame.image.load("brew_fermented.png")
+            elif status == BeerKettle.STATUS_CONDITIONED:
+                image = pygame.image.load("brew_conditioned.png")
+            elif status == BeerKettle.STATUS_PACKAGED:
+                image = pygame.image.load("brew_packaged.png")
             self.mapsurface.blit(image, [property.x, property.y])
 
     def draw(self):

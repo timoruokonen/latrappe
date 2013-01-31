@@ -70,44 +70,93 @@ class Water(Resource):
     def __init__(self):
         Resource.__init__(self) 
 
-class ResourceContainer(Resource):
-    def __init__(self):
-        Resource.__init__(self) 
-
-class FieldSquare(ResourceContainer):
-    PLOUGHT_DURATION = 8 * 60
-    SOWING_DURATION = 8 * 60
-    GROWTH_DURATION = 24 * 60 * 2 #two days 
-    HARVEST_DURATION = 8 * 60
-        
-    STATUS_PLOUGHED = 1
-    STATUS_SOWED = 2
-    STATUS_READY_TO_BE_HARVESTED = 3
-    STATUS_HARVESTED = 4
-
-    SOWING_INPUTS = [Grain]
-    HARVEST_OUTPUTS = [Grain, Grain, Grain]
+class ProduceUnit(Resource):
 
     def __init__(self):
-        ResourceContainer.__init__(self)
-        self.status = FieldSquare.STATUS_HARVESTED
-        self.started = False
-        self.remaining_time = 0
+        Resource.__init__(self)
+        self.status = 0
         self.x = 0
         self.y = 0
+        self.in_progress = False
+        self._states = []
+        self._total_inputs = []
 
-    def get_action_duration(self, target_status):
-        if target_status == FieldSquare.STATUS_PLOUGHED:
-            return FieldSquare.PLOUGHT_DURATION
-        if target_status == FieldSquare.STATUS_SOWED:
-            return FieldSquare.SOWING_DURATION
-        if target_status == FieldSquare.STATUS_READY_TO_BE_HARVESTED:
-            return FieldSquare.GROWTH_DURATION
-        if target_status == FieldSquare.STATUS_HARVESTED:
-            return FieldSquare.HARVEST_DURATION
+    @property
+    def states(self):
+        return self._states
+
+    @states.setter
+    def states(self, value):
+        self._states = value
+        for state in self._states:
+            self._total_inputs.extend(state['inputs'])
+
+    def next_status(self):
+        if self.status == len(self._states) - 1:
+            return 0
+        return self.status + 1
+
+    def name(self, status):
+        return self._states[status]['name']
+
+    def duration(self, status):
+        return self._states[status]['duration']
+
+    def inputs(self, status):
+        return self._states[status]['inputs']
+
+    def outputs(self, status):
+        return self._states[status]['outputs']
+
+    def total_inputs(self):
+        print str(self._total_inputs) 
+        return self._total_inputs
+
+    def final_outputs(self):
+        return self._states[len(self._states) - 1]['outputs']
+
+    def needs_presence(self, status):
+        return self._states[status]['needs_presence']
 
 
-class BeerKettle(ResourceContainer):
+class FieldSquare(ProduceUnit): 
+    STATUS_PLOUGHED = 0
+    STATUS_SOWED = 1
+    STATUS_READY_TO_BE_HARVESTED = 2
+    STATUS_HARVESTED = 3
+
+    STATES = [
+        {'name': 'Plowing',
+        'duration': 8 * 60,
+        'inputs': [],
+        'outputs': [],
+        'needs_presence': True
+        },
+        {'name': 'Sowing',
+        'duration': 8 * 60,
+        'inputs': [Grain],
+        'outputs': [],
+        'needs_presence': True
+        },
+        {'name': 'Growing',
+        'duration': 24 * 60 * 2,
+        'inputs': [],
+        'outputs': [],
+        'needs_presence': False
+        },
+        {'name': 'Harvesting',
+        'duration': 8 * 60,
+        'inputs': [],
+        'outputs': [Grain, Grain, Grain],
+        'needs_presence': True
+        }]
+    
+    def __init__(self):
+        ProduceUnit.__init__(self)
+        self.states = FieldSquare.STATES
+        self.status = FieldSquare.STATUS_HARVESTED
+
+class BeerKettle(ProduceUnit):
     STATUS_MALTED = 0
     STATUS_MASHED = 1
     STATUS_BOILED = 2
@@ -155,45 +204,9 @@ class BeerKettle(ResourceContainer):
         ]
 
     def __init__(self):
-        ResourceContainer.__init__(self)
-        self._status = BeerKettle.STATUS_PACKAGED
-        self.started = False
-        self.remaining_time = 0
-        self.x = 0
-        self.y = 0
-
-    @property
-    def status(self):
-        return self._status
-
-    @status.setter
-    def status(self, new_status):
-        self._status = new_status
-                 
-    def next_status(self):
-        if self.status == BeerKettle.STATUS_PACKAGED:
-            return 0
-        return self.status + 1
-
-    def name(self, status):
-        return BeerKettle.STATES[status]['name']
-
-    def duration(self, status):
-        return BeerKettle.STATES[status]['duration']
-
-    def inputs(self, status):
-        return BeerKettle.STATES[status]['inputs']
-
-    def outputs(self, status):
-        return BeerKettle.STATES[status]['outputs']
-
-    def final_outputs(self):
-        return BeerKettle.STATES[len(BeerKettle.STATES) - 1]['outputs']
-
-
-    def needs_presence(self, status):
-        return BeerKettle.STATES[status]['needs_presence']
-
+        ProduceUnit.__init__(self)
+        self.states = BeerKettle.STATES
+        self.status = BeerKettle.STATUS_PACKAGED
 
 
 

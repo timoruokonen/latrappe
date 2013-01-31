@@ -90,7 +90,7 @@ class NpcStrategySimpleGreedy(object):
         stocks = self.npc.city.stocks
         if len(stocks) > 0:
             self.npc.schedule.add_action(MoveAction("Moving", self.npc, stocks[0].x, stocks[0].y))
-            self.npc.schedule.add_action(StockAction("Stock", to_buy, to_sell, self.npc.possession, stocks[0]))
+            self.npc.schedule.add_action(StockAction("Stock", to_buy, to_sell, self.npc, stocks[0]))
             return
         print "No stock market available!"
 

@@ -124,7 +124,6 @@ class TestDisplay:
 #            self.npcBrewer.possession.GiveMoney(self.stock.GetPrice(Grain), self.npcFarmer.possession)
     
     def on_resource_created(self, resource):
-        print "created resource " + str(resource)
         if isinstance(resource, Meat):
             self.meat.AddAmount(1)
         elif isinstance(resource, Grain):

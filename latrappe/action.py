@@ -3,7 +3,8 @@ from resource import *
 from schedule import *
 
 class Action(object):
-    def __init__(self, name, duration):
+    def __init__(self, npc, name, duration):
+        self.npc = npc
         self.name = name
         self.time_left = duration
         self.started = False
@@ -14,7 +15,7 @@ class Action(object):
 
     def advance(self, time):
         if not self.started:
-            print "Starting action " + self.name + ", duration: ", self.time_left               
+            print self.npc.name + " starting action " + self.name
             self.started = True            
             self._start_action()
 
@@ -50,8 +51,8 @@ When the action is started, input resources are removed from the given possessio
 When the action is finished, created output resources are added to the given possession instance.
 '''
 class ProduceAction(Action):
-    def __init__(self, name, inputs, outputs, duration, possession):
-        Action.__init__(self, name, duration)
+    def __init__(self, npc, name, inputs, outputs, duration, possession):
+        Action.__init__(self, npc, name, duration)
         self.inputs = inputs
         self.outputs = outputs
         self.possession = possession
@@ -83,7 +84,7 @@ class StockAction(Action):
     DURATION = 60
 
     def __init__(self, name, resources_to_buy, resources_to_sell, buyer_seller, stock):
-        Action.__init__(self, name, StockAction.DURATION)
+        Action.__init__(self, buyer_seller, name, StockAction.DURATION)
         self.resources_to_sell = resources_to_sell
         self.resources_to_buy = resources_to_buy
         self.buyer_seller = buyer_seller
@@ -93,16 +94,16 @@ class StockAction(Action):
     def _start_action(self):
         #TODO: think how to best implement this. Now stuff is just moved/sold already in start of the action...
         for resource in self.resources_to_sell:
-            if self.stock.sell_resource(resource, self.buyer_seller):
-                print str(self.buyer_seller), " sold ", str(resource)
+            if self.stock.sell_resource(resource, self.buyer_seller.possession):
+                print self.buyer_seller.name, " sold ", resource.__name__
             else:
-                print str(self.buyer_seller), " failed to sell ", str(resource)
+                print self.buyer_seller.name, " failed to sell ", resource.__name__
 
         for resource in self.resources_to_buy:
-            if self.stock.buy_resource(resource, self.buyer_seller):
-                print str(self.buyer_seller), " bought ", str(resource)
+            if self.stock.buy_resource(resource, self.buyer_seller.possession):
+                print self.buyer_seller.name, " bought ", resource.__name__
             else:
-                print str(self.buyer_seller), " failed to buy ", str(resource)
+                print self.buyer_seller.name, " failed to buy ", resource.__name__
                 
     def _end_action(self):
         pass
@@ -112,8 +113,7 @@ class MoveAction(Action):
     SPEED = 5
 
     def __init__(self, name, npc, x, y):
-        Action.__init__(self, name, MoveAction.DURATION)
-        self.npc = npc
+        Action.__init__(self, npc, name, MoveAction.DURATION)
         self.x = x
         self.y = y
 
@@ -141,57 +141,20 @@ class MoveAction(Action):
 
         self.npc.x = new_x
         self.npc.y = new_y
+ 
 
-class FieldAction(Action):
-    def __init__(self, name, npc, field, target_status):
-        Action.__init__(self, name, field.get_action_duration(target_status))
-        self.npc = npc
-        self.field = field
-        self.target_status = target_status
-
-        print "perkele"
-        a = FieldSquare.STATUS_SOWED
-
-    def _advance(self, time):
-        pass
-
-    def _start_action(self):
-        #print self.npc.possession.get_all()
-        print "WTf?!"
-        if self.target_status == FieldSquare.STATUS_SOWED:
-            if not self.npc.possession.has_resources(FieldSquare.SOWING_INPUTS):
-                print "Not enough resources to start sowing " + self.name + "! Go home..."
-                self.abort()
-                return
-            #destroy input resources immediately
-            for resource in FieldSquare.SOWING_INPUTS:
-                self.npc.possession.destroy_resource(resource)
-    
-
-    def _end_action(self):
-        print "Finished field action: ", self.target_status
-        self.field.status = self.target_status
-        if self.target_status == FieldSquare.STATUS_SOWED:
-            #add scheduler task to "automatically" grow the weed
-            Scheduler.instance().add_action(FieldAction("Growing...", self.npc, self.field, FieldSquare.STATUS_READY_TO_BE_HARVESTED))
-        elif self.target_status == FieldSquare.STATUS_HARVESTED:
-            for output in FieldSquare.HARVEST_OUTPUTS:
-                self.npc.possession.add_resource(ResourceFactory.create_resource_from_nothing(output))
-            
-
-class BrewAction(Action):
-    def __init__(self, npc, kettle):
-        target_status = kettle.next_status()
-        Action.__init__(self, kettle.name(target_status), kettle.duration(target_status))
-        self.npc = npc
-        self.kettle = kettle
+class ProductUnitAction(Action):
+    def __init__(self, npc, unit):
+        target_status = unit.next_status()
+        Action.__init__(self, npc, unit.name(target_status), unit.duration(target_status))
+        self.unit = unit
         self.target_status = target_status
 
     def _advance(self, time):
         pass
 
     def _start_action(self):
-        inputs = self.kettle.inputs(self.target_status)
+        inputs = self.unit.inputs(self.target_status)
         if not self.npc.possession.has_resources(inputs):
             print "Not enough resources to start " + self.name + "! Go home..."
             self.abort()
@@ -199,16 +162,22 @@ class BrewAction(Action):
         #destroy input resources immediately
         for resource in inputs:
             self.npc.possession.destroy_resource(resource)
+        
+        if self.unit.needs_presence(self.target_status):
+            self.unit.in_progress = True
+        else:
+            self.unit.in_progress = False
     
     def _end_action(self):
-        print "Finished brewing action: ", self.kettle.name(self.target_status)
-        self.kettle.status = self.target_status
+        print "Finished produce unit action: ", self.unit.name(self.target_status)
+        self.unit.status = self.target_status
+        self.unit.in_progress = False
 
         #if next status is "automatic" add a shceduled action to finnish it
-        if not self.kettle.needs_presence(self.kettle.next_status()):
-            Scheduler.instance().add_action(BrewAction(self.npc, self.kettle))
+        if not self.unit.needs_presence(self.unit.next_status()):
+            Scheduler.instance().add_action(ProductUnitAction(self.npc, self.unit))
         
-        outputs = self.kettle.outputs(self.target_status)
+        outputs = self.unit.outputs(self.target_status)
         for output in outputs:
             self.npc.possession.add_resource(ResourceFactory.create_resource_from_nothing(output))
  

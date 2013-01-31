@@ -34,8 +34,6 @@ class Occupation(object):
 
 class Farmer(Occupation):
     DURATION = 7 * 60
-    POS_X = 300
-    POS_Y = 100
 
     def __init__(self):
         pass
@@ -49,15 +47,12 @@ class Farmer(Occupation):
         if field == None:
             print "Farmer has no fields... Cannot add farming action"
             return
-                
-        if field.status == FieldSquare.STATUS_HARVESTED:    
-            npc.schedule.add_action(FieldAction("Ploughing field", npc, field, FieldSquare.STATUS_PLOUGHED))
-        elif field.status == FieldSquare.STATUS_PLOUGHED:
-            npc.schedule.add_action(FieldAction("Sowing field", npc, field, FieldSquare.STATUS_SOWED))
-        elif field.status == FieldSquare.STATUS_SOWED:
-            npc.schedule.add_action(Action("Waiting for grain to grow...", Farmer.DURATION))
-        elif field.status == FieldSquare.STATUS_READY_TO_BE_HARVESTED:
-            npc.schedule.add_action(FieldAction("Harvesting field", npc, field, FieldSquare.STATUS_HARVESTED))
+     
+        next_status = field.next_status()
+        if field.needs_presence(next_status):
+            npc.schedule.add_action(ProductUnitAction(npc, field))
+        else:
+            npc.schedule.add_action(Action(npc, "Waiting for " + field.name(next_status) + " to finnish...", Farmer.DURATION))
 
     def get_required_resources(self):
         #farmer needs only inputs when field state is harvested
@@ -66,9 +61,8 @@ class Farmer(Occupation):
         if field == None:
             print "Farmer has no fields... "
             return []
-        #if field.status == FieldSquare.STATUS_HARVESTED:    
-        return FieldSquare.SOWING_INPUTS
-        #return []
+
+        return field.total_inputs()
 
     def get_resources_to_be_produced(self):
         #farmer only outputs when field state is ready to be harvested
@@ -77,9 +71,8 @@ class Farmer(Occupation):
         if field == None:
             print "Farmer has no fields... "
             return []
-        #if field.status == FieldSquare.STATUS_READY_TO_BE_HARVESTED:    
-        return FieldSquare.HARVEST_OUTPUTS
-        #return []
+        return field.final_outputs()
+
 
 
 class Hunter(Occupation):
@@ -95,16 +88,13 @@ class Hunter(Occupation):
         return "Hunter"
 
     def add_default_schedule(self, npc, possession):
-        npc.schedule.add_action(ProduceAction("Hunting", self.inputs, self.outputs, Hunter.DURATION, possession))
+        npc.schedule.add_action(ProduceAction(npc, "Hunting", self.inputs, self.outputs, Hunter.DURATION, possession))
 
 class Brewer(Occupation):
     DURATION = 7 * 60
-    POS_X = 90
-    POS_Y = 310
 
     def __init__(self):
-        self.inputs = [Grain, Grain]
-        self.outputs = [Beer]
+        pass
 
     def __str__(self):
         return "Brewer"
@@ -117,10 +107,9 @@ class Brewer(Occupation):
         
         next_status = kettle.next_status()
         if kettle.needs_presence(next_status):
-            npc.schedule.add_action(BrewAction(npc, kettle))
+            npc.schedule.add_action(ProductUnitAction(npc, kettle))
         else:
-            npc.schedule.add_action(Action("Waiting for " + kettle.name(next_status) + " to finnish...", Brewer.DURATION))
-        #npc.schedule.add_action(ProduceAction("Brewing beer", self.inputs, self.outputs, Brewer.DURATION, possession))
+            npc.schedule.add_action(Action(npc, "Waiting for " + kettle.name(next_status) + " to finnish...", Brewer.DURATION))
 
     def get_required_resources(self):
         kettle = self.npc.possession.get_real_property(BeerKettle)

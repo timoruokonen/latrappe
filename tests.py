@@ -341,8 +341,8 @@ class TestSequenceFunctions(unittest.TestCase):
 
         #add simple strategy to npc
         npc = Npc(Farmer())
-        npc.possession.add_real_property(
-            ResourceFactory.create_resource_from_nothing(FieldSquare))
+        field = ResourceFactory.create_resource_from_nothing(FieldSquare) 
+        npc.possession.add_real_property(field)
         city.add_npc(npc)
         money = 200
         npc.possession._set_money(money)
@@ -358,10 +358,10 @@ class TestSequenceFunctions(unittest.TestCase):
         money -= self.meatDefaultPrice
         self.assertEqual(money, npc.possession.money) 
 
-        #farmer now has first crop and ready to sell
+        #farmer now has first crop and sell all but one
         self.AdvanceGame(npc, Schedule.MAX_TIME)
         money -= self.meatDefaultPrice
-        money += self.grainDefaultPrice * len(FieldSquare.HARVEST_OUTPUTS) #sell whole crop, because inputs has been bought already
+        money += self.grainDefaultPrice * len(field.final_outputs()) #sell whole crop, because inputs has been bought already
         self.assertEqual(money, npc.possession.money) 
         self.assertTrue(npc.possession.has_resources([Grain]))
 
@@ -384,7 +384,7 @@ class TestSequenceFunctions(unittest.TestCase):
         #directly test adding a stock action
         npc.schedule = Schedule()
         npc.schedule.add_action(StockAction("Buying and selling", [Meat, Grain, Grain],
-            [Beer, Beer], npc.possession, stock))
+            [Beer, Beer], npc, stock))
 
         #advance and check that right resources were sold and bought
         self.AdvanceNpc(npc, Schedule.MAX_TIME)
