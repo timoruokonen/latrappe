@@ -112,6 +112,9 @@ class TileDisplay:
 
     def adjust_camera(self):
         player = self.city.get_controlled_player()
+        if player == None:
+            return
+            
         camera_speed = abs(player.speed_x + player.speed_y)
         if player.x > (self.camerax + self.SCREEN_WIDTH - self.CAMERA_MARGIN):
             self.camerax += camera_speed
