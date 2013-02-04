@@ -43,7 +43,6 @@ class TileDisplay:
         self.SCREEN_WIDTH = 800
         self.SCREEN_HEIGHT = 600
 
-
     def init_npc_anim(self):
         npcs = self.city.npcs
         #for npc in npcs:

@@ -31,7 +31,7 @@ class LevelEditor:
         self.TILE_WIDTH = 32
         self.TILE_HEIGHT = 32
         self.selectedTile = (0, 0)
-
+        self.filename = "level.l1"
         #self.city = City()
         loader = Loader()
         self.city = loader.load_city('city.txt')
@@ -73,6 +73,10 @@ class LevelEditor:
                         print "Add tile mode"
                         self.editmode = "ADD_TILE"
                         self.choose_tile()
+
+                    if (event.key == K_s):
+                        print "Saving map"
+                        self.save_map()
 
                     if (event.key == K_PAGEUP):
                         #print "Selecting next tile"
@@ -128,6 +132,15 @@ class LevelEditor:
 
         elif self.editmode == "ADD_TILE":
             self.add_tile()
+
+    def save_map(self):
+        f = open(self.filename, 'wb')
+        for map_y, line in enumerate(self.display.map):
+            for map_x, c in enumerate(line):
+                f.write(chr(1))
+
+            f.write(chr(0))
+        f.close()
 
     def choose_tile(self):
         pass
