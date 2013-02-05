@@ -5,6 +5,7 @@ import os, sys
 import pygame
 import math
 import random
+import struct
 import pygame.mouse
 from latrappe import *
 from tiledisplay import *
@@ -30,7 +31,7 @@ class LevelEditor:
         pygame.display.set_caption("La Trappe - Level editor")
         self.TILE_WIDTH = 32
         self.TILE_HEIGHT = 32
-        self.selectedTile = (0, 0)
+        self.selectedTile = 1
         self.filename = "level.l1"
         #self.city = City()
         loader = Loader()
@@ -38,7 +39,7 @@ class LevelEditor:
         self.display = TileDisplay(self.screen, self.city)
         self.cursor = (0, 0)
         self.map = self.display.map
-        print str(self.map)
+        #print str(self.map)
 
         self.editmode = "CURSOR"
         while 1:
@@ -55,16 +56,16 @@ class LevelEditor:
                     if (event.key == K_2):
                         pass
                     if (event.key == K_RIGHT):
-                        pass
+                        self.display.move_camera(192,0)
 
                     if (event.key == K_LEFT):
-                        pass
+                        self.display.move_camera(-192,0)
 
                     if (event.key == K_UP):
-                        pass
+                        self.display.move_camera(0,-192)
 
                     if (event.key == K_DOWN):
-                        pass
+                        self.display.move_camera(0,192)
 
                     if (event.key == K_SPACE):
                         self.do_action()
@@ -80,26 +81,20 @@ class LevelEditor:
 
                     if (event.key == K_PAGEUP):
                         #print "Selecting next tile"
-                        tile = (self.selectedTile[0]+1, self.selectedTile[1])
                         tiles = self.display.MAP_CACHE[self.display.tileset]
-                        print "len: " + str(len(tiles))
-                        if (tile[0] > len(tiles) - 1):
-                            tile = (0, self.selectedTile[1]+1)
-                            if (tile[1] > len(tiles[0]) - 1):
-                                tile = (0, 0)
+                        tile = self.selectedTile + 1
+                        if tile > (len(tiles) - 1):
+                            tile = 0
 
                         self.selectedTile = tile
                         print "Selected tile: " + str(tile)
 
                     if (event.key == K_PAGEDOWN):
                         #print "Selecting next tile"
-                        tile = (self.selectedTile[0]-1, self.selectedTile[1])
                         tiles = self.display.MAP_CACHE[self.display.tileset]
-                        print "len: " + str(len(tiles))
-                        if (tile[0] < 0):
-                            tile = (len(tiles) - 1, self.selectedTile[1]-1)
-                            if (tile[1] < 0):
-                                tile = (0, 0)
+                        tile = self.selectedTile - 1
+                        if tile < 0:
+                            tile = len(tiles) - 1
 
                         self.selectedTile = tile
                         print "Selected tile: " + str(tile)
@@ -121,7 +116,7 @@ class LevelEditor:
 
         # Draw current tile
         tiles = self.display.MAP_CACHE[self.display.tileset]
-        tile_image = tiles[self.selectedTile[0]][self.selectedTile[1]]
+        tile_image = tiles[self.selectedTile]
         self.screen.blit(tile_image, (0, 0))
         pygame.draw.rect(self.screen, CURSOR_COLOR, Rect((0,0), (self.TILE_WIDTH, self.TILE_HEIGHT)), 1)
 
@@ -135,11 +130,19 @@ class LevelEditor:
 
     def save_map(self):
         f = open(self.filename, 'wb')
-        for map_y, line in enumerate(self.display.map):
-            for map_x, c in enumerate(line):
-                f.write(chr(1))
+        print "Writing map width: " + str(self.display.mapwidth) + " height: " + str(self.display.mapheight)
+        width = struct.pack('>h', self.display.mapwidth)
+        height = struct.pack('>h', self.display.mapwidth)
+        f.write(width)
+        f.write(height)
+        for y in xrange(self.display.mapheight):
+            print "Y is " + str(y)
+            for line in self.display.map:
+                tilepacked = struct.pack('B', line[y])
+                print "line[y]: " + str(line[y])
+                f.write(tilepacked)
+            
 
-            f.write(chr(0))
         f.close()
 
     def choose_tile(self):
@@ -148,8 +151,9 @@ class LevelEditor:
     def add_tile(self):
         self.select()
         tilex, tiley = self.get_nearest_tile(self.cursor[0], self.cursor[1])
-        print str(self.map[tiley])
-        self.map[tiley] = self.map[tiley][:tilex] + "w" + self.map[tiley][tilex+1:]
+        self.map[tilex][tiley] = self.selectedTile
+        #print str(self.map[tiley])
+        #self.map[tiley] = self.map[tiley][:tilex] + "w" + self.map[tiley][tilex+1:]
 
     def select(self):
         mousex, mousey = pygame.mouse.get_pos()

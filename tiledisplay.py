@@ -2,6 +2,7 @@
 Tile display module
 '''
 import os, sys
+import struct
 import pygame
 from pygame.locals import *
 from latrappe import *
@@ -28,10 +29,13 @@ class TileDisplay:
         self.MAP_CACHE = {
         'tiles.png': self.loadTileTable('tiles.png', self.MAP_TILE_WIDTH, self.MAP_TILE_HEIGHT),
         }
-        self.loadFile(city.filename)
+        self.mapfile = "level.l1"
+        self.map = []
+        self.loadMap()
+        #self.loadFile(city.filename)
         self.camerax = 0
         self.cameray = 0
-        self.mapsurface = pygame.Surface((self.mapwidth*self.MAP_TILE_WIDTH, self.mapheight*self.MAP_TILE_HEIGHT))
+        
 
         self.stock_items_position = { 0:(0,0), 1:(1,0), 2:(0,1), 3:(1,1), 4:(-1,0), 5:(0,-1), 6:(-1,-1) }
 
@@ -42,6 +46,9 @@ class TileDisplay:
         self.CAMERA_MARGIN = 100
         self.SCREEN_WIDTH = 800
         self.SCREEN_HEIGHT = 600
+
+    def change_map(self, map):
+        self.map = map
 
     def init_npc_anim(self):
         npcs = self.city.npcs
@@ -109,6 +116,10 @@ class TileDisplay:
         # Blit visible part of buffer onto screen
         self.screen.blit(self.mapsurface, (-self.camerax,-self.cameray))
 
+    def move_camera(self, x, y):
+        self.camerax += x
+        self.cameray += y
+
     def adjust_camera(self):
         player = self.city.get_controlled_player()
         if player == None:
@@ -136,11 +147,11 @@ class TileDisplay:
         image_width, image_height = image.get_size()
         tile_table = []
         for tile_x in range(0, image_width/width):
-            line = []
-            tile_table.append(line)
+            #line = []
+            #tile_table.append(line)
             for tile_y in range(0, image_height/height):
                 rect = (tile_x*width, tile_y*height, width, height)
-                line.append(image.subsurface(rect))
+                tile_table.append(image.subsurface(rect))
         return tile_table
 
     def loadFile(self, filename="level.map"):
@@ -158,6 +169,31 @@ class TileDisplay:
         self.mapwidth = len(self.map[0]) 
         self.mapheight = len(self.map)
 
+    def loadMap(self):
+        self.tileset = "tiles.png"
+        print "Loading map file: " + self.mapfile
+        with open(self.mapfile, 'rb') as f:
+            self.mapwidth = struct.unpack('>H', f.read(2))[0]
+            self.mapheight = struct.unpack('>H', f.read(2))[0]
+            print "Map width: " + str(self.mapwidth) + " height: " + str(self.mapheight)
+            self.map = [[0 for x in xrange(self.mapheight)] for x in xrange(self.mapwidth)] 
+            data = f.read()
+            print "Loaded map bytes: " + str(len(data))
+            data = struct.unpack(str(len(data)) + "B", data)
+            #print "Unpacked: " + str(data)
+            y = 0
+            for x, tile in enumerate(data):
+                y = x / self.mapwidth
+
+                if y >= self.mapheight:
+                    break
+
+                print "X,Y ",x,y
+                self.map[x % (self.mapwidth)][y] = tile
+
+        print str(self.map)
+        self.mapsurface = pygame.Surface((800,600))
+
     def draw_city(self):
         self.draw_tiles()
         self.draw_properties()
@@ -165,7 +201,6 @@ class TileDisplay:
         self.draw_stocks()
         self.draw_animals()
         self.draw_players()
-
 
     def draw_stocks(self):
         for stock in self.city.stocks:
@@ -237,6 +272,15 @@ class TileDisplay:
         return self.get_bool(x, y, 'block')
 
     def draw_tiles(self):
+        #print "Drawing screen"
+        tiles = self.MAP_CACHE[self.tileset]
+        for x, line in enumerate(self.map):
+            for y, tile in enumerate(line):
+            #print "Tile: " + str(tile)
+                self.mapsurface.blit(tiles[tile], (x*self.MAP_TILE_WIDTH, y*self.MAP_TILE_HEIGHT))
+
+
+    def draw_tiles_old(self):
         tiles = self.MAP_CACHE[self.tileset]
         wall = self.is_wall
         #print 'Tiles length' + str(len(tiles))
