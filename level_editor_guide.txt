@@ -1,0 +1,8 @@
+Quick guide to La Trappe level editor
+=====================================
+t - Enter tile edit mode
+pageup - Choose next tile
+pagedown - Choose previous tile
+s - Save map
+Arrow keys - Move camera
+Mouse click - Do action (depends on mode)
