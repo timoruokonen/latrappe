@@ -136,13 +136,13 @@ class LevelEditor:
         f.write(width)
         f.write(height)
         for y in xrange(self.display.mapheight):
-            print "Y is " + str(y)
+            #print "Y is " + str(y)
             for line in self.display.map:
                 tilepacked = struct.pack('B', line[y])
-                print "line[y]: " + str(line[y])
+                #print "line[y]: " + str(line[y])
                 f.write(tilepacked)
             
-
+        print "Map " + self.filename + " saved."
         f.close()
 
     def choose_tile(self):
