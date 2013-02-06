@@ -46,7 +46,7 @@ class TestDisplay:
         self.tiledisplay = TileDisplay(screen, self.city, self.map)
         self.statdisplay = Display(screen)
         self.initStatDisplay(self.statdisplay)
-        self.window = self.statdisplay
+        self.window = self.tiledisplay
         #self.camera_movement = (0,0)
         self.time = 0
         self.player = self.city.get_controlled_player()
@@ -108,6 +108,9 @@ class TestDisplay:
 
                     if (event.key == K_DOWN):
                         self.player.move(0, 2)
+
+                if event.type == KEYUP:
+                    self.player.move(0, 0)
 
     def CreateTestVillage(self):
         loader = Loader()
