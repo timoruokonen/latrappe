@@ -16,7 +16,7 @@ if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
 
 class TileDisplay:
-    def __init__(self, screen, city):
+    def __init__(self, screen, city, map):
         #self.width = screen.get_width()
         #self.height = screen.get_height()
         self.screen = screen
@@ -30,20 +30,26 @@ class TileDisplay:
         'tiles.png': self.loadTileTable('tiles.png', self.MAP_TILE_WIDTH, self.MAP_TILE_HEIGHT),
         }
         self.mapfile = "level.l1"
-        self.map = []
-        self.loadMap()
+        self.tileset = "tiles.png"
+        self.map = map
         #self.loadFile(city.filename)
         self.camerax = 0
         self.cameray = 0
+
+        self.draw_foreground = True
+        self.draw_background = True
+        self.draw_objects = True
         
-
         self.stock_items_position = { 0:(0,0), 1:(1,0), 2:(0,1), 3:(1,1), 4:(-1,0), 5:(0,-1), 6:(-1,-1) }
-
+        w = len(map)
+        h = len(map[0])
+        self.mapsurface = pygame.Surface((self.MAP_TILE_WIDTH*w, self.MAP_TILE_HEIGHT*h))
         self.npc_renderer = NpcRenderer(self.mapsurface)
         self.player_renderer = PlayerRenderer(self.mapsurface)
         self.animal_renderer = AnimalRenderer(self.mapsurface)
         # Camera margin from edge of screen (pixels)
         self.CAMERA_MARGIN = 100
+        
         self.SCREEN_WIDTH = 800
         self.SCREEN_HEIGHT = 600
 
@@ -169,38 +175,15 @@ class TileDisplay:
         self.mapwidth = len(self.map[0]) 
         self.mapheight = len(self.map)
 
-    def loadMap(self):
-        self.tileset = "tiles.png"
-        print "Loading map file: " + self.mapfile
-        with open(self.mapfile, 'rb') as f:
-            self.mapwidth = struct.unpack('>H', f.read(2))[0]
-            self.mapheight = struct.unpack('>H', f.read(2))[0]
-            print "Map width: " + str(self.mapwidth) + " height: " + str(self.mapheight)
-            self.map = [[0 for x in xrange(self.mapheight)] for x in xrange(self.mapwidth)] 
-            data = f.read()
-            print "Loaded map bytes: " + str(len(data))
-            data = struct.unpack(str(len(data)) + "B", data)
-            #print "Unpacked: " + str(data)
-            y = 0
-            for x, tile in enumerate(data):
-                y = x / self.mapwidth
-
-                if y >= self.mapheight:
-                    break
-
-                print "X,Y ",x,y
-                self.map[x % (self.mapwidth)][y] = tile
-
-        print str(self.map)
-        self.mapsurface = pygame.Surface((800,600))
 
     def draw_city(self):
         self.draw_tiles()
-        self.draw_properties()
-        self.draw_npcs()
-        self.draw_stocks()
-        self.draw_animals()
-        self.draw_players()
+        if self.draw_objects == True:
+            self.draw_properties()
+            self.draw_npcs()
+            self.draw_stocks()
+            self.draw_animals()
+            self.draw_players()
 
     def draw_stocks(self):
         for stock in self.city.stocks:
@@ -273,11 +256,12 @@ class TileDisplay:
 
     def draw_tiles(self):
         #print "Drawing screen"
-        tiles = self.MAP_CACHE[self.tileset]
-        for x, line in enumerate(self.map):
-            for y, tile in enumerate(line):
-            #print "Tile: " + str(tile)
-                self.mapsurface.blit(tiles[tile], (x*self.MAP_TILE_WIDTH, y*self.MAP_TILE_HEIGHT))
+        if self.draw_background == True:
+            tiles = self.MAP_CACHE[self.tileset]
+            for x, line in enumerate(self.map):
+                for y, tile in enumerate(line):
+                #print "Tile: " + str(tile)
+                    self.mapsurface.blit(tiles[tile], (x*self.MAP_TILE_WIDTH, y*self.MAP_TILE_HEIGHT))
 
 
     def draw_tiles_old(self):

@@ -7,6 +7,7 @@ import math
 import random
 import struct
 import pygame.mouse
+from maploader import MapLoader
 from latrappe import *
 from tiledisplay import *
 from pygame.locals import *
@@ -32,13 +33,14 @@ class LevelEditor:
         self.TILE_WIDTH = 32
         self.TILE_HEIGHT = 32
         self.selectedTile = 1
-        self.filename = "level.l1"
+        self.filename = "level"
         #self.city = City()
+        self.maploader = MapLoader()
+        self.map = self.maploader.load_map("level")
         loader = Loader()
         self.city = loader.load_city('city.txt')
-        self.display = TileDisplay(self.screen, self.city)
+        self.display = TileDisplay(self.screen, self.city, self.map)
         self.cursor = (0, 0)
-        self.map = self.display.map
         #print str(self.map)
 
         self.editmode = "CURSOR"
@@ -52,9 +54,12 @@ class LevelEditor:
                         pygame.quit()
                         sys.exit()
                     if (event.key == K_1):
-                        pass
+                        self.display.draw_background = not self.display.draw_background
                     if (event.key == K_2):
-                        pass
+                        self.display.draw_foreground = not self.display.draw_foreground
+                    if (event.key == K_3):
+                        self.display.draw_objects = not self.display.draw_objects
+
                     if (event.key == K_RIGHT):
                         self.display.move_camera(192,0)
 
@@ -73,7 +78,11 @@ class LevelEditor:
                     if (event.key == K_t):
                         print "Add tile mode"
                         self.editmode = "ADD_TILE"
-                        self.choose_tile()
+                        #self.choose_tile()
+
+                    if (event.key == K_f):
+                        print "Add foreground mode"
+                        self.editmode = "ADD_FOREGROUND"
 
                     if (event.key == K_s):
                         print "Saving map"
@@ -110,6 +119,11 @@ class LevelEditor:
             self.draw_overlays()
             pygame.display.update()
 
+    def save_map(self):
+        w = len(self.map)
+        h = len(self.map[0])
+        self.maploader.save_map(self.map, self.filename, w, h)
+
     def draw_overlays(self):
         # Draw cursor
         pygame.draw.rect(self.screen, CURSOR_COLOR, Rect(self.cursor, (self.TILE_WIDTH, self.TILE_HEIGHT)), 1)
@@ -128,29 +142,18 @@ class LevelEditor:
         elif self.editmode == "ADD_TILE":
             self.add_tile()
 
-    def save_map(self):
-        f = open(self.filename, 'wb')
-        print "Writing map width: " + str(self.display.mapwidth) + " height: " + str(self.display.mapheight)
-        width = struct.pack('>h', self.display.mapwidth)
-        height = struct.pack('>h', self.display.mapwidth)
-        f.write(width)
-        f.write(height)
-        for y in xrange(self.display.mapheight):
-            #print "Y is " + str(y)
-            for line in self.display.map:
-                tilepacked = struct.pack('B', line[y])
-                #print "line[y]: " + str(line[y])
-                f.write(tilepacked)
-            
-        print "Map " + self.filename + " saved."
-        f.close()
+
 
     def choose_tile(self):
         pass
 
     def add_tile(self):
         self.select()
-        tilex, tiley = self.get_nearest_tile(self.cursor[0], self.cursor[1])
+        tilex, tiley = self.get_nearest_tile(self.cursor[0] + self.display.camerax, self.cursor[1] + self.display.cameray)
+        if (tilex > len(self.map)) or (tiley > len(self.map[0])):
+            print "Cursor out of map bounds!"
+            return
+
         self.map[tilex][tiley] = self.selectedTile
         #print str(self.map[tiley])
         #self.map[tiley] = self.map[tiley][:tilex] + "w" + self.map[tiley][tilex+1:]

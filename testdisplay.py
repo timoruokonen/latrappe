@@ -7,6 +7,7 @@ import math
 import random
 from latrappe import *
 from tiledisplay import *
+from maploader import MapLoader
 from pygame.locals import *
 from display import *
 from latrappe.player import Player
@@ -19,7 +20,11 @@ SCREEN_HEIGHT = 600
 class TestDisplay:
     def run(self):
         pygame.init()
-        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        flags = 0
+        if len(sys.argv) > 1:
+            if sys.argv[1] == 'f':
+                flags = pygame.FULLSCREEN
+        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), flags)
         icon = pygame.image.load("icon.png").convert()
         pygame.display.set_icon(icon)
         pygame.display.set_caption("La Trappe")
@@ -36,7 +41,9 @@ class TestDisplay:
 
         self.CreateTestVillage()
         self.randomizeNpcLocations()
-        self.tiledisplay = TileDisplay(screen, self.city)
+        maploader = MapLoader()
+        self.map = maploader.load_map("level")
+        self.tiledisplay = TileDisplay(screen, self.city, self.map)
         self.statdisplay = Display(screen)
         self.initStatDisplay(self.statdisplay)
         self.window = self.statdisplay
@@ -80,7 +87,6 @@ class TestDisplay:
                     if (event.key == K_ESCAPE):
                         pygame.quit()
                         sys.exit()
-                        window.reset()
                     if (event.key == K_1):
                         print 'Switching to tile display.'
                         self.window = self.tiledisplay

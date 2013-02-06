@@ -1,3 +1,4 @@
+=====================================
 Quick guide to La Trappe level editor
 =====================================
 t - Enter tile edit mode
@@ -6,3 +7,14 @@ pagedown - Choose previous tile
 s - Save map
 Arrow keys - Move camera
 Mouse click - Do action (depends on mode)
+
+
+=================
+Map binary format
+=================
+First two bytes indicate map WIDTH in tiles (big endian)
+Second two bytes indicate map HEIGHT in tiles (big endian)
+Following bytes are tile data, one byte per tile
+
+|00 FF|00 FF |04 04 04 04 03 04 04 04 03 01 01 06 06 ...
+|width|height|map data 
