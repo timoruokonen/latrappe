@@ -1,4 +1,5 @@
 import os, sys, struct
+from tmxloader import *
 
 class MapLoader:
 
@@ -20,26 +21,15 @@ class MapLoader:
         f.close()
 
 
-    def load_map(self, filename):
-        print "Loading map file: " + filename + ".l1"
-        with open(filename + ".l1", 'rb') as f:
-            self.mapwidth = struct.unpack('>H', f.read(2))[0]
-            self.mapheight = struct.unpack('>H', f.read(2))[0]
-            print "Map width: " + str(self.mapwidth) + " height: " + str(self.mapheight)
-            map = [[0 for x in xrange(self.mapheight)] for x in xrange(self.mapwidth)] 
-            data = f.read()
-            print "Loaded map bytes: " + str(len(data))
-            data = struct.unpack(str(len(data)) + "B", data)
-            #print "Unpacked: " + str(data)
-            y = 0
-            for x, tile in enumerate(data):
-                y = x / self.mapwidth
+    def init_map(self, filename):
+        print "Loading map file: " + filename
+        self.world_map = tmxreader.TileMapParser().parse_decode(filename)
+        resources = helperspygame.ResourceLoaderPygame()
+        resources.load(self.world_map)
+        self.sprite_layers = helperspygame.get_layers_from_map(resources)
 
-                if y >= self.mapheight:
-                    break
-
-                print "X,Y ",x,y
-                map[x % (self.mapwidth)][y] = tile
-
-        print str(map)
-        return map
+    def get_map(self):
+        return self.world_map
+        
+    def get_sprite_layers(self):
+        return self.sprite_layers

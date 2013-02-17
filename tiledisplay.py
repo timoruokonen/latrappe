@@ -4,6 +4,7 @@ Tile display module
 import os, sys
 import struct
 import pygame
+from tmxloader import *
 from pygame.locals import *
 from latrappe import *
 import ConfigParser
@@ -16,9 +17,20 @@ if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
 
 class TileDisplay:
-    def __init__(self, screen, city, map):
-        #self.width = screen.get_width()
-        #self.height = screen.get_height()
+    def __init__(self, screen, city, map, sprite_layers):
+        # renderer
+        self.SCREEN_WIDTH = 800
+        self.SCREEN_HEIGHT = 600
+
+        self.renderer = helperspygame.RendererPygame()
+
+        # cam_offset is for scrolling
+        self.camerax = 400
+        self.cameray = 300
+
+        # set initial cam position and size
+        self.renderer.set_camera_position_and_size(self.camerax, self.cameray, self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
+
         self.screen = screen
         self.font = pygame.font.Font(None, 17)
         self.titleFont = pygame.font.Font(None, 40)
@@ -31,55 +43,52 @@ class TileDisplay:
         }
         self.mapfile = "level.l1"
         self.tileset = "tiles.png"
+        self.sprite_layers = sprite_layers
         self.map = map
         #self.loadFile(city.filename)
-        self.camerax = 0
-        self.cameray = 0
-
-        self.draw_foreground = True
-        self.draw_background = True
-        self.draw_objects = True
         
         self.stock_items_position = { 0:(0,0), 1:(1,0), 2:(0,1), 3:(1,1), 4:(-1,0), 5:(0,-1), 6:(-1,-1) }
-        w = len(map)
-        h = len(map[0])
-        self.mapsurface = pygame.Surface((self.MAP_TILE_WIDTH*w, self.MAP_TILE_HEIGHT*h))
-        self.npc_renderer = NpcRenderer(self.mapsurface)
-        self.player_renderer = PlayerRenderer(self.mapsurface)
-        self.animal_renderer = AnimalRenderer(self.mapsurface)
+        #w = len(map)
+        #h = len(map[0])
+        #self.mapsurface = pygame.Surface((self.MAP_TILE_WIDTH*w, self.MAP_TILE_HEIGHT*h))
+        self.npc_renderer = NpcRenderer()
+        #self.player_renderer = PlayerRenderer(self.mapsurface)
+        #self.animal_renderer = AnimalRenderer(self.mapsurface)
         # Camera margin from edge of screen (pixels)
         self.CAMERA_MARGIN = 100
+        self.init_npcs()
         
-        self.SCREEN_WIDTH = 800
-        self.SCREEN_HEIGHT = 600
 
     def change_map(self, map):
-        self.map = map
-
-    def init_npc_anim(self):
-        npcs = self.city.npcs
-        #for npc in npcs:
-        #   self.npc_anim.append((npc))     
+        self.map = map 
 
     def advance(self, time):
-        self.npc_renderer.update(time)
+        #self.npc_renderer.update(time)
+        pass
+    
+    def init_npcs(self):
+        for npc in self.city.npcs:
+            print "Adding npc " + str(npc)
+            anim = self.npc_renderer.get_npc_anim(npc)
+            self.sprite_layers[0].add_sprite(anim)
 
     def draw_npcs(self):
-        for npc in self.city.npcs:
-            self.npc_renderer.draw_npc(npc)
-            # Npc image
+        pass
 
     def draw_players(self):
-        for player in self.city.players:
-            self.player_renderer.draw(player)
+        pass
+        #for player in self.city.players:
+        #    self.player_renderer.draw(player)
 
     def draw_animals(self):
-        for animal in self.city.animals:
-            self.animal_renderer.draw(animal)
+        pass
+        #for animal in self.city.animals:
+        #    self.animal_renderer.draw(animal)
 
     def draw_properties(self):
-        for property in self.city.real_properties:
-            self.draw_property_item(property)
+        pass
+        #for property in self.city.real_properties:
+        #    self.draw_property_item(property)
 
     def draw_property_item(self, property):
         if type(property) == FieldSquare:
@@ -115,12 +124,13 @@ class TileDisplay:
 
     def draw(self):
         self.adjust_camera()
+        self.renderer.set_camera_position(self.camerax, self.cameray)
         # Draw all the stuff into one big surface buffer
         self.draw_city()
         #self.drawNpcs()
 
         # Blit visible part of buffer onto screen
-        self.screen.blit(self.mapsurface, (-self.camerax,-self.cameray))
+        #self.screen.blit(self.mapsurface, (-self.camerax,-self.cameray))
 
     def move_camera(self, x, y):
         self.camerax += x
@@ -178,14 +188,14 @@ class TileDisplay:
 
     def draw_city(self):
         self.draw_tiles()
-        if self.draw_objects == True:
-            self.draw_properties()
-            self.draw_npcs()
-            self.draw_stocks()
-            self.draw_animals()
-            self.draw_players()
+        #self.draw_properties()
+        #self.draw_npcs()
+        #self.draw_stocks()
+        #self.draw_animals()
+        #self.draw_players()
 
     def draw_stocks(self):
+        return 
         for stock in self.city.stocks:
             possession = stock.possession
             resources = possession.get_resource_types()
@@ -255,50 +265,14 @@ class TileDisplay:
         return self.get_bool(x, y, 'block')
 
     def draw_tiles(self):
-        #print "Drawing screen"
-        if self.draw_background == True:
-            tiles = self.MAP_CACHE[self.tileset]
-            for x, line in enumerate(self.map):
-                for y, tile in enumerate(line):
-                #print "Tile: " + str(tile)
-                    self.mapsurface.blit(tiles[tile], (x*self.MAP_TILE_WIDTH, y*self.MAP_TILE_HEIGHT))
-
-
-    def draw_tiles_old(self):
-        tiles = self.MAP_CACHE[self.tileset]
-        wall = self.is_wall
-        #print 'Tiles length' + str(len(tiles))
-        for map_y, line in enumerate(self.map):
-            for map_x, c in enumerate(line):
-                try:
-                    tile = self.key[c]['tile'].split(',')
-                    tile = int(tile[0]), int(tile[1])
-                    #print str(tile)
-                    if wall(map_x, map_y):
-                        #print "Wall!"
-                        if not wall(map_x, map_y-1):
-                            if not wall(map_x-1, map_y):
-                                tile = int(tile[0])+1, int(tile[1])
-                            elif not wall(map_x+1, map_y):
-                                tile = int(tile[0])+2, int(tile[1])
-                        elif not wall(map_x, map_y+1):
-                            if not wall(map_x-1, map_y):
-                                tile = int(tile[0])+3, int(tile[1])
-                            elif not wall(map_x+1, map_y):
-                                tile = int(tile[0])+4, int(tile[1])
-                    else:
-                        #print "Not a Wall!"
-                        # Normal tile
-                        tile = int(tile[0]), int(tile[1])
-                except (ValueError, KeyError):
-                    # Default to ground tile
-                    print 'Tile key error, using default tile'
-                    tile = 0, 3
-
-                #print 'tile: ' + str(tile[0]) + ',' + str(tile[1])
-                tile_image = tiles[tile[0]][tile[1]]
-                self.mapsurface.blit(tile_image, (map_x*self.MAP_TILE_WIDTH, map_y*self.MAP_TILE_HEIGHT))
-
+        # render the map
+        for sprite_layer in self.sprite_layers:
+            if sprite_layer.is_object_group:
+                # we dont draw the object group layers
+                # you should filter them out if not needed
+                continue
+            else:
+                self.renderer.render_layer(self.screen, sprite_layer)
 
 
         

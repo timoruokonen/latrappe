@@ -1015,11 +1015,15 @@ class RendererPygame(object):
                 y = ypos + 1
                 while spr_idx < len_sprites and sprite.get_draw_cond() <= \
                                                                     y * tile_h:
-                    surf_blit(sprite.image, \
-                                sprite.rect.move(-cam_world_pos_x, \
-                                                 -cam_world_pos_y - sprite.z),\
-                                sprite.source_rect, \
-                                sprite.flags)
+                    #surf_blit(sprite.image, \
+                    #            sprite.rect.move(-cam_world_pos_x, \
+                    #                             -cam_world_pos_y - sprite.z),\
+                    #            sprite.source_rect, \
+                    #            sprite.flags)
+                    
+                    surf_blit(sprite.image, (sprite.get_x() - cam_world_pos_x, sprite.get_y() - cam_world_pos_y), \
+                              sprite.source_rect, sprite.flags)
+                    
                     spr_idx += 1
                     if spr_idx < len_sprites:
                         sprite = sprites[spr_idx]

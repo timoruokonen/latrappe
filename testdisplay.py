@@ -41,9 +41,12 @@ class TestDisplay:
 
         self.CreateTestVillage()
         self.randomizeNpcLocations()
+
         maploader = MapLoader()
-        self.map = maploader.load_map("level")
-        self.tiledisplay = TileDisplay(screen, self.city, self.map)
+        maploader.init_map("trappemap.tmx")
+        world_map = maploader.get_map()
+        sprite_layers = maploader.get_sprite_layers()
+        self.tiledisplay = TileDisplay(screen, self.city, world_map, sprite_layers)
         self.statdisplay = Display(screen)
         self.initStatDisplay(self.statdisplay)
         self.window = self.tiledisplay
@@ -98,16 +101,18 @@ class TestDisplay:
                         # Show statistics display
                         pass
                     if (event.key == K_RIGHT):
-                        self.player.move(2, 0)
+                        #self.player.move(2, 0)
+                        self.tiledisplay.move_camera(16, 0)
 
                     if (event.key == K_LEFT):
-                        self.player.move(-2, 0)
+                        self.tiledisplay.move_camera(-16, 0)
+                        #self.player.move(-2, 0)
 
                     if (event.key == K_UP):
-                        self.player.move(0, -2)
+                        self.tiledisplay.move_camera(0, -16)
 
                     if (event.key == K_DOWN):
-                        self.player.move(0, 2)
+                        self.tiledisplay.move_camera(0, 16)
 
                 if event.type == KEYUP:
                     self.player.move(0, 0)
