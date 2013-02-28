@@ -1,6 +1,10 @@
 from latrappe import *
 import unittest 
 
+#Instructions to execute only one tests:
+#python -m unittest tests.TestSequenceFunctions.test_simple_npc_strategy_bartender
+
+
 class TestSequenceFunctions(unittest.TestCase):
     advanceInterval = 1
 
@@ -365,6 +369,38 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(money, npc.possession.money) 
         self.assertTrue(npc.possession.has_resources([Grain]))
 
+    def test_simple_npc_strategy_bartender(self):
+        #setup city, stock and add some food there
+        city = City()
+        stock = StockMarket()
+        city.add_stock_market(stock)
+        self.SetDefaultPrices(stock)
+        for i in range(10):
+            stock.possession.add_resource(Meat())
+            stock.possession.add_resource(Beer())
+
+        #add simple strategy to npc
+        npc = Npc(Bartender())
+        city.add_npc(npc)
+        money = 500
+        npc.possession._set_money(money)
+        npc.strategy = NpcStrategySimpleGreedy(npc)
+
+        self.AdvanceGame(npc, Schedule.MAX_TIME * 1) #bartender should buy beer so that stock is full
+        money -= self.beerDefaultPrice * Bartender.STOCK_SIZE + self.meatDefaultPrice
+        self.assertEqual(money, npc.possession.money) 
+        self.assertEqual(Bartender.STOCK_SIZE, npc.possession.get_resource_count(Beer))
+
+        #somebody buys a beer from bartender
+        customer = Npc(Farmer)
+        npc.possession.give_resource(Beer, customer.possession)
+
+        self.AdvanceGame(npc, Schedule.MAX_TIME * 1) #bartender should refill stock
+        money -= self.beerDefaultPrice * 1 + self.meatDefaultPrice
+        self.assertEqual(money, npc.possession.money) 
+        self.assertEqual(Bartender.STOCK_SIZE, npc.possession.get_resource_count(Beer))
+
+
     def test_stock_action(self):
         #setup city, stock and add some food there
         city = City()
@@ -455,6 +491,31 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(1, npc2.possession.get_resource_count(Beer))
         self.assertEqual(1, len(npc.possession.get_resource_types()))
         self.assertTrue(Grain in npc.possession.get_resource_types())
+
+    def test_possession_get_missing(self):
+        npc = Npc(Brewer())
+        missing = npc.possession.get_missing_resources([Beer])
+        self.assertEqual(1, len(missing))
+        self.assertEqual(Beer, missing[0])
+
+        npc.possession.add_resource(Beer())
+        missing = npc.possession.get_missing_resources([Beer])
+        self.assertEqual(0, len(missing))
+
+        missing = npc.possession.get_missing_resources([Beer, Grain])
+        self.assertEqual(1, len(missing))
+        self.assertEqual(Grain, missing[0])
+
+        npc.possession.add_resource(Meat())
+        npc.possession.add_resource(Beer())
+        missing = npc.possession.get_missing_resources([Beer, Grain])
+        self.assertEqual(1, len(missing))
+        self.assertEqual(Grain, missing[0])
+
+        npc.possession.add_resource(Grain())
+        missing = npc.possession.get_missing_resources([Beer])
+        self.assertEqual(0, len(missing))
+
 
     def test_resource_heap(self):
         beers = ResourceHeap(Beer)

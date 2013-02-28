@@ -74,6 +74,19 @@ class Possession(object):
             handled_res_types.append(res_type)
         return True
 
+    def get_missing_resources(self, resources):
+        missing = []
+        handled_res_types = []
+        for res_type in resources:
+            if res_type in handled_res_types:
+                continue
+            heap = self._get_resource_heap(res_type) 
+            for i in range(max(0, resources.count(res_type) - heap.count)): 
+                missing.append(res_type)
+            handled_res_types.append(res_type)
+        return missing
+
+
     def get_foods(self):
         foods = []
         for heap in self._resource_heaps.values():

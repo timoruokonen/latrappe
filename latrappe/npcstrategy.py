@@ -22,9 +22,9 @@ class NpcStrategySimpleGreedy(object):
                         
         #try to get ingredients for occupation
         required = self.npc.occupation.get_required_resources()
-        if not self.npc.possession.has_resources(required):
-            for resourceType in required:
-                to_buy.append(resourceType)
+        missing = self.npc.possession.get_missing_resources(required)
+        for resourceType in missing:
+            to_buy.append(resourceType)
                    
         #sell stuff
         produced = self.npc.occupation.get_resources_to_be_produced()
@@ -81,9 +81,9 @@ class NpcStrategySimpleGreedy(object):
                                                     
     def _add_stock_action(self, to_buy, to_sell):
         if len(to_buy) > 0:
-            print "Greedy strategy (" + self.to_string() + "): Adding to buy: " + str(to_buy)
+            print "Greedy strategy (" + self.to_string() + "): Adding to buy: " + self._resource_list_to_str(to_buy)
         if len(to_sell) > 0:
-            print "Greedy strategy (" + self.to_string() + "): Adding to sell: " + str(to_sell)
+            print "Greedy strategy (" + self.to_string() + "): Adding to sell: " + self._resource_list_to_str(to_sell)
         if len(to_sell) == 0 and len(to_buy) == 0:
             return
     
@@ -93,4 +93,10 @@ class NpcStrategySimpleGreedy(object):
             self.npc.schedule.add_action(StockAction("Stock", to_buy, to_sell, self.npc, stocks[0]))
             return
         print "No stock market available!"
+
+    def _resource_list_to_str(self, resources):
+        result = ""
+        for res in resources:
+            result += res.__name__ + ", "
+        return result
 

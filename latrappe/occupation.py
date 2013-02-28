@@ -128,3 +128,30 @@ class Brewer(Occupation):
 
         return kettle.final_outputs()
 
+class Bartender(Occupation):
+    DURATION = 12 * 60
+    STOCK_SIZE = 5
+
+    def __init__(self):
+        Occupation.__init__(self)
+
+    def __str__(self):
+        return "Bartender"
+
+    def add_default_schedule(self, npc, possession):
+        npc.schedule.add_action(Action(npc, "Serving customers...Waiting for ", Bartender.DURATION))
+
+    def get_required_resources(self):
+        required = []
+        for i in range(Bartender.STOCK_SIZE):
+            required.append(Beer)
+        '''
+        beer_count = self.npc.possession.get_resource_count(Beer)
+        print "beer count:", beer_count
+        required = []
+        for i in range(max(0, Bartender.STOCK_SIZE - beer_count)):
+            required.append(Beer)
+        print "req count: ", len(required)
+        '''
+        return required
+
